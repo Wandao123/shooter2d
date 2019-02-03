@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
+#include <cmath>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -15,6 +16,10 @@ const int ScreenWidth = 640;
 const int ScreenHeight = 480;
 const int ScreenFPS = 60;
 const int ScreenTicksPerFrame = 1000 / ScreenFPS;
+
+const int PlayerVelocity = 5;
+const int PlayerImgWidth = 32;
+const int PlayerImgHeight = 48;
 
 int main(int argc, char* args[])
 {
@@ -58,11 +63,11 @@ int main(int argc, char* args[])
 	}
 
 	SDL_Rect clips[5] = {
-		{ 0, 0, 32, 48 },
-		{32, 0, 32, 48},
-		{64, 0, 32, 48},
-		{96, 0, 32, 48},
-		{128, 0, 32, 48}
+		{ 0 * PlayerImgWidth, 0, PlayerImgWidth, PlayerImgHeight },
+		{ 1 * PlayerImgWidth, 0, PlayerImgWidth, PlayerImgHeight },
+		{ 2 * PlayerImgWidth, 0, PlayerImgWidth, PlayerImgHeight },
+		{ 3 * PlayerImgWidth, 0, PlayerImgWidth, PlayerImgHeight },
+		{ 4 * PlayerImgWidth, 0, PlayerImgWidth, PlayerImgHeight }
 	};
 	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
 	// イベント処理用
@@ -72,17 +77,30 @@ int main(int argc, char* args[])
 	unsigned countedFrames = 0;
 	Uint32 startTicksFPS = SDL_GetTicks(), startTicksCap;
 	std::stringstream timeText;
+	// 操作用
+	int playerPosX = (ScreenWidth - PlayerImgWidth) / 2, playerPosY = ScreenHeight - std::floor(PlayerImgHeight * 1.5);  // ここで言う位置とは自機画像の左上端のこと。
+	int playerVelX = 0, playerVelY = 0;
+	std::stringstream debugText;  // デバッグ用。適当なものを出力する。
+	SDL_Texture *debugTexture;
 	while (!quit) {
 		startTicksCap = SDL_GetTicks();
 
 		while (SDL_PollEvent(&e) != 0) {
 			if (e.type == SDL_QUIT) {
 				quit = true;
-			} else if (e.type == SDL_KEYDOWN) {
+			} else if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
 				switch (e.key.keysym.sym) {
-				case SDLK_q:
-					quit = true;
-					break;
+				case SDLK_UP: playerVelY -= PlayerVelocity; break;
+				case SDLK_DOWN: playerVelY += PlayerVelocity; break;
+				case SDLK_LEFT: playerVelX -= PlayerVelocity; break;
+				case SDLK_RIGHT: playerVelX += PlayerVelocity; break;
+				}
+			} else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
+				switch (e.key.keysym.sym) {
+				case SDLK_UP: playerVelY += PlayerVelocity; break;
+				case SDLK_DOWN: playerVelY -= PlayerVelocity; break;
+				case SDLK_LEFT: playerVelX += PlayerVelocity; break;
+				case SDLK_RIGHT: playerVelX -= PlayerVelocity; break;
 				}
 			}
 		}
@@ -104,12 +122,35 @@ int main(int argc, char* args[])
 		}
 		SDL_Rect renderQuadText = { 0, ScreenHeight - textHeight, textWidth, textHeight };
 
+		// 自機の移動
+		playerPosX += playerVelX;
+		if ((playerPosX < 0) || (playerPosX + PlayerImgWidth > ScreenWidth))
+			playerPosX -= playerVelX;
+		playerPosY += playerVelY;
+		if ((playerPosY < 0) || (playerPosY + PlayerImgHeight > ScreenHeight))
+			playerPosY -= playerVelY;
+
+		// デバッグメッセージ
+		debugText.str("");
+		debugText << "Player's position (" << playerPosX << ", " << playerPosY << "), ";
+		debugText << "Player's velocity (" << playerVelX << ", " << playerVelY << ")";
+		{
+			SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
+			SDL_Surface *textSurface = TTF_RenderText_Solid(font, debugText.str().c_str(), textColor);
+			debugTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+			textWidth = textSurface->w;
+			textHeight = textSurface->h;
+			SDL_FreeSurface(textSurface);
+		}
+		SDL_Rect renderQuadDebug = { 0, 0, textWidth, textHeight };
+
 		// 実際の描画
 		SDL_RenderClear(renderer);
 		SDL_Rect *currentClip = &clips[(countedFrames / 6) % 5];
-		SDL_Rect renderQuadClip = { (ScreenWidth - 32) / 2, (ScreenHeight - 48) / 2, 32, 48 };
+		SDL_Rect renderQuadClip = { playerPosX, playerPosY, currentClip->w, currentClip->h };
 		SDL_RenderCopy(renderer, texture, currentClip, &renderQuadClip);
 		SDL_RenderCopy(renderer, timerTexture, nullptr, &renderQuadText);
+		SDL_RenderCopy(renderer, debugTexture, nullptr, &renderQuadDebug);
 		SDL_RenderPresent(renderer);
 
 		countedFrames = ++countedFrames;  // ステージを切り換えるときなどに0に戻す。
