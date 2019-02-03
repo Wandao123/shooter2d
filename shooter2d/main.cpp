@@ -132,9 +132,7 @@ int main(int argc, char* args[])
 			playerVelY = +playerVelocity;
 
 		// FPS‚ðŽZoE•\Ž¦
-		float averageOfFPS = countedFrames / ((SDL_GetTicks() - startTicksFPS) / 1000.0f);
-		if (averageOfFPS > 2000000)
-			averageOfFPS = 0;
+		float averageOfFPS = std::fmod(countedFrames / ((SDL_GetTicks() - startTicksFPS) / 1000.0f), 2000000);
 		timeText.str("");
 		timeText << "Average frames Per Second " << std::fixed << std::setprecision(3) << averageOfFPS;
 		timeText << ", #Counted frames " << countedFrames;
