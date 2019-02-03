@@ -17,7 +17,8 @@ const int ScreenHeight = 480;
 const int ScreenFPS = 60;
 const int ScreenTicksPerFrame = 1000 / ScreenFPS;
 
-const int PlayerVelocity = 5;
+const int PlayerHighVelocity = 5;
+const int PlayerLowVelocity = 3;
 const int PlayerImgWidth = 32;
 const int PlayerImgHeight = 48;
 
@@ -80,34 +81,60 @@ int main(int argc, char* args[])
 	// 操作用
 	int playerPosX = (ScreenWidth - PlayerImgWidth) / 2, playerPosY = ScreenHeight - std::floor(PlayerImgHeight * 1.5);  // ここで言う位置とは自機画像の左上端のこと。
 	int playerVelX = 0, playerVelY = 0;
+	int playerVelocity = PlayerHighVelocity;
 	std::stringstream debugText;  // デバッグ用。適当なものを出力する。
 	SDL_Texture *debugTexture;
 	while (!quit) {
 		startTicksCap = SDL_GetTicks();
 
 		while (SDL_PollEvent(&e) != 0) {
-			if (e.type == SDL_QUIT) {
+			switch (e.type) {
+			case SDL_QUIT:
+				quit = true;
+				break;
+			case SDL_KEYDOWN:
+				if (e.key.keysym.sym == SDLK_ESCAPE)
+					quit = true;
+				break;
+			}
+			/*if (e.type == SDL_QUIT) {
 				quit = true;
 			} else if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
 				switch (e.key.keysym.sym) {
-				case SDLK_UP: playerVelY -= PlayerVelocity; break;
-				case SDLK_DOWN: playerVelY += PlayerVelocity; break;
-				case SDLK_LEFT: playerVelX -= PlayerVelocity; break;
-				case SDLK_RIGHT: playerVelX += PlayerVelocity; break;
+				case SDLK_UP: playerVelY -= playerVelocity; break;
+				case SDLK_DOWN: playerVelY += playerVelocity; break;
+				case SDLK_LEFT: playerVelX -= playerVelocity; break;
+				case SDLK_RIGHT: playerVelX += playerVelocity; break;
 				}
 			} else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
 				switch (e.key.keysym.sym) {
-				case SDLK_UP: playerVelY += PlayerVelocity; break;
-				case SDLK_DOWN: playerVelY -= PlayerVelocity; break;
-				case SDLK_LEFT: playerVelX += PlayerVelocity; break;
-				case SDLK_RIGHT: playerVelX -= PlayerVelocity; break;
+				case SDLK_UP: playerVelY += playerVelocity; break;
+				case SDLK_DOWN: playerVelY -= playerVelocity; break;
+				case SDLK_LEFT: playerVelX += playerVelocity; break;
+				case SDLK_RIGHT: playerVelX -= playerVelocity; break;
 				}
-			}
+			}*/
 		}
+		const SDL_Keymod modStates = SDL_GetModState();
+		if (modStates & KMOD_SHIFT)
+			playerVelocity = PlayerLowVelocity;
+		else
+			playerVelocity = PlayerHighVelocity;
+		playerVelX = playerVelY = 0;
+		const Uint8 *currentKeyStates = SDL_GetKeyboardState(nullptr);
+		if (currentKeyStates[SDL_SCANCODE_LEFT])
+			playerVelX = -playerVelocity;
+		if (currentKeyStates[SDL_SCANCODE_RIGHT])
+			playerVelX = +playerVelocity;
+		if (currentKeyStates[SDL_SCANCODE_UP])
+			playerVelY = -playerVelocity;
+		if (currentKeyStates[SDL_SCANCODE_DOWN])
+			playerVelY = +playerVelocity;
 
 		// FPSを算出・表示
 		float averageOfFPS = countedFrames / ((SDL_GetTicks() - startTicksFPS) / 1000.0f);
-		averageOfFPS = (averageOfFPS > 2000000) ? 0 : averageOfFPS;
+		if (averageOfFPS > 2000000)
+			averageOfFPS = 0;
 		timeText.str("");
 		timeText << "Average frames Per Second " << std::fixed << std::setprecision(3) << averageOfFPS;
 		timeText << ", #Counted frames " << countedFrames;
@@ -133,7 +160,9 @@ int main(int argc, char* args[])
 		// デバッグメッセージ
 		debugText.str("");
 		debugText << "Player's position (" << playerPosX << ", " << playerPosY << "), ";
-		debugText << "Player's velocity (" << playerVelX << ", " << playerVelY << ")";
+		debugText << "Player's velocity (" << playerVelX << ", " << playerVelY << "); ";
+		debugText << "Is pressed shift keys " << (modStates & KMOD_SHIFT) << ", ";
+		debugText << "Velocity " << playerVelocity;
 		{
 			SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
 			SDL_Surface *textSurface = TTF_RenderText_Solid(font, debugText.str().c_str(), textColor);
