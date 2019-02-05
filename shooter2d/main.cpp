@@ -17,10 +17,57 @@ const int ScreenHeight = 480;
 const int ScreenFPS = 60;
 const int ScreenTicksPerFrame = 1000 / ScreenFPS;
 
-const float PlayerHighVelocity = 4.0f;  // 単位：ドット毎フレーム
-const float PlayerLowVelocity = 2.0f;
+const float PlayerHighSpeed = 4.0f;  // 単位：ドット毎フレーム
+const float PlayerLowSpeed = 2.0f;
 const int PlayerImgWidth = 32;
 const int PlayerImgHeight = 48;
+
+namespace Shooter {
+	struct Vector2
+	{
+		float x, y;
+
+		Vector2(float x, float y) : x(x), y(y) {}
+
+		Vector2 &operator=(const Vector2 &vector) = default;
+
+		//Vector2 Add(Vector2 vector)
+		Vector2 operator+(const Vector2 &vector) const
+		{
+			return { this->x + vector.x, this->y + vector.y };
+		}
+
+		//Vector2 Subtract(Vector2 vector)
+		Vector2 operator-(const Vector2 &vector) const
+		{
+			return { this->x - vector.x, this->y + vector.y };
+		}
+
+		//Vector2 ScalarMultiply(float scalar)
+		Vector2 operator*(const float &scalar) const
+		{
+			return { this->x * scalar, this->y * scalar };
+		}
+
+		Vector2 &operator+=(const Vector2 &vector)
+		{
+			x += vector.x;
+			y += vector.y;
+			return *this;
+		}
+
+		float Magnitude()
+		{
+			return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
+		}
+
+		Vector2 Normalize()
+		{
+			//return vector.ScalarMultiply(1.0f / vector.Magnitude());
+			return { x / Magnitude(), y / Magnitude() };
+		}
+	};
+}
 
 int main(int argc, char* args[])
 {
@@ -80,8 +127,9 @@ int main(int argc, char* args[])
 	float deltaTime;  // HACK: 前のフレームからの経過時間（秒）。将来的に下のframeTicksなどと統合したい。
 	std::stringstream timeText;
 	// 操作用
-	float playerPosX = (ScreenWidth - PlayerImgWidth) / 2, playerPosY = ScreenHeight - PlayerImgHeight * 1.5;  // ここで言う位置とは自機画像の左上端のこと。
-	float playerVelX = 0, playerVelY = 0;
+	using namespace Shooter;
+	Vector2 playerPosition = { (ScreenWidth - PlayerImgWidth) / 2.0f, ScreenHeight - PlayerImgHeight * 1.5f };  // ここで言う位置とは自機画像の左上端のこと。
+	Vector2 playerVelocity = { 0.0f, 0.0f };
 	std::stringstream debugText;  // デバッグ用。適当なものを出力する。
 	SDL_Texture *debugTexture;
 	while (!quit) {
@@ -98,44 +146,25 @@ int main(int argc, char* args[])
 					quit = true;
 				break;
 			}
-			/*if (e.type == SDL_QUIT) {
-				quit = true;
-			} else if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
-				switch (e.key.keysym.sym) {
-				case SDLK_UP: playerVelY -= playerVelocity; break;
-				case SDLK_DOWN: playerVelY += playerVelocity; break;
-				case SDLK_LEFT: playerVelX -= playerVelocity; break;
-				case SDLK_RIGHT: playerVelX += playerVelocity; break;
-				}
-			} else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
-				switch (e.key.keysym.sym) {
-				case SDLK_UP: playerVelY += playerVelocity; break;
-				case SDLK_DOWN: playerVelY -= playerVelocity; break;
-				case SDLK_LEFT: playerVelX += playerVelocity; break;
-				case SDLK_RIGHT: playerVelX -= playerVelocity; break;
-				}
-			}*/
 		}
-		float playerVelocity;  // 単位：ドット毎秒
+		float playerSpeed;  // 単位：ドット毎秒
 		const SDL_Keymod modStates = SDL_GetModState();
 		if (modStates & KMOD_SHIFT)
-			playerVelocity = PlayerLowVelocity * ScreenFPS;
+			playerSpeed = PlayerLowSpeed * ScreenFPS;
 		else
-			playerVelocity = PlayerHighVelocity * ScreenFPS;
-		playerVelX = playerVelY = 0.0f;
+			playerSpeed = PlayerHighSpeed * ScreenFPS;
+		playerVelocity = { 0.0f, 0.0f };
 		const Uint8 *currentKeyStates = SDL_GetKeyboardState(nullptr);
 		if (currentKeyStates[SDL_SCANCODE_LEFT])
-			playerVelX = -playerVelocity;
+			playerVelocity.x = -playerSpeed;
 		if (currentKeyStates[SDL_SCANCODE_RIGHT])
-			playerVelX = +playerVelocity;
+			playerVelocity.x = +playerSpeed;
 		if (currentKeyStates[SDL_SCANCODE_UP])
-			playerVelY = -playerVelocity;
+			playerVelocity.y = -playerSpeed;
 		if (currentKeyStates[SDL_SCANCODE_DOWN])
-			playerVelY = +playerVelocity;
-		if (playerVelX != 0.0f && playerVelY != 0.0f) {
-			playerVelX /= std::sqrt(2);
-			playerVelY /= std::sqrt(2);
-		}
+			playerVelocity.y = +playerSpeed;
+		if (playerVelocity.x != 0.0f && playerVelocity.y != 0.0f)
+			playerVelocity = playerVelocity.Normalize() * playerSpeed;
 
 		// FPSを算出・表示
 		float averageOfFPS = std::fmod(countedFrames / ((SDL_GetTicks() - startTicksFPS) / 1000.0f), 2000000);
@@ -155,19 +184,18 @@ int main(int argc, char* args[])
 		SDL_Rect renderQuadText = { 0, ScreenHeight - textHeight, textWidth, textHeight };
 
 		// 自機の移動
-		playerPosX += playerVelX * deltaTime;
-		if ((playerPosX < 0) || (playerPosX + PlayerImgWidth > ScreenWidth))
-			playerPosX -= playerVelX * deltaTime;
-		playerPosY += playerVelY * deltaTime;
-		if ((playerPosY < 0) || (playerPosY + PlayerImgHeight > ScreenHeight))
-			playerPosY -= playerVelY * deltaTime;
+		playerPosition += playerVelocity * deltaTime;
+		if ((playerPosition.x < 0) || (playerPosition.x + PlayerImgWidth > ScreenWidth))
+			playerPosition.x -= playerPosition.x * deltaTime;
+		if ((playerPosition.y < 0) || (playerPosition.y + PlayerImgHeight > ScreenHeight))
+			playerPosition.y -= playerVelocity.y * deltaTime;
 
 		// デバッグメッセージ
 		debugText.str("");
-		debugText << "Player's position (" << std::fixed << std::setprecision(0) << playerPosX << ", " << playerPosY << "), ";
-		debugText << "Player's velocity (" << std::fixed << std::setprecision(0) << playerVelX << ", " << playerVelY << "); ";
+		debugText << "Player's position (" << std::fixed << std::setprecision(0) << playerPosition.x << ", " << playerPosition.y << "), ";
+		debugText << "Player's velocity (" << std::fixed << std::setprecision(0) << playerVelocity.x << ", " << playerVelocity.y << "); ";
 		debugText << "Is pressed shift keys " << (modStates & KMOD_SHIFT) << ", ";
-		debugText << "Velocity " << playerVelocity;
+		debugText << "Speed " << playerSpeed;
 		{
 			SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
 			SDL_Surface *textSurface = TTF_RenderText_Solid(font, debugText.str().c_str(), textColor);
@@ -181,7 +209,7 @@ int main(int argc, char* args[])
 		// 実際の描画
 		SDL_RenderClear(renderer);
 		SDL_Rect *currentClip = &clips[(countedFrames / 6) % 5];
-		SDL_Rect renderQuadClip = { static_cast<int>(playerPosX), static_cast<int>(playerPosY), currentClip->w, currentClip->h };
+		SDL_Rect renderQuadClip = { static_cast<int>(playerPosition.x), static_cast<int>(playerPosition.y), currentClip->w, currentClip->h };
 		SDL_RenderCopy(renderer, texture, currentClip, &renderQuadClip);
 		SDL_RenderCopy(renderer, timerTexture, nullptr, &renderQuadText);
 		SDL_RenderCopy(renderer, debugTexture, nullptr, &renderQuadDebug);
