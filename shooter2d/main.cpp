@@ -17,8 +17,8 @@ const int ScreenHeight = 480;
 const int ScreenFPS = 60;
 const int ScreenTicksPerFrame = 1000 / ScreenFPS;
 
-const float PlayerHighVelocity = 180.0f;
-const float PlayerLowVelocity = 108.0f;
+const float PlayerHighVelocity = 4.0f;  // 単位：ドット毎フレーム
+const float PlayerLowVelocity = 2.0f;
 const int PlayerImgWidth = 32;
 const int PlayerImgHeight = 48;
 
@@ -116,13 +116,13 @@ int main(int argc, char* args[])
 				}
 			}*/
 		}
-		float playerVelocity;
+		float playerVelocity;  // 単位：ドット毎秒
 		const SDL_Keymod modStates = SDL_GetModState();
 		if (modStates & KMOD_SHIFT)
-			playerVelocity = PlayerLowVelocity;
+			playerVelocity = PlayerLowVelocity * ScreenFPS;
 		else
-			playerVelocity = PlayerHighVelocity;
-		playerVelX = playerVelY = 0;
+			playerVelocity = PlayerHighVelocity * ScreenFPS;
+		playerVelX = playerVelY = 0.0f;
 		const Uint8 *currentKeyStates = SDL_GetKeyboardState(nullptr);
 		if (currentKeyStates[SDL_SCANCODE_LEFT])
 			playerVelX = -playerVelocity;
@@ -132,6 +132,10 @@ int main(int argc, char* args[])
 			playerVelY = -playerVelocity;
 		if (currentKeyStates[SDL_SCANCODE_DOWN])
 			playerVelY = +playerVelocity;
+		if (playerVelX != 0.0f && playerVelY != 0.0f) {
+			playerVelX /= std::sqrt(2);
+			playerVelY /= std::sqrt(2);
+		}
 
 		// FPSを算出・表示
 		float averageOfFPS = std::fmod(countedFrames / ((SDL_GetTicks() - startTicksFPS) / 1000.0f), 2000000);
