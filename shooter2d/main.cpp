@@ -17,8 +17,8 @@ const int ScreenHeight = 480;
 const int ScreenFPS = 60;
 const int ScreenTicksPerFrame = 1000 / ScreenFPS;
 
-const int PlayerHighVelocity = 5;
-const int PlayerLowVelocity = 3;
+const float PlayerHighVelocity = 180.0f;
+const float PlayerLowVelocity = 108.0f;
 const int PlayerImgWidth = 32;
 const int PlayerImgHeight = 48;
 
@@ -76,15 +76,16 @@ int main(int argc, char* args[])
 	SDL_Event e;
 	// FPS計算用
 	unsigned countedFrames = 0;
-	Uint32 startTicksFPS = SDL_GetTicks(), startTicksCap;
+	Uint32 startTicksFPS = SDL_GetTicks(), startTicksCap = SDL_GetTicks();
+	float deltaTime;  // HACK: 前のフレームからの経過時間（秒）。将来的に下のframeTicksなどと統合したい。
 	std::stringstream timeText;
 	// 操作用
-	int playerPosX = (ScreenWidth - PlayerImgWidth) / 2, playerPosY = ScreenHeight - std::floor(PlayerImgHeight * 1.5);  // ここで言う位置とは自機画像の左上端のこと。
-	int playerVelX = 0, playerVelY = 0;
-	int playerVelocity = PlayerHighVelocity;
+	float playerPosX = (ScreenWidth - PlayerImgWidth) / 2, playerPosY = ScreenHeight - PlayerImgHeight * 1.5;  // ここで言う位置とは自機画像の左上端のこと。
+	float playerVelX = 0, playerVelY = 0;
 	std::stringstream debugText;  // デバッグ用。適当なものを出力する。
 	SDL_Texture *debugTexture;
 	while (!quit) {
+		deltaTime = (SDL_GetTicks() - startTicksCap) / 1000.0f;  // HACK: 最初のループだけ変な値になる？　countedFramesを使った方がいい？
 		startTicksCap = SDL_GetTicks();
 
 		while (SDL_PollEvent(&e) != 0) {
@@ -115,6 +116,7 @@ int main(int argc, char* args[])
 				}
 			}*/
 		}
+		float playerVelocity;
 		const SDL_Keymod modStates = SDL_GetModState();
 		if (modStates & KMOD_SHIFT)
 			playerVelocity = PlayerLowVelocity;
@@ -136,6 +138,7 @@ int main(int argc, char* args[])
 		timeText.str("");
 		timeText << "Average frames Per Second " << std::fixed << std::setprecision(3) << averageOfFPS;
 		timeText << ", #Counted frames " << countedFrames;
+		timeText << ", Delta time " << std::fixed << std::setprecision(3) << deltaTime;
 		int textWidth = 0 , textHeight = 0;
 		{
 			SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
@@ -148,17 +151,17 @@ int main(int argc, char* args[])
 		SDL_Rect renderQuadText = { 0, ScreenHeight - textHeight, textWidth, textHeight };
 
 		// 自機の移動
-		playerPosX += playerVelX;
+		playerPosX += playerVelX * deltaTime;
 		if ((playerPosX < 0) || (playerPosX + PlayerImgWidth > ScreenWidth))
-			playerPosX -= playerVelX;
-		playerPosY += playerVelY;
+			playerPosX -= playerVelX * deltaTime;
+		playerPosY += playerVelY * deltaTime;
 		if ((playerPosY < 0) || (playerPosY + PlayerImgHeight > ScreenHeight))
-			playerPosY -= playerVelY;
+			playerPosY -= playerVelY * deltaTime;
 
 		// デバッグメッセージ
 		debugText.str("");
-		debugText << "Player's position (" << playerPosX << ", " << playerPosY << "), ";
-		debugText << "Player's velocity (" << playerVelX << ", " << playerVelY << "); ";
+		debugText << "Player's position (" << std::fixed << std::setprecision(0) << playerPosX << ", " << playerPosY << "), ";
+		debugText << "Player's velocity (" << std::fixed << std::setprecision(0) << playerVelX << ", " << playerVelY << "); ";
 		debugText << "Is pressed shift keys " << (modStates & KMOD_SHIFT) << ", ";
 		debugText << "Velocity " << playerVelocity;
 		{
@@ -174,7 +177,7 @@ int main(int argc, char* args[])
 		// 実際の描画
 		SDL_RenderClear(renderer);
 		SDL_Rect *currentClip = &clips[(countedFrames / 6) % 5];
-		SDL_Rect renderQuadClip = { playerPosX, playerPosY, currentClip->w, currentClip->h };
+		SDL_Rect renderQuadClip = { static_cast<int>(playerPosX), static_cast<int>(playerPosY), currentClip->w, currentClip->h };
 		SDL_RenderCopy(renderer, texture, currentClip, &renderQuadClip);
 		SDL_RenderCopy(renderer, timerTexture, nullptr, &renderQuadText);
 		SDL_RenderCopy(renderer, debugTexture, nullptr, &renderQuadDebug);
