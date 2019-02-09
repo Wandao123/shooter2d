@@ -36,8 +36,7 @@ void Player::Update()
 		velocity.y = -speed;
 	if (currentKeyStates[SDL_SCANCODE_DOWN])
 		velocity.y = +speed;
-	if (velocity.x != 0.0f && velocity.y != 0.0f)
-		velocity = velocity.Normalize() * speed;
+	velocity = velocity.Normalize() * speed;
 	Move();
 }
 
