@@ -137,9 +137,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="object.cpp" />
+    <ClCompile Include="timer.cpp" />
+    <ClCompile Include="user_interface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\Reimudot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="vector2.h" />
+    <ClInclude Include="object.h" />
+    <ClInclude Include="timer.h" />
+    <ClInclude Include="task.h" />
+    <ClInclude Include="user_interface.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
