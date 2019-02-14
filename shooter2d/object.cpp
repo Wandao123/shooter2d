@@ -1,3 +1,4 @@
+//#include <algorithm>
 #include "object.h"
 
 using namespace Shooter;
@@ -7,19 +8,43 @@ Player::Player(const std::string &path, const float highSpeed, const float lowSp
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {
-	for (int i = 0; i < 5; i++)
-		clips[i] = { i * ImgWidth, 0, ImgWidth, ImgHeight };
+	// HACK: マジックナンバーの削除。
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 5; j++)
+			clips[i][j] = { j * ImgWidth, i * ImgHeight, ImgWidth, ImgHeight };
 }
 
 void Player::Draw()
 {
-	SDL_Rect *currentClip = &clips[(Time->GetCountedFrames() / 6) % 5];
+	// 少なくとも6フレームは同じ画像を表示。アニメーションは5コマある。
+	auto clipFromImage = [this](Uint32 countedFrames) -> SDL_Rect* {
+		const int delayFrames = 6;
+		static int level = 0;  // 左右に何フレーム進んでいるか表すフラグ。-(6 * 5 - 1) .. 6 * 5 - 1 の範囲を動く。
+		if (velocity.x < 0.0f)
+			//level = std::max(level - 1, -(delayFrames * 5 - 1));
+			level -= (level > -(delayFrames * 5 - 1)) ? 1 : 0;
+		else if (velocity.x > 0.0f)
+			//level = std::min(level + 1, delayFrames * 5 - 1);
+			level += (level < delayFrames * 5 - 1) ? 1 : 0;
+		else
+			level = (level != 0) ? (level - level / std::abs(level)) : 0;
+
+		if (level == 0)
+			return &clips[0][(countedFrames / delayFrames) % 5];
+		else if (level < 0)
+			return &clips[1][-level / delayFrames];
+		else
+			return &clips[2][level / delayFrames];
+	};
+
+	SDL_Rect *currentClip = clipFromImage(Time->GetCountedFrames());
 	SDL_Rect renderClip = { static_cast<int>(position.x), static_cast<int>(position.y), currentClip->w, currentClip->h };
 	SDL_RenderCopy(Renderer, texture, currentClip, &renderClip);
 }
 
 void Player::Update()
 {
+	// TODO: キー入力処理の分離。
 	float speed;  // 単位：ドット毎秒
 	const SDL_Keymod modStates = SDL_GetModState();
 	if (modStates & KMOD_SHIFT)

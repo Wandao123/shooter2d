@@ -11,6 +11,7 @@
 #include "user_interface.h"
 #include "object.h"
 
+// HACK: クラス設計の見直し。
 namespace Shooter {
 	SDL_Window *Window;
 	SDL_Renderer *Renderer;
@@ -71,6 +72,7 @@ int main(int argc, char* args[])
 	std::unique_ptr<Shooter::Task> frameUI(new Shooter::FrameUI(0, ScreenHeight - 14));
 	std::unique_ptr<Shooter::Task> player(new Shooter::Player("images/Reimudot.png", 4.0f, 2.0f));
 
+	// TODO: Sceneを作成。Stateパターンを使う。
 	bool quit = false;
 	SDL_Event e;
 	Shooter::Time->Start();

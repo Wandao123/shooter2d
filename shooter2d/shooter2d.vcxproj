@@ -94,7 +94,7 @@
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_image.nuget.2.0.4\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\lib\$(PlatformTarget)\dynamic;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
       <Command>
