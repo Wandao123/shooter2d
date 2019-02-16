@@ -1,4 +1,4 @@
-//#include <algorithm>
+#include <algorithm>
 #include "object.h"
 
 using namespace Shooter;
@@ -16,25 +16,31 @@ Player::Player(const std::string &path, const float highSpeed, const float lowSp
 
 void Player::Draw()
 {
-	// 少なくとも6フレームは同じ画像を表示。アニメーションは5コマある。
+	// HACK: ここはファイル構造に強く依存するため、アルゴリズムだけ巧く抽出できないか？
+	// 少なくとも6フレームは同じ画像を表示。アニメーションは5コマ（4コマ目と5コマ目は繰り返し）ある。
 	auto clipFromImage = [this](Uint32 countedFrames) -> SDL_Rect* {
-		const int delayFrames = 6;
+		const int DelayFrames = 6;
+		const int NumSlice = 5;
 		static int level = 0;  // 左右に何フレーム進んでいるか表すフラグ。-(6 * 5 - 1) .. 6 * 5 - 1 の範囲を動く。
 		if (velocity.x < 0.0f)
-			//level = std::max(level - 1, -(delayFrames * 5 - 1));
-			level -= (level > -(delayFrames * 5 - 1)) ? 1 : 0;
+			level = std::max(level - 1, -(DelayFrames * NumSlice - 1));
+			//level -= (level > -(DelayFrames * NumSlice - 1)) ? 1 : 0;
 		else if (velocity.x > 0.0f)
-			//level = std::min(level + 1, delayFrames * 5 - 1);
-			level += (level < delayFrames * 5 - 1) ? 1 : 0;
+			level = std::min(level + 1, DelayFrames * NumSlice - 1);
+			//level += (level < DelayFrames * NumSlice - 1) ? 1 : 0;
 		else
 			level = (level != 0) ? (level - level / std::abs(level)) : 0;
 
 		if (level == 0)
-			return &clips[0][(countedFrames / delayFrames) % 5];
+			return &clips[0][(countedFrames / DelayFrames) % NumSlice];
+		else if (level == -(DelayFrames * NumSlice - 1))  // 4コマ目と5コマ目だけ繰り返し。
+			return &clips[1][(countedFrames / DelayFrames) % 2 + 3];
+		else if (level == DelayFrames * NumSlice - 1)
+			return &clips[2][(countedFrames / DelayFrames) % 2 + 3];
 		else if (level < 0)
-			return &clips[1][-level / delayFrames];
+			return &clips[1][-level / DelayFrames];
 		else
-			return &clips[2][level / delayFrames];
+			return &clips[2][level / DelayFrames];
 	};
 
 	SDL_Rect *currentClip = clipFromImage(Time->GetCountedFrames());
