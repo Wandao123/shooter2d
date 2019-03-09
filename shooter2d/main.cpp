@@ -1,4 +1,4 @@
-/**
+ï»¿/**
   date: 2019/01/26
 */
 #include <iostream>
@@ -11,11 +11,11 @@
 #include "user_interface.h"
 #include "object.h"
 
-// HACK: ƒNƒ‰ƒXİŒv‚ÌŒ©’¼‚µB
+// HACK: ã‚¯ãƒ©ã‚¹è¨­è¨ˆã®è¦‹ç›´ã—ã€‚
 namespace Shooter {
 	SDL_Window *Window;
 	SDL_Renderer *Renderer;
-	TTF_Font *Font;  // HACK: ƒtƒHƒ“ƒg‚ÍƒOƒ[ƒoƒ‹•Ï”‚Å’è‹`‚·‚é•K—v‚ª‚ ‚éH
+	TTF_Font *Font;  // HACK: ãƒ•ã‚©ãƒ³ãƒˆã¯ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã§å®šç¾©ã™ã‚‹å¿…è¦ãŒã‚ã‚‹ï¼Ÿ
 	std::unique_ptr<Timer> Time;
 }
 
@@ -72,7 +72,7 @@ int main(int argc, char* args[])
 	std::unique_ptr<Shooter::Task> frameUI(new Shooter::FrameUI(0, ScreenHeight - 14));
 	std::unique_ptr<Shooter::Task> player(new Shooter::Player("images/Reimudot.png", 4.0f, 2.0f));
 
-	// TODO: Scene‚ğì¬BStateƒpƒ^[ƒ“‚ğg‚¤B
+	// TODO: Sceneã‚’ä½œæˆã€‚Stateãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’ä½¿ã†ã€‚
 	bool quit = false;
 	SDL_Event e;
 	Shooter::Time->Start();
@@ -89,12 +89,12 @@ int main(int argc, char* args[])
 			}
 		}
 
-		// XV
+		// æ›´æ–°
 		Shooter::Time->Update();
 		frameUI->Update();
 		player->Update();
 
-		// ÀÛ‚Ì•`‰æ
+		// å®Ÿéš›ã®æç”»
 		SDL_RenderClear(Shooter::Renderer);
 		frameUI->Draw();
 		player->Draw();

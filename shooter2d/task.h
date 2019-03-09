@@ -1,4 +1,4 @@
-#ifndef TASK_H
+ï»¿#ifndef TASK_H
 #define TASK_H
 
 #include <SDL.h>
@@ -7,7 +7,7 @@ const int ScreenWidth = 640;
 const int ScreenHeight = 480;
 
 namespace Shooter {
-	// ˆ—‚·‚×‚«‘ÎÛB
+	// å‡¦ç†ã™ã¹ãå¯¾è±¡ã€‚
 	class Task
 	{
 	public:

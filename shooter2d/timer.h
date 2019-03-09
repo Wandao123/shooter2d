@@ -1,11 +1,11 @@
-#ifndef TIMER_H
+ï»¿#ifndef TIMER_H
 #define TIMER_H
 
 #include <sstream>
 #include <SDL.h>
 
 namespace Shooter {
-	// •`‰æ‚Æ‚Í“Æ—§‚É“®‚­B
+	// æç”»ã¨ã¯ç‹¬ç«‹ã«å‹•ãã€‚
 	class Timer
 	{
 	public:
@@ -37,7 +37,7 @@ namespace Shooter {
 		unsigned countedFrames;
 		Uint32 startTicks;
 		Uint32 previousTicks;
-		float deltaTime;  // ‘O‚ÌƒtƒŒ[ƒ€‚©‚ç‚ÌŒo‰ßŠÔi•bj
+		float deltaTime;  // å‰ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‹ã‚‰ã®çµŒéæ™‚é–“ï¼ˆç§’ï¼‰
 		float averageOfFPS;
 	};
 }

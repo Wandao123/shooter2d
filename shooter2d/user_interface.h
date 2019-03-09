@@ -1,4 +1,4 @@
-#ifndef USER_INTERFACE_H
+Ôªø#ifndef USER_INTERFACE_H
 #define USER_INTERFACE_H
 
 #include <iostream>
@@ -21,7 +21,7 @@ namespace Shooter {
 			: posX(positionX)
 			, posY(positionY)
 		{
-			// TODO: ó·äOÇÃî≠ê∂ÅB
+			// TODO: ‰æãÂ§ñ„ÅÆÁô∫Áîü„ÄÇ
 			/*Font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 14);
 			if (Font == nullptr) {
 				std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;

@@ -1,4 +1,4 @@
-#include <algorithm>
+ï»¿#include <algorithm>
 #include "object.h"
 
 using namespace Shooter;
@@ -8,7 +8,7 @@ Player::Player(const std::string &path, const float highSpeed, const float lowSp
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {
-	// HACK: ƒ}ƒWƒbƒNƒiƒ“ƒo[‚ÌíœB
+	// HACK: ãƒã‚¸ãƒƒã‚¯ãƒŠãƒ³ãƒãƒ¼ã®å‰Šé™¤ã€‚
 	for (int i = 0; i < 3; i++)
 		for (int j = 0; j < 5; j++)
 			clips[i][j] = { j * ImgWidth, i * ImgHeight, ImgWidth, ImgHeight };
@@ -16,12 +16,12 @@ Player::Player(const std::string &path, const float highSpeed, const float lowSp
 
 void Player::Draw()
 {
-	// HACK: ‚±‚±‚Íƒtƒ@ƒCƒ‹\‘¢‚É‹­‚­ˆË‘¶‚·‚é‚½‚ßAƒAƒ‹ƒSƒŠƒYƒ€‚¾‚¯I‚­’Šo‚Å‚«‚È‚¢‚©H
-	// ­‚È‚­‚Æ‚à6ƒtƒŒ[ƒ€‚Í“¯‚¶‰æ‘œ‚ğ•\¦BƒAƒjƒ[ƒVƒ‡ƒ“‚Í5ƒRƒ}i4ƒRƒ}–Ú‚Æ5ƒRƒ}–Ú‚ÍŒJ‚è•Ô‚µj‚ ‚éB
+	// HACK: ã“ã“ã¯ãƒ•ã‚¡ã‚¤ãƒ«æ§‹é€ ã«å¼·ãä¾å­˜ã™ã‚‹ãŸã‚ã€ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã ã‘å·§ãæŠ½å‡ºã§ããªã„ã‹ï¼Ÿ
+	// å°‘ãªãã¨ã‚‚6ãƒ•ãƒ¬ãƒ¼ãƒ ã¯åŒã˜ç”»åƒã‚’è¡¨ç¤ºã€‚ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã¯5ã‚³ãƒï¼ˆ4ã‚³ãƒç›®ã¨5ã‚³ãƒç›®ã¯ç¹°ã‚Šè¿”ã—ï¼‰ã‚ã‚‹ã€‚
 	auto clipFromImage = [this](Uint32 countedFrames) -> SDL_Rect* {
 		const int DelayFrames = 6;
 		const int NumSlice = 5;
-		static int level = 0;  // ¶‰E‚É‰½ƒtƒŒ[ƒ€i‚ñ‚Å‚¢‚é‚©•\‚·ƒtƒ‰ƒOB-(6 * 5 - 1) .. 6 * 5 - 1 ‚Ì”ÍˆÍ‚ğ“®‚­B
+		static int level = 0;  // å·¦å³ã«ä½•ãƒ•ãƒ¬ãƒ¼ãƒ é€²ã‚“ã§ã„ã‚‹ã‹è¡¨ã™ãƒ•ãƒ©ã‚°ã€‚-(6 * 5 - 1) .. 6 * 5 - 1 ã®ç¯„å›²ã‚’å‹•ãã€‚
 		if (velocity.x < 0.0f)
 			level = std::max(level - 1, -(DelayFrames * NumSlice - 1));
 			//level -= (level > -(DelayFrames * NumSlice - 1)) ? 1 : 0;
@@ -33,7 +33,7 @@ void Player::Draw()
 
 		if (level == 0)
 			return &clips[0][(countedFrames / DelayFrames) % NumSlice];
-		else if (level == -(DelayFrames * NumSlice - 1))  // 4ƒRƒ}–Ú‚Æ5ƒRƒ}–Ú‚¾‚¯ŒJ‚è•Ô‚µB
+		else if (level == -(DelayFrames * NumSlice - 1))  // 4ã‚³ãƒç›®ã¨5ã‚³ãƒç›®ã ã‘ç¹°ã‚Šè¿”ã—ã€‚
 			return &clips[1][(countedFrames / DelayFrames) % 2 + 3];
 		else if (level == DelayFrames * NumSlice - 1)
 			return &clips[2][(countedFrames / DelayFrames) % 2 + 3];
@@ -50,8 +50,8 @@ void Player::Draw()
 
 void Player::Update()
 {
-	// TODO: ƒL[“ü—Íˆ—‚Ì•ª—£B
-	float speed;  // ’PˆÊFƒhƒbƒg–ˆ•b
+	// TODO: ã‚­ãƒ¼å…¥åŠ›å‡¦ç†ã®åˆ†é›¢ã€‚
+	float speed;  // å˜ä½ï¼šãƒ‰ãƒƒãƒˆæ¯ç§’
 	const SDL_Keymod modStates = SDL_GetModState();
 	if (modStates & KMOD_SHIFT)
 		speed = lowSpeed * Timer::FPS;

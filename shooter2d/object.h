@@ -1,4 +1,4 @@
-#ifndef OBJECT_H
+ï»¿#ifndef OBJECT_H
 #define OBJECT_H
 
 #include <iostream>
@@ -14,22 +14,23 @@ namespace Shooter {
 	extern SDL_Renderer *Renderer;
 	extern std::unique_ptr<Timer> Time;
 
-	// UI‚àƒIƒuƒWƒFƒNƒg‚Ìˆêí‚Æ‚¢‚¤Œ©•û‚à‚ ‚é‚ªA‚±‚±‚Å‚Í“Á‚ÉƒQ[ƒ€’†‚Ì•¨‘Ì‚Æ‚¢‚¤ˆÓ–¡B
-	// UNDONE: ¡‚ÌTask‚ğObject‚ ‚é‚¢‚ÍGameObject‚É‚µ‚ÄAObject‚ğMover‚É•ÏXB
+	// UIã‚‚ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä¸€ç¨®ã¨ã„ã†è¦‹æ–¹ã‚‚ã‚ã‚‹ãŒã€ã“ã“ã§ã¯ç‰¹ã«ã‚²ãƒ¼ãƒ ä¸­ã®ç‰©ä½“ã¨ã„ã†æ„å‘³ã€‚
+	// UNDONE: ä»Šã®Taskã‚’Objectã‚ã‚‹ã„ã¯GameObjectã«ã—ã¦ã€Objectã‚’Moverã«å¤‰æ›´ã€‚
 	class Object : public Task
 	{
 	public:
 		Object(const std::string &path)
 		{
-			// TODO: —áŠO‚Ì”­¶B
-			// TODO: ‰æ‘œ“Ç‚İ‚İˆ—‚Ì•ª—£BFlyweightƒpƒ^[ƒ“‚ğg‚¤B
-			// TODO: Šg‘åEk¬ˆ—B
+			// TODO: ä¾‹å¤–ã®ç™ºç”Ÿã€‚
+			// TODO: ç”»åƒèª­ã¿è¾¼ã¿å‡¦ç†ã®åˆ†é›¢ã€‚Flyweightãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’ä½¿ã†ã€‚
+			// TODO: æ‹¡å¤§ãƒ»ç¸®å°å‡¦ç†ã€‚
 			texture = IMG_LoadTexture(Renderer, path.c_str());
 			if (texture == nullptr) {
 				std::cerr << "Unable to load image " << path << "!  SDL_image Error: " << IMG_GetError() << std::endl;
 			}
 		}
 
+		// TODO: ä»®æƒ³ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãŒå¿…é ˆï¼Ÿ
 		~Object()
 		{
 			SDL_DestroyTexture(texture);
@@ -47,7 +48,7 @@ namespace Shooter {
 		void Draw();
 		void Update();
 
-		// HACK: QÆ‚ğ•Ô‚µ‚½‚Ù‚¤‚ª‚¢‚¢H
+		// HACK: å‚ç…§ã‚’è¿”ã—ãŸã»ã†ãŒã„ã„ï¼Ÿ
 		Vector2 GetPosition()
 		{
 			return position;
@@ -62,10 +63,11 @@ namespace Shooter {
 		const int ImgWidth = 32;
 		const int ImgHeight = 48;
 		SDL_Rect clips[3][5];
-		float highSpeed;  // ’PˆÊFƒhƒbƒg–ˆƒtƒŒ[ƒ€
+		float highSpeed;  // å˜ä½ï¼šãƒ‰ãƒƒãƒˆæ¯ãƒ•ãƒ¬ãƒ¼ãƒ 
 		float lowSpeed;
-		Vector2 position = { (ScreenWidth - ImgWidth) / 2.0f, ScreenHeight - ImgHeight * 1.5f };  // ‚±‚±‚ÅŒ¾‚¤ˆÊ’u‚Æ‚Í©‹@‰æ‘œ‚Ì¶ã’[‚Ì‚±‚ÆB
+		Vector2 position = { (ScreenWidth - ImgWidth) / 2.0f, ScreenHeight - ImgHeight * 1.5f };  // ã“ã“ã§è¨€ã†ä½ç½®ã¨ã¯è‡ªæ©Ÿç”»åƒã®å·¦ä¸Šç«¯ã®ã“ã¨ã€‚
 		Vector2 velocity = { 0.0f, 0.0f };
+		// TODO: å›è»¢è§’ã‚‚ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¨ã—ã¦æŒã¤ã€‚
 		void Move();
 	};
 }
