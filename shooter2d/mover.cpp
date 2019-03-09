@@ -1,10 +1,10 @@
 ﻿#include <algorithm>
-#include "object.h"
+#include "mover.h"
 
 using namespace Shooter;
 
 Player::Player(const std::string &path, const float highSpeed, const float lowSpeed)
-	: Object(path)
+	: Mover(path)
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {

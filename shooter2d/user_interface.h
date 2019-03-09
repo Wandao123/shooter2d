@@ -5,7 +5,7 @@
 #include <sstream>
 #include <SDL.h>
 #include <SDL_ttf.h>
-#include "task.h"
+#include "game_object.h"
 #include "timer.h"
 
 namespace Shooter {
@@ -14,7 +14,7 @@ namespace Shooter {
 	extern TTF_Font *Font;
 	extern std::unique_ptr<Timer> Time;
 
-	class UserInterface : public Task
+	class UserInterface : public GameObject
 	{
 	public:
 		UserInterface(const int positionX, const int positionY)

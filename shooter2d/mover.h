@@ -1,11 +1,11 @@
-﻿#ifndef OBJECT_H
-#define OBJECT_H
+﻿#ifndef MOVER_H
+#define MOVER_H
 
 #include <iostream>
 #include <string>
 #include <SDL.h>
 #include <SDL_image.h>
-#include "task.h"
+#include "game_object.h"
 #include "timer.h"
 #include "vector2.h"
 
@@ -14,12 +14,10 @@ namespace Shooter {
 	extern SDL_Renderer *Renderer;
 	extern std::unique_ptr<Timer> Time;
 
-	// UIもオブジェクトの一種という見方もあるが、ここでは特にゲーム中の物体という意味。
-	// UNDONE: 今のTaskをObjectあるいはGameObjectにして、ObjectをMoverに変更。
-	class Object : public Task
+	class Mover : public GameObject
 	{
 	public:
-		Object(const std::string &path)
+		Mover(const std::string &path)
 		{
 			// TODO: 例外の発生。
 			// TODO: 画像読み込み処理の分離。Flyweightパターンを使う。
@@ -31,7 +29,7 @@ namespace Shooter {
 		}
 
 		// TODO: 仮想デストラクタが必須？
-		~Object()
+		~Mover()
 		{
 			SDL_DestroyTexture(texture);
 		}
@@ -40,7 +38,7 @@ namespace Shooter {
 		SDL_Texture *texture;
 	};
 
-	class Player : public Object
+	class Player : public Mover
 	{
 	public:
 		Player(const std::string &path, const float highSpeed, const float lowSpeed);
@@ -72,4 +70,4 @@ namespace Shooter {
 	};
 }
 
-#endif // !OBJECT_H
+#endif // !MOVER_H

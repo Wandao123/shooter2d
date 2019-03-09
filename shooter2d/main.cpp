@@ -9,7 +9,7 @@
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
 #include "user_interface.h"
-#include "object.h"
+#include "mover.h"
 
 // HACK: クラス設計の見直し。
 namespace Shooter {
@@ -69,8 +69,8 @@ int main(int argc, char* args[])
 	Shooter::Time.reset(new Shooter::Timer);
 	SDL_SetRenderDrawColor(Shooter::Renderer, 0x00, 0x00, 0x00, 0x00);
 	
-	std::unique_ptr<Shooter::Task> frameUI(new Shooter::FrameUI(0, ScreenHeight - 14));
-	std::unique_ptr<Shooter::Task> player(new Shooter::Player("images/Reimudot.png", 4.0f, 2.0f));
+	std::unique_ptr<Shooter::GameObject> frameUI(new Shooter::FrameUI(0, ScreenHeight - 14));
+	std::unique_ptr<Shooter::GameObject> player(new Shooter::Player("images/Reimudot.png", 4.0f, 2.0f));
 
 	// TODO: Sceneを作成。Stateパターンを使う。
 	bool quit = false;
