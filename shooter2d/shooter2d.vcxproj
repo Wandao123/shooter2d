@@ -143,7 +143,9 @@
     <ClCompile Include="user_interface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="images\Marisadot.png" />
     <Image Include="images\Reimudot.png" />
+    <Image Include="images\Sanaedot.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game_object.h" />

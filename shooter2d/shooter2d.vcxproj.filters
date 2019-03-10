@@ -38,6 +38,12 @@
     <Image Include="images\Reimudot.png">
       <Filter>リソース ファイル</Filter>
     </Image>
+    <Image Include="images\Marisadot.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="images\Sanaedot.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="user_interface.h">
