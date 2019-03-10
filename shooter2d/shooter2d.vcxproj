@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mover.cpp" />
+    <ClCompile Include="sprite.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="user_interface.cpp" />
   </ItemGroup>
@@ -146,6 +147,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game_object.h" />
+    <ClInclude Include="game.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="scene.h" />
+    <ClInclude Include="sprite.h" />
     <ClInclude Include="mover.h" />
     <ClInclude Include="vector2.h" />
     <ClInclude Include="timer.h" />

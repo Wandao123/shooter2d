@@ -2,7 +2,6 @@
   date: 2019/01/26
 */
 #include <iostream>
-//#include <memory>
 #include <cstdlib>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -17,6 +16,7 @@ namespace Shooter {
 	SDL_Renderer *Renderer;
 	TTF_Font *Font;  // HACK: フォントはグローバル変数で定義する必要がある？
 	std::unique_ptr<Timer> Time;
+	std::unique_ptr<AssetLoader> assetLoader;
 }
 
 void Initialize()
@@ -67,10 +67,11 @@ int main(int argc, char* args[])
 {
 	Initialize();
 	Shooter::Time.reset(new Shooter::Timer);
+	Shooter::assetLoader.reset(new Shooter::AssetLoader);
 	SDL_SetRenderDrawColor(Shooter::Renderer, 0x00, 0x00, 0x00, 0x00);
 	
 	std::unique_ptr<Shooter::GameObject> frameUI(new Shooter::FrameUI(0, ScreenHeight - 14));
-	std::unique_ptr<Shooter::GameObject> player(new Shooter::Player("images/Reimudot.png", 4.0f, 2.0f));
+	std::unique_ptr<Shooter::GameObject> player(new Shooter::Player({ (ScreenWidth - Shooter::Player::Width) / 2.0f, ScreenHeight - Shooter::Player::Height * 1.5f }, 4.0f, 2.0f));
 
 	// TODO: Sceneを作成。Stateパターンを使う。
 	bool quit = false;

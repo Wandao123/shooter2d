@@ -3,15 +3,20 @@
 
 using namespace Shooter;
 
-Player::Player(const std::string &path, const float highSpeed, const float lowSpeed)
-	: Mover(path)
+void Mover::Draw()
+{
+	sprite->Draw(static_cast<int>(position.x), static_cast<int>(position.y));
+}
+
+Player::Player(const Vector2 &position, const float highSpeed, const float lowSpeed)
+	: Mover(position, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Reimudot.png")))
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {
 	// HACK: マジックナンバーの削除。
-	for (int i = 0; i < 3; i++)
-		for (int j = 0; j < 5; j++)
-			clips[i][j] = { j * ImgWidth, i * ImgHeight, ImgWidth, ImgHeight };
+	for (int i = 0; i < clips.size(); i++)
+		for (int j = 0; j < clips[i].size(); j++)
+			clips[i][j] = { j * Width, i * Height, Width, Height };
 }
 
 void Player::Draw()
@@ -43,9 +48,9 @@ void Player::Draw()
 			return &clips[2][level / DelayFrames];
 	};
 
-	SDL_Rect *currentClip = clipFromImage(Time->GetCountedFrames());
-	SDL_Rect renderClip = { static_cast<int>(position.x), static_cast<int>(position.y), currentClip->w, currentClip->h };
-	SDL_RenderCopy(Renderer, texture, currentClip, &renderClip);
+	SDL_Rect* currentClip = clipFromImage(Time->GetCountedFrames());
+	sprite->SetClip(std::make_shared<SDL_Rect>(*currentClip));
+	Mover::Draw();
 }
 
 void Player::Update()
@@ -68,14 +73,14 @@ void Player::Update()
 	if (currentKeyStates[SDL_SCANCODE_DOWN])
 		velocity.y = +speed;
 	velocity = velocity.Normalize() * speed;
-	Move();
+	move();
 }
 
-void Player::Move()
+void Player::move()
 {
 	position += velocity * Time->GetDeltaTime();
-	if ((position.x < 0) || (position.x + ImgWidth > ScreenWidth))
+	if ((position.x < 0) || (position.x + Width > ScreenWidth))
 		position.x -= velocity.x * Time->GetDeltaTime();
-	if ((position.y < 0) || (position.y + ImgHeight > ScreenHeight))
+	if ((position.y < 0) || (position.y + Height > ScreenHeight))
 		position.y -= velocity.y * Time->GetDeltaTime();
 }
