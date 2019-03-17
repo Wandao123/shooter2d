@@ -13,12 +13,12 @@ GameScene::GameScene()
 
 void GameScene::Update()
 {
-	for (auto iter = tasksList.begin(); iter != tasksList.end(); iter++)
-		(*iter)->Update();
+	for (auto&& task : tasksList)
+		task->Update();
 }
 
 void GameScene::Draw()
 {
-	for (auto iter = tasksList.begin(); iter != tasksList.end(); iter++)
-		(*iter)->Draw();
+	for (auto&& task : tasksList)
+		task->Draw();
 }
