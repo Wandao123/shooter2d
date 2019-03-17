@@ -136,8 +136,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mover.cpp" />
+    <ClCompile Include="scene.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="user_interface.cpp" />

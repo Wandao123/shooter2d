@@ -4,12 +4,8 @@
 #include <array>
 #include "game_object.h"
 #include "sprite.h"
-#include "timer.h"
 
 namespace Shooter {
-	extern std::unique_ptr<Timer> Time;
-	extern std::unique_ptr<AssetLoader> assetLoader;
-
 	class Mover : public GameObject
 	{
 	public:

@@ -1,4 +1,4 @@
-#ifndef SPRITE_H
+﻿#ifndef SPRITE_H
 #define SPRITE_H
 
 #include <map>
@@ -7,8 +7,6 @@
 #include <SDL_image.h>
 
 namespace Shooter {
-	extern SDL_Renderer *Renderer;
-
 	class Sprite
 	{
 	public:
@@ -43,6 +41,8 @@ namespace Shooter {
 	class AssetLoader
 	{
 	public:
+		AssetLoader();
+		~AssetLoader();
 		std::shared_ptr<SDL_Texture> GetTexture(std::string fileName);
 	private:
 		std::map<std::string, std::shared_ptr<SDL_Texture>> assets;

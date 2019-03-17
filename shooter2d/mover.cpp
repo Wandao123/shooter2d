@@ -1,7 +1,10 @@
 ﻿#include <algorithm>
+#include "game.h"
 #include "mover.h"
 
 using namespace Shooter;
+
+std::unique_ptr<AssetLoader> assetLoader = std::make_unique<AssetLoader>();
 
 void Mover::Draw()
 {
@@ -79,8 +82,8 @@ void Player::Update()
 void Player::move()
 {
 	position += velocity * Time->GetDeltaTime();
-	if ((position.x < 0) || (position.x + Width > ScreenWidth))
+	if ((position.x < 0) || (position.x + Width > Game::Width))
 		position.x -= velocity.x * Time->GetDeltaTime();
-	if ((position.y < 0) || (position.y + Height > ScreenHeight))
+	if ((position.y < 0) || (position.y + Height > Game::Height))
 		position.y -= velocity.y * Time->GetDeltaTime();
 }

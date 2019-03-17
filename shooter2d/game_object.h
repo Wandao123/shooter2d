@@ -2,11 +2,11 @@
 #define GAME_OBJECT_H
 
 #include "vector2.h"
-
-const int ScreenWidth = 640;
-const int ScreenHeight = 480;
+#include "timer.h"
 
 namespace Shooter {
+	extern std::unique_ptr<Timer> Time;
+
 	class GameObject
 	{
 	public:
