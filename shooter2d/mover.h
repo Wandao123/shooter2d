@@ -9,7 +9,11 @@ namespace Shooter {
 	class Mover : public GameObject
 	{
 	public:
-		Mover(const Vector2 &position, const std::shared_ptr<Sprite> sprite) : GameObject(position), sprite(sprite) {}
+		Mover(const Vector2 &position, const Vector2 &velocity,
+				const float angle, const std::shared_ptr<Sprite> sprite)
+			: GameObject(position)
+			, velocity(velocity)
+			, sprite(sprite) {}
 		// TODO: 仮想デストラクタが必須？
 		virtual ~Mover() {}
 		virtual void Draw() override;
@@ -26,7 +30,8 @@ namespace Shooter {
 		}
 	protected:
 		std::shared_ptr<Sprite> sprite;
-		Vector2 velocity = { 0.0f, 0.0f };
+		Vector2 velocity;
+		float angle;
 	};
 
 	// TODO: 後々、抽象クラスにして機体の種類毎にクラスを分ける。
@@ -45,6 +50,19 @@ namespace Shooter {
 		float lowSpeed;
 		// TODO: 回転角もプロパティとして持つ。
 		void move();
+	};
+
+	class Enemy : public Mover
+	{
+	public:
+		static const int Height = 32;
+		static const int Width = 32;
+		Enemy(const Vector2 &position, const Vector2 &velocity);
+		~Enemy() = default;
+		void Draw() override;
+		void Update() override;
+	private:
+		std::array<std::array<SDL_Rect, 3>, 3> clips;
 	};
 }
 
