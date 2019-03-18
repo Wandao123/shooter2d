@@ -2,6 +2,7 @@
 #define SPRITE_H
 
 #include <map>
+#include <memory>
 #include <string>
 #include <SDL.h>
 #include <SDL_image.h>

@@ -9,7 +9,12 @@ UserInterface::UserInterface(const int positionX, const int positionY)
 	, posY(positionY)
 {
 	// TODO: 例外の発生。
+#ifdef _WIN64
 	Font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 14);
+//#elif __linux__
+#else
+	Font = TTF_OpenFont("/usr/share/fonts/TTF/LiberationSans-Regular.ttf", 14);
+#endif
 	if (Font == nullptr) {
 		std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
 	}
