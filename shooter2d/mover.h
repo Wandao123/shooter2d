@@ -9,7 +9,7 @@ namespace Shooter {
 	class Mover : public GameObject
 	{
 	public:
-		Mover(const Vector2 &position, const Vector2 &velocity,
+		Mover(const Vector2 position, const Vector2 velocity,
 				const float angle, const std::shared_ptr<Sprite> sprite)
 			: GameObject(position)
 			, velocity(velocity)
@@ -28,9 +28,15 @@ namespace Shooter {
 		{
 			return velocity;
 		}
+
+		void SetVelocity(Vector2 velocity)
+		{
+			this->velocity = velocity;
+		}
+
 	protected:
-		std::shared_ptr<Sprite> sprite;
 		Vector2 velocity;
+		std::shared_ptr<Sprite> sprite;
 		float angle;
 	};
 
@@ -40,7 +46,7 @@ namespace Shooter {
 	public:
 		static const int Height = 48;
 		static const int Width = 32;
-		Player(const Vector2 &position, const float highSpeed, const float lowSpeed);
+		Player(const Vector2 position, const float highSpeed, const float lowSpeed);
 		~Player() = default;
 		void Draw() override;
 		void Update() override;
@@ -57,7 +63,7 @@ namespace Shooter {
 	public:
 		static const int Height = 32;
 		static const int Width = 32;
-		Enemy(const Vector2 &position, const Vector2 &velocity);
+		Enemy(const Vector2 position, const Vector2 velocity);
 		~Enemy() = default;
 		void Draw() override;
 		void Update() override;

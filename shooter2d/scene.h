@@ -10,18 +10,19 @@ namespace Shooter {
 	public:
 		Scene() = default;
 		~Scene() = default;
-		virtual void Update() = 0;
 		virtual void Draw() = 0;
+		virtual void Update() = 0;
 	};
 
 	class GameScene : public Scene
 	{
 	public:
 		GameScene();
-		void Update() override;
 		void Draw() override;
+		void Update() override;
 	private:
-		std::list<std::unique_ptr<GameObject>> tasksList;
+		std::list<std::shared_ptr<GameObject>> tasksList;
+		void run();
 	};
 }
 

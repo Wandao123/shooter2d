@@ -12,7 +12,7 @@ namespace Shooter {
 	{
 	public:
 		GameObject() : GameObject({ 0.0f, 0.0f }) {}
-		GameObject(const Vector2 &position) : position(position) {}
+		GameObject(const Vector2 position) : position(position) {}
 		~GameObject() = default;
 		virtual void Draw() = 0;
 		virtual void Update() = 0;
