@@ -1,5 +1,4 @@
-﻿#include <iostream>
-#include "game.h"
+﻿#include "game.h"
 #include "user_interface.h"
 #include "mover.h"
 
@@ -7,8 +6,18 @@ using namespace Shooter;
 
 GameScene::GameScene()
 {
+	// ゲーム中に常に表示されるオブジェクトを準備。
 	tasksList.push_back(std::make_unique<FrameUI>(0, Game::Height - 14));
 	tasksList.push_back(std::make_unique<Player>(Vector2{ (Game::Width - Player::Width) / 2.0f, Game::Height - Player::Height * 1.5f }, 4.0f, 2.0f));
+
+	// Luaの初期化
+	//state = luaL_newstate();
+	state = { luaL_newstate(), [](lua_State* l) { lua_close(l); } };
+}
+
+GameScene::~GameScene()
+{
+	//lua_close(state);
 }
 
 void GameScene::Update()

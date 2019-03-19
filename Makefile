@@ -1,6 +1,6 @@
 CC = g++
 COMPILE_OPTIONS = -std=c++14 -Wall -I/usr/include/SDL2
-LINK_OPTIONS = -lm -lSDL2 -lSDL2_image -lSDL2_ttf
+LINK_OPTIONS = -lm -lSDL2 -lSDL2_image -lSDL2_ttf -llua
 TARGET = main
 BUILD_DIR = shooter2d
 OBJS_DIR = lib
