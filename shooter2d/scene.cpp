@@ -14,14 +14,18 @@ int GenerateEnemy(lua_State* l)
 {
 	const std::string name = lua_tostring(l, 1);
 	std::unique_ptr<Enemy> newEnemy;
+	//auto newEnemy = static_cast<std::unique_ptr<Enemy>*>(lua_newuserdata(l, sizeof(std::unique_ptr<Enemy>)));
+	//luaL_newmetatable(l, "ENEMYP");
+	//lua_setmetatable(l, -1);
 	if (name == "SmallBlue") {
 		float px = static_cast<float>(lua_tonumber(l, 2));
 		float py = static_cast<float>(lua_tonumber(l, 3));
 		float vx = static_cast<float>(lua_tonumber(l, 4));
 		float vy = static_cast<float>(lua_tonumber(l, 5));
+		//*newEnemy = new Enemy(Vector2{ px, py }, Vector2{ vx, vy });
 		newEnemy = std::make_unique<Enemy>(Vector2{ px, py }, Vector2{ vx, vy });
 	}
-	lua_pushlightuserdata(l, static_cast<void*>(newEnemy.get()));
+	lua_pushlightuserdata(l, static_cast<void*>(newEnemy.get()));  // HACK: lightuserdataは非推奨？
 	PTasksList->push_back(std::move(newEnemy));
 	return 1;
 }
@@ -41,8 +45,8 @@ int GetVelocity(lua_State* l)
 int SetVelocity(lua_State* l)
 {
 	Mover* target = static_cast<Mover*>(lua_touserdata(l, 1));
-	float vx = static_cast<float>(lua_tonumber(l, 2));
-	float vy = static_cast<float>(lua_tonumber(l, 3));
+	float vx = luaL_checknumber(l, 2);
+	float vy = luaL_checknumber(l, 3);
 	target->SetVelocity({ vx, vy });
 	return 0;
 }
@@ -50,8 +54,8 @@ int SetVelocity(lua_State* l)
 int AddForce(lua_State* l)
 {
 	Mover* target = static_cast<Mover*>(lua_touserdata(l, 1));
-	float fx = static_cast<float>(lua_tonumber(l, 2));
-	float fy = static_cast<float>(lua_tonumber(l, 3));
+	float fx = luaL_checknumber(l, 2);
+	float fy = luaL_checknumber(l, 3);
 	target->AddForce({ fx, fy });
 	return 0;
 }
@@ -67,8 +71,7 @@ GameScene::GameScene()
 	tasksList.push_back(std::make_unique<Player>(Vector2{ (Game::Width - Player::Width) / 2.0f, Game::Height - Player::Height * 1.5f }, 4.0f, 2.0f));
 
 	// Luaの初期化。
-	luaopen_base(rawState);
-	luaopen_math(rawState);
+	luaL_openlibs(rawState);
 	if (luaL_dofile(rawState, "scripts/stage.lua")) {
 		std::cerr << lua_tostring(rawState, lua_gettop(rawState)) << std::endl;
 		return;
@@ -110,5 +113,5 @@ void GameScene::run()  // 処理の全容を記述
 	} else if (frames >= 2) {
 		enemy->SetVelocity({ 4.0f * std::cos(frames * Time->GetDeltaTime() * 2.0f), 1.0f });
 	}*/
-	lua_resume(thread, 0);
+	lua_resume(thread, nullptr, 0);
 }
