@@ -18,10 +18,10 @@ int GenerateEnemy(lua_State* l)
 	//luaL_newmetatable(l, "ENEMYP");
 	//lua_setmetatable(l, -1);
 	if (name == "SmallBlue") {
-		float px = static_cast<float>(lua_tonumber(l, 2));
-		float py = static_cast<float>(lua_tonumber(l, 3));
-		float vx = static_cast<float>(lua_tonumber(l, 4));
-		float vy = static_cast<float>(lua_tonumber(l, 5));
+		float px = static_cast<float>(luaL_checknumber(l, 2));
+		float py = static_cast<float>(luaL_checknumber(l, 3));
+		float vx = static_cast<float>(luaL_checknumber(l, 4));
+		float vy = static_cast<float>(luaL_checknumber(l, 5));
 		//*newEnemy = new Enemy(Vector2{ px, py }, Vector2{ vx, vy });
 		newEnemy = std::make_unique<Enemy>(Vector2{ px, py }, Vector2{ vx, vy });
 	}
@@ -33,7 +33,7 @@ int GenerateEnemy(lua_State* l)
 int GetVelocity(lua_State* l)
 {
 	Mover* target = static_cast<Mover*>(lua_touserdata(l, 1));
-	lua_pop(l, lua_gettop(l));
+	//lua_pop(l, lua_gettop(l));
 	lua_newtable(l);
 	lua_pushnumber(l, target->GetVelocity().x);
 	lua_setfield(l, -2, "x");
@@ -45,8 +45,8 @@ int GetVelocity(lua_State* l)
 int SetVelocity(lua_State* l)
 {
 	Mover* target = static_cast<Mover*>(lua_touserdata(l, 1));
-	float vx = luaL_checknumber(l, 2);
-	float vy = luaL_checknumber(l, 3);
+	float vx = static_cast<float>(luaL_checknumber(l, 2));
+	float vy = static_cast<float>(luaL_checknumber(l, 3));
 	target->SetVelocity({ vx, vy });
 	return 0;
 }
@@ -54,8 +54,8 @@ int SetVelocity(lua_State* l)
 int AddForce(lua_State* l)
 {
 	Mover* target = static_cast<Mover*>(lua_touserdata(l, 1));
-	float fx = luaL_checknumber(l, 2);
-	float fy = luaL_checknumber(l, 3);
+	float fx = static_cast<float>(luaL_checknumber(l, 2));
+	float fy = static_cast<float>(luaL_checknumber(l, 3));
 	target->AddForce({ fx, fy });
 	return 0;
 }
@@ -76,9 +76,9 @@ GameScene::GameScene()
 		std::cerr << lua_tostring(rawState, lua_gettop(rawState)) << std::endl;
 		return;
 	}
-	lua_pushnumber(rawState, Game::Width);
+	lua_pushinteger(rawState, Game::Width);
 	lua_setglobal(rawState, "ScreenWidth");
-	lua_pushnumber(rawState, Game::Height);
+	lua_pushinteger(rawState, Game::Height);
 	lua_setglobal(rawState, "ScreenHeight");
 
 	// Luaで使う関数群の登録。

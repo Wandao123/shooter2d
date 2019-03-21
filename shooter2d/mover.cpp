@@ -126,5 +126,5 @@ void Enemy::Draw()
 
 void Enemy::Update()
 {
-	position += velocity;  // 1フレームを単位時間とする。
+	position += velocity ;  // 1フレームを単位時間とする。
 }
