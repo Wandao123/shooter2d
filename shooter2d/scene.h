@@ -22,16 +22,11 @@ namespace Shooter {
 		void Draw() override;
 		void Update() override;
 	private:
-		enum EnemiesID {
-			SmallEnemyBlue
-		};
-
 		std::list<std::shared_ptr<GameObject>> tasksList;
 		std::unique_ptr<lua_State, std::function<void(lua_State*)>> state;  // HACK: あまりfunctionを使わない方が良い？
 		lua_State* const rawState;  // stateの生ポインタ。
 		lua_State* const thread;    // ステージを記述するコルーチン用。
 		void run();
-		int generateEnemy(EnemiesID id, Vector2 position, Vector2 velocity);
 	};
 }
 

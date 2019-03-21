@@ -34,6 +34,11 @@ namespace Shooter {
 			this->velocity = velocity;
 		}
 
+		void AddForce(Vector2 force)  // 次元を気にするならば、forceは単位質量あたりと解釈せよ。
+		{
+			velocity += force;
+		}
+
 	protected:
 		Vector2 velocity;
 		std::shared_ptr<Sprite> sprite;
