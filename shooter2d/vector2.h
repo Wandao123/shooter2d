@@ -1,6 +1,7 @@
 ﻿#ifndef VECTOR2_H
 #define VECTOR2_H
 
+#define _USE_MATH_DEFINES
 #include <cmath>
 
 namespace Shooter {

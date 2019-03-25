@@ -12,9 +12,9 @@ void Mover::Draw()
 }
 
 Player::Player(const Vector2 position, const float highSpeed, const float lowSpeed)
-	: Mover(position, { 0.0f, 0.0f }, 0.0f, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Reimudot.png")))
-	, highSpeed(highSpeed)
+	: Mover(position, highSpeed, -M_PI_2, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Reimudot.png")))
 	, lowSpeed(lowSpeed)
+	, velocity({ 0.0f, 0.0f })
 {
 	// HACK: マジックナンバーの削除。
 	for (int i = 0; i < clips.size(); i++)
@@ -57,23 +57,23 @@ void Player::Draw()
 void Player::Update()
 {
 	// TODO: キー入力処理の分離。
-	float speed;  // 単位：ドット毎秒
+	float speedPerSecond;  // 単位：ドット毎秒
 	const SDL_Keymod modStates = SDL_GetModState();
 	if (modStates & KMOD_SHIFT)
-		speed = lowSpeed * Timer::FPS;
+		speedPerSecond = lowSpeed * Timer::FPS;
 	else
-		speed = highSpeed * Timer::FPS;
+		speedPerSecond = speed * Timer::FPS;
 	velocity = { 0.0f, 0.0f };
 	const Uint8 *currentKeyStates = SDL_GetKeyboardState(nullptr);
 	if (currentKeyStates[SDL_SCANCODE_LEFT])
-		velocity.x = -speed;
+		velocity.x = -speedPerSecond;
 	if (currentKeyStates[SDL_SCANCODE_RIGHT])
-		velocity.x = +speed;
+		velocity.x = +speedPerSecond;
 	if (currentKeyStates[SDL_SCANCODE_UP])
-		velocity.y = -speed;
+		velocity.y = -speedPerSecond;
 	if (currentKeyStates[SDL_SCANCODE_DOWN])
-		velocity.y = +speed;
-	velocity = velocity.Normalize() * speed;
+		velocity.y = +speedPerSecond;
+	velocity = velocity.Normalize() * speedPerSecond;
 	move();
 }
 
@@ -86,8 +86,8 @@ void Player::move()
 		position.y -= velocity.y * Time->GetDeltaTime();
 }
 
-Enemy::Enemy(const Vector2 position, const Vector2 velocity)
-	: Mover(position, velocity, 0.0f, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Enemy.png")))
+Enemy::Enemy(const Vector2 position, const float speed, const float angle)
+	: Mover(position, speed, angle, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Enemy.png")))
 {
 	// HACK: マジックナンバーの削除。
 	for (int j = 0; j < clips[0].size(); j++) {
@@ -97,6 +97,7 @@ Enemy::Enemy(const Vector2 position, const Vector2 velocity)
 	}
 }
 
+// HACK: 自機と同じでは良くないかもしれない。
 void Enemy::Draw()
 {
 	// ここの部分はPlayerクラスと殆ど同じ。
@@ -104,9 +105,9 @@ void Enemy::Draw()
 		const int DelayFrames = 6;
 		const int NumSlice = 3;
 		static int level = 0;  // 左右に何フレーム進んでいるか表すフラグ。-(DelayFrames * NumSlice - 1) .. DelayFrames * NumSlice - 1 の範囲を動く。
-		if (velocity.x < 0.0f)
+		if (speed > 0.0f && angle > M_PI_2 + 1.e-4f)
 			level = std::max(level - 1, -(DelayFrames * NumSlice - 1));
-		else if (velocity.x > 0.0f)
+		else if (speed > 0.0f && angle < M_PI_2 - 1.e-4f)
 			level = std::min(level + 1, DelayFrames * NumSlice - 1);
 		else
 			level = (level != 0) ? (level - level / std::abs(level)) : 0;
@@ -126,5 +127,7 @@ void Enemy::Draw()
 
 void Enemy::Update()
 {
-	position += velocity ;  // 1フレームを単位時間とする。
+	// 1フレームを単位時間とする。
+	position.x += speed * std::cos(angle);
+	position.y += speed * std::sin(angle);
 }

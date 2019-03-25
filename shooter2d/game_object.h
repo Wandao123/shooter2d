@@ -23,6 +23,7 @@ namespace Shooter {
 			return position;
 		}
 	protected:
+		// TODO: 位置を画像の真ん中に。
 		Vector2 position;  // ここで言う位置とは画像の左上端のこと。
 	};
 }

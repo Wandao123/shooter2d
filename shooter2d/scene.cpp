@@ -6,7 +6,7 @@
 using namespace Shooter;
 
 // GameSceneのメンバ変数tasksListを仲介。GameSceneが破棄されるとNULLになるため、生ポインタを使う。
-// HACK: 【深刻な問題】GameSceneが生成される度に値が変わる。
+// HACK: 【深刻な問題】GameSceneが生成される度に指し示す実体が変わる。
 std::list<std::shared_ptr<GameObject>>* PTasksList;
 
 /******** Luaで使う関数群 ********/
@@ -20,43 +20,46 @@ int GenerateEnemy(lua_State* l)
 	if (name == "SmallBlue") {
 		float px = static_cast<float>(luaL_checknumber(l, 2));
 		float py = static_cast<float>(luaL_checknumber(l, 3));
-		float vx = static_cast<float>(luaL_checknumber(l, 4));
-		float vy = static_cast<float>(luaL_checknumber(l, 5));
+		float speed = static_cast<float>(luaL_checknumber(l, 4));
+		float angle = static_cast<float>(luaL_checknumber(l, 5));
 		//*newEnemy = new Enemy(Vector2{ px, py }, Vector2{ vx, vy });
-		newEnemy = std::make_unique<Enemy>(Vector2{ px, py }, Vector2{ vx, vy });
+		newEnemy = std::make_unique<Enemy>(Vector2{ px, py }, speed, angle);
 	}
 	lua_pushlightuserdata(l, static_cast<void*>(newEnemy.get()));  // HACK: lightuserdataは非推奨？
 	PTasksList->push_back(std::move(newEnemy));
 	return 1;
 }
 
-int GetVelocity(lua_State* l)
+// HACK: Setterとgetterはラムダ式でまとめて書けないか？
+int GetSpeed(lua_State* l)
 {
 	Mover* target = static_cast<Mover*>(lua_touserdata(l, 1));
-	//lua_pop(l, lua_gettop(l));
-	lua_newtable(l);
-	lua_pushnumber(l, target->GetVelocity().x);
-	lua_setfield(l, -2, "x");
-	lua_pushnumber(l, target->GetVelocity().y);
-	lua_setfield(l, -2, "y");
+	lua_pop(l, lua_gettop(l));
+	lua_pushnumber(l, target->GetSpeed());
 	return 1;
 }
 
-int SetVelocity(lua_State* l)
+int SetSpeed(lua_State* l)
 {
 	Mover* target = static_cast<Mover*>(lua_touserdata(l, 1));
-	float vx = static_cast<float>(luaL_checknumber(l, 2));
-	float vy = static_cast<float>(luaL_checknumber(l, 3));
-	target->SetVelocity({ vx, vy });
+	float angle = static_cast<float>(luaL_checknumber(l, 2));
+	target->SetAngle(angle);
 	return 0;
 }
 
-int AddForce(lua_State* l)
+int GetAngle(lua_State* l)
 {
 	Mover* target = static_cast<Mover*>(lua_touserdata(l, 1));
-	float fx = static_cast<float>(luaL_checknumber(l, 2));
-	float fy = static_cast<float>(luaL_checknumber(l, 3));
-	target->AddForce({ fx, fy });
+	lua_pop(l, lua_gettop(l));
+	lua_pushnumber(l, target->GetAngle());
+	return 1;
+}
+
+int SetAngle(lua_State* l)
+{
+	Mover* target = static_cast<Mover*>(lua_touserdata(l, 1));
+	float angle = static_cast<float>(luaL_checknumber(l, 2));
+	target->SetAngle(angle);
 	return 0;
 }
 /*********************************/
@@ -84,9 +87,10 @@ GameScene::GameScene()
 	// Luaで使う関数群の登録。
 	PTasksList = &tasksList;
 	lua_register(rawState, "GenerateEnemy", &GenerateEnemy);
-	lua_register(rawState, "GetVelocity", &GetVelocity);
-	lua_register(rawState, "SetVelocity", &SetVelocity);
-	lua_register(rawState, "AddForce", &AddForce);
+	lua_register(rawState, "GetSpeed", &GetSpeed);
+	lua_register(rawState, "SetSpeed", &SetSpeed);
+	lua_register(rawState, "GetAngle", &GetAngle);
+	lua_register(rawState, "SetAngle", &SetAngle);
 
 	// Luaのコルーチンの登録。
 	lua_getglobal(thread, "StartStage");
@@ -107,11 +111,15 @@ void GameScene::Draw()
 
 void GameScene::run()  // 処理の全容を記述
 {
-	/*static auto enemy = std::make_shared<Enemy>(Vector2{ (Game::Width - Player::Width) / 2.0f, 0.0f }, Vector2{ 0.0f, 1.0f });
+	/*static Uint32 frames = 0;
+	static auto enemy = std::make_shared<Enemy>(Vector2{ (Game::Width - Player::Width) / 2.0f, 0.0f }, 3.0f, M_PI_2);
+	++frames;
 	if (frames == 1) {
 		tasksList.push_back(enemy);
 	} else if (frames >= 2) {
-		enemy->SetVelocity({ 4.0f * std::cos(frames * Time->GetDeltaTime() * 2.0f), 1.0f });
+		enemy->SetAngle(frames * Time->GetDeltaTime() * 2.0f);
 	}*/
-	lua_resume(thread, nullptr, 0);
+	static int status = LUA_YIELD;
+	if (status == LUA_YIELD)  // コルーチンが終了したら実行を停める。
+		status = lua_resume(thread, nullptr, 0);
 }

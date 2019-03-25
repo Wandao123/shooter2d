@@ -9,10 +9,11 @@ namespace Shooter {
 	class Mover : public GameObject
 	{
 	public:
-		Mover(const Vector2 position, const Vector2 velocity,
+		Mover(const Vector2 position, const float speed,
 				const float angle, const std::shared_ptr<Sprite> sprite)
 			: GameObject(position)
-			, velocity(velocity)
+			, speed(speed)
+			, angle(angle)
 			, sprite(sprite) {}
 		// TODO: 仮想デストラクタが必須？
 		virtual ~Mover() {}
@@ -23,26 +24,30 @@ namespace Shooter {
 			this->sprite = sprite;
 		}
 
-		// HACK: 参照を返したほうがいい？
-		Vector2 GetVelocity() const
+		float GetSpeed() const
 		{
-			return velocity;
+			return speed;
 		}
 
-		void SetVelocity(Vector2 velocity)
+		void SetSpeed(float speed)
 		{
-			this->velocity = velocity;
+			this->speed = speed;
 		}
 
-		void AddForce(Vector2 force)  // 次元を気にするならば、forceは単位質量あたりと解釈せよ。
+		float GetAngle() const
 		{
-			velocity += force;
+			return angle;
+		}
+
+		void SetAngle(float angle)
+		{
+			this->angle = std::fmod(angle, 2 * M_PI);
 		}
 
 	protected:
-		Vector2 velocity;
+		float speed;  // 単位：ドット毎フレーム
+		float angle;  // x軸から時計回りに回転したときの角度。
 		std::shared_ptr<Sprite> sprite;
-		float angle;
 	};
 
 	// TODO: 後々、抽象クラスにして機体の種類毎にクラスを分ける。
@@ -57,9 +62,8 @@ namespace Shooter {
 		void Update() override;
 	private:
 		std::array<std::array<SDL_Rect, 5>, 3> clips;
-		float highSpeed;  // 単位：ドット毎フレーム
 		float lowSpeed;
-		// TODO: 回転角もプロパティとして持つ。
+		Vector2 velocity;  // 自機はxy座標系の方が扱いやすい。
 		void move();
 	};
 
@@ -68,7 +72,7 @@ namespace Shooter {
 	public:
 		static const int Height = 32;
 		static const int Width = 32;
-		Enemy(const Vector2 position, const Vector2 velocity);
+		Enemy(const Vector2 position, const float speed, const float angle);
 		~Enemy() = default;
 		void Draw() override;
 		void Update() override;
