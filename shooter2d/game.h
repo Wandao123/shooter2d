@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <stack>
-#include "timer.h"
 #include "scene.h"
 
 namespace Shooter {

@@ -3,6 +3,7 @@
 
 #include <list>
 #include <lua.hpp>
+#include <functional>
 #include "game_object.h"
 
 namespace Shooter {
