@@ -23,7 +23,7 @@ namespace Shooter {
 		void Draw() override;
 		void Update() override;
 	private:
-		std::list<std::shared_ptr<GameObject>> tasksList;
+		std::list<std::shared_ptr<GameObject>> objectsList;
 		sol::state lua;
 		sol::thread th;    // ステージを記述するコルーチン用。
 		sol::coroutine co;

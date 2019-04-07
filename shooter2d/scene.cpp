@@ -8,8 +8,8 @@ using namespace Shooter;
 GameScene::GameScene()
 {
 	// ゲーム中に常に表示されるオブジェクトを準備。
-	tasksList.push_back(std::make_unique<FrameUI>(0, Game::Height - 14));
-	tasksList.push_back(std::make_unique<Player>(Vector2{ (Game::Width - Player::Width) / 2.0f, Game::Height - Player::Height * 1.5f }, 4.0f, 2.0f));
+	objectsList.push_back(std::make_unique<FrameUI>(0, Game::Height - 14));
+	objectsList.push_back(std::make_unique<Player>(Vector2{ (Game::Width - Player::Width) / 2.0f, Game::Height - Player::Height * 1.5f }, 4.0f, 2.0f));
 
 	// Luaの初期化。
 	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string);
@@ -32,7 +32,7 @@ GameScene::GameScene()
 		if (name == "SmallBlue") {
 			newEnemy = std::make_unique<Enemy>(Vector2{ px, py }, speed, angle);
 		}
-		tasksList.push_back(newEnemy);
+		objectsList.push_back(newEnemy);
 		return newEnemy;
 	};
 
@@ -44,14 +44,14 @@ GameScene::GameScene()
 void GameScene::Update()
 {
 	run();
-	for (auto&& task : tasksList)
-		task->Update();
+	for (auto&& object : objectsList)
+		object->Update();
 }
 
 void GameScene::Draw()
 {
-	for (auto&& task : tasksList)
-		task->Draw();
+	for (auto&& object : objectsList)
+		object->Draw();
 }
 
 void GameScene::run()  // 処理の全容を記述
