@@ -1,7 +1,6 @@
 ﻿#include <iostream>
 #include "game.h"
 #include "user_interface.h"
-#include "mover.h"
 
 using namespace Shooter;
 
@@ -18,27 +17,19 @@ GameScene::GameScene()
 	lua["ScreenHeight"] = Game::Height;
 
 	// Luaで使う関数群の登録。
-	lua.new_usertype<Enemy>(
+	lua.new_usertype<Mover>(
 		"Enemy",
 		// Lua側で生成するならば、コンストラクタを定義して ``Enemy.new(...)'' とする。
-		"SetSpeed", &Enemy::SetSpeed,
-		"GetSpeed", &Enemy::GetSpeed,
-		"SetAngle", &Enemy::SetAngle,
-		"GetAngle", &Enemy::GetAngle
+		"SetSpeed", &Mover::SetSpeed,
+		"GetSpeed", &Mover::GetSpeed,
+		"SetAngle", &Mover::SetAngle,
+		"GetAngle", &Mover::GetAngle
 	);
-	// 敵の種類が増えたときに面倒なので、Lua側ではなくC++側で生成する。
-	lua["GenerateEnemy"] = [this](const std::string name, const float px, const float py, const float speed, const float angle) -> std::shared_ptr<Enemy> {
-		std::shared_ptr<Enemy> newEnemy;
-		if (name == "SmallBlue") {
-			newEnemy = std::make_unique<Enemy>(Vector2{ px, py }, speed, angle);
-		}
-		objectsList.push_back(newEnemy);
-		return newEnemy;
-	};
+	lua["GenerateMover"] = generateMover;
+	lua["StartCoroutine"] = startCoroutine;
 
-	// Luaのコルーチンの登録。
-	th = sol::thread::create(lua.lua_state());
-	co = th.state()["StartStage"];
+	// ステージ・スクリプトの登録。
+	startCoroutine("StartStage");
 }
 
 void GameScene::Update()
@@ -56,6 +47,11 @@ void GameScene::Draw()
 
 void GameScene::run()  // 処理の全容を記述
 {
-	if (co.runnable())
-		co();
+	for (auto task = tasksList.begin(); task != tasksList.end(); task++) {
+		if (task->second.runnable())
+			task->second();
+		else
+			task = tasksList.erase(task);
+		if (tasksList.empty()) break;  // これをしないと実行時エラーが発生。
+	}
 }

@@ -4,7 +4,8 @@
 #include <list>
 #include <sol.hpp>
 #include <functional>
-#include "game_object.h"
+#include <utility>
+#include "mover.h"
 
 namespace Shooter {
 	class Scene
@@ -23,11 +24,29 @@ namespace Shooter {
 		void Draw() override;
 		void Update() override;
 	private:
-		std::list<std::shared_ptr<GameObject>> objectsList;
+		std::list<std::shared_ptr<GameObject>> objectsList;  // 更新対象オブジェクト。
 		sol::state lua;
-		sol::thread th;    // ステージを記述するコルーチン用。
-		sol::coroutine co;
+		std::list<std::pair<sol::thread, sol::coroutine>> tasksList;  // これに登録されたコルーチンが毎フレーム実行される。
 		void run();
+		
+		// 動くオブジェクトの生成。敵や弾の種類が増えたときに面倒なので、Lua側ではなくC++側で生成する。
+		std::function<std::shared_ptr<Mover>(const std::string, const float, const float, const float, const float)> generateMover =
+		[this](const std::string name, const float px, const float py, const float speed, const float angle) -> std::shared_ptr<Mover> {
+			std::shared_ptr<Mover> newMover;
+			if (name == "SmallBlueEnemy") {
+				newMover = std::make_unique<Enemy>(Vector2{ px, py }, speed, angle);
+			}
+			objectsList.push_back(newMover);
+			return newMover;
+		};
+
+		// 本来はコルーチンを直接受け取って実行したい。しかし、スレッドを生成した上で呼び出すには、文字列で関数名を受け取る必要がある。
+		std::function<void(const std::string)> startCoroutine =
+		[this](const std::string name) {
+			sol::thread th = sol::thread::create(lua.lua_state());
+			sol::coroutine co = th.state()[name];
+			tasksList.push_back(std::make_pair(th, co));
+		};
 	};
 }
 
