@@ -89,7 +89,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\include;$(SolutionDir)packages\sdl2_image.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)packages\sol2;$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\include;$(SolutionDir)packages\sdl2_image.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_image.nuget.2.0.4\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\lib\$(PlatformTarget)\dynamic;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -126,6 +126,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

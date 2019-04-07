@@ -30,7 +30,7 @@ function smallBlueEnemy()
 	local diffAngle = math.acos(1.0 - 0.5 * speed ^ 2 / radius ^ 2)
 	angle = angle - diffAngle / 2
 	repeat
-		SetAngle(enemy, angle)
+		enemy:SetAngle(angle)
 		angle = angle - diffAngle
 		coroutine.yield()
 	until angle < 0.0
