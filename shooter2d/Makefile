@@ -1,5 +1,5 @@
 CC = g++
-COMPILE_OPTIONS = -std=c++14 -Wall -I/usr/include/SDL2 -I/usr/include/lua5.3 #-DLUA_32BITS
+COMPILE_OPTIONS = -std=c++14 -Wall -I/usr/include/SDL2 -I/usr/include/lua5.3 -I../packages/sol #-DLUA_32BITS
 LINK_OPTIONS = -lm -lSDL2 -lSDL2_image -lSDL2_ttf -llua5.3
 TARGET = main
 OBJS_DIR = lib

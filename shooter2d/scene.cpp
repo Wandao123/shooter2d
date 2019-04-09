@@ -13,8 +13,9 @@ GameScene::GameScene()
 	// Luaの初期化。
 	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string);
 	lua.script_file("scripts/stage.lua");  // TODO: エラー処理
-	lua["ScreenWidth"] = Game::Width;
-	lua["ScreenHeight"] = Game::Height;
+	int width = Game::Width, height = Game::Height;  // 磁化に代入するとgccでコンパイルできない。
+	lua["ScreenWidth"] = width;
+	lua["ScreenHeight"] = height;
 
 	// Luaで使う関数群の登録。
 	lua.new_usertype<Mover>(
