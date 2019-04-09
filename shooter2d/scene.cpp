@@ -27,7 +27,10 @@ GameScene::GameScene()
 		"GetAngle", &Mover::GetAngle
 	);
 	lua["GenerateMover"] = generateMover;
-	lua["StartCoroutine"] = startCoroutine;
+	lua["StartCoroutine"] = sol::overload(
+		startCoroutine,
+		startCoroutineWithArgs
+	);
 
 	// ステージ・スクリプトの登録。
 	startCoroutine("StartStage");

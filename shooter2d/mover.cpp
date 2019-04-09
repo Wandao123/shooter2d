@@ -91,33 +91,36 @@ Enemy::Enemy(const Vector2 position, const float speed, const float angle)
 {
 	// HACK: マジックナンバーの削除。
 	for (int j = 0; j < clips[0].size(); j++) {
-		clips[0][j] = { j * Width, 0, Width, Height };
-		clips[1][j] = { (j + 3) * Width, 2 * Height, Width, Height };
-		clips[2][j] = { (j + 3) * Width, 0, Width, Height };
+		clips[0][j] = { j * Width, 0, Width, Height };                 // 正面
+		clips[1][j] = { (j + 3) * Width, 2 * Height, Width, Height };  // 左移動
+		clips[2][j] = { (j + 3) * Width, 0, Width, Height };           // 右移動
 	}
 }
 
-// HACK: 自機と同じでは良くないかもしれない。
 void Enemy::Draw()
 {
-	// ここの部分はPlayerクラスと殆ど同じ。
+	// 30度ずつの領域に分けて、画像を切り換える。
 	auto clipFromImage = [this](Uint32 countedFrames) -> SDL_Rect& {
 		const int DelayFrames = 6;
 		const int NumSlice = 3;
-		static int level = 0;  // 左右に何フレーム進んでいるか表すフラグ。-(DelayFrames * NumSlice - 1) .. DelayFrames * NumSlice - 1 の範囲を動く。
-		if (speed > 0.0f && angle > M_PI_2 + 1.e-4f)
-			level = std::max(level - 1, -(DelayFrames * NumSlice - 1));
-		else if (speed > 0.0f && angle < M_PI_2 - 1.e-4f)
-			level = std::min(level + 1, DelayFrames * NumSlice - 1);
-		else
-			level = (level != 0) ? (level - level / std::abs(level)) : 0;
-
-		if (level == 0)
+		if (speed > 0.0f) {
+			if (angle < M_PI / 12.0f)
+				return clips[2][2];
+			else if (angle >= M_PI / 12.0f && angle < M_PI / 4.0f)
+				return clips[2][1];
+			else if (angle >= M_PI / 4.0f && angle < M_PI * 5.0f / 12.0f)
+				return clips[2][0];
+			else if (angle >= M_PI * 5.0f / 12.0f && angle <= M_PI * 7.0f / 12.0f)
+				return clips[0][(countedFrames / DelayFrames) % NumSlice];
+			else if (angle > M_PI * 7.0f / 12.0f && angle <= M_PI * 3.0f / 4.0f)
+				return clips[1][0];
+			else if (angle > M_PI * 3.0f / 4.0f && angle <= M_PI * 11.0f / 12.0f)
+				return clips[1][1];
+			else if (angle >= M_PI * 11.0f / 12.0f)
+				return clips[1][2];
+		} else {
 			return clips[0][(countedFrames / DelayFrames) % NumSlice];
-		else if (level < 0)
-			return clips[1][-level / DelayFrames];
-		else
-			return clips[2][level / DelayFrames];
+		}
 	};
 
 	SDL_Rect& currentClip = clipFromImage(Time->GetCountedFrames());

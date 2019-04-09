@@ -26,6 +26,7 @@ namespace Shooter {
 	private:
 		std::list<std::shared_ptr<GameObject>> objectsList;  // 更新対象オブジェクト。
 		sol::state lua;
+		// HACK: solのコルーチンの呼び出し方のために、組で保持する必要がある。Lua側でcoroutine.createをすれば、スレッドだけでもよい？
 		std::list<std::pair<sol::thread, sol::coroutine>> tasksList;  // これに登録されたコルーチンが毎フレーム実行される。
 		void run();
 		
@@ -45,6 +46,15 @@ namespace Shooter {
 		[this](const std::string name) {
 			sol::thread th = sol::thread::create(lua.lua_state());
 			sol::coroutine co = th.state()[name];
+			co();
+			tasksList.push_back(std::make_pair(th, co));
+		};
+
+		std::function<void(const std::string, sol::variadic_args)> startCoroutineWithArgs =
+		[this](const std::string name, sol::variadic_args va) {
+			sol::thread th = sol::thread::create(lua.lua_state());
+			sol::coroutine co = th.state()[name];
+			co(sol::as_args(std::vector<sol::object>(va.begin(), va.end())));
 			tasksList.push_back(std::make_pair(th, co));
 		};
 	};
