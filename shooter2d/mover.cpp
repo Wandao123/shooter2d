@@ -104,20 +104,23 @@ void Enemy::Draw()
 		const int DelayFrames = 6;
 		const int NumSlice = 3;
 		if (speed > 0.0f) {
-			if (angle < M_PI / 12.0f)
-				return clips[2][2];
-			else if (angle >= M_PI / 12.0f && angle < M_PI / 4.0f)
-				return clips[2][1];
-			else if (angle >= M_PI / 4.0f && angle < M_PI * 5.0f / 12.0f)
-				return clips[2][0];
+			static SDL_Rect& previousValue = clips[0][0];
+			if (angle == M_PI * 3.0f / 2.0f)
+				return previousValue;
+			else if (angle > M_PI * 11.0f / 12.0f && angle < M_PI * 3.0f / 2.0f)
+				return (previousValue = clips[1][2]);
+			else if (angle > M_PI * 3.0f / 4.0f && angle <= M_PI * 11.0f / 12.0f)
+				return (previousValue = clips[1][1]);
+			else if (angle > M_PI * 7.0f / 12.0f && angle <= M_PI * 3.0f / 4.0f)
+				return (previousValue = clips[1][0]);
 			else if (angle >= M_PI * 5.0f / 12.0f && angle <= M_PI * 7.0f / 12.0f)
 				return clips[0][(countedFrames / DelayFrames) % NumSlice];
-			else if (angle > M_PI * 7.0f / 12.0f && angle <= M_PI * 3.0f / 4.0f)
-				return clips[1][0];
-			else if (angle > M_PI * 3.0f / 4.0f && angle <= M_PI * 11.0f / 12.0f)
-				return clips[1][1];
-			else if (angle >= M_PI * 11.0f / 12.0f)
-				return clips[1][2];
+			else if (angle >= M_PI / 4.0f && angle < M_PI * 5.0f / 12.0f)
+				return (previousValue = clips[2][0]);
+			else if (angle >= M_PI / 12.0f && angle < M_PI / 4.0f)
+				return (previousValue = clips[2][1]);
+			else
+				return (previousValue = clips[2][2]);
 		} else {
 			return clips[0][(countedFrames / DelayFrames) % NumSlice];
 		}
