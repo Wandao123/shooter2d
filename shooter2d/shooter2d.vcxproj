@@ -141,6 +141,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="game_object.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mover.cpp" />
     <ClCompile Include="scene.cpp" />

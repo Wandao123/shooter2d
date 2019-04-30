@@ -12,6 +12,26 @@ void Mover::Draw()
 		static_cast<int>(position.y - sprite->GetClip()->h * 0.5f));
 }
 
+void Mover::Update()
+{
+	if (!isVisible1Sec())
+		enabled = false;
+}
+
+// 画面内にあるか否かの判定。画面外に出て1秒経ったらfalseを返す。
+bool Mover::isVisible1Sec() const
+{
+	static int counter = 0;
+	if (position.x < 0 || position.x > Game::Width || position.y < 0 || position.y > Game::Height)
+		++counter;
+	else
+		counter = 0;
+	if (counter < 60)
+		return true;
+	else
+		return false;
+}
+
 Player::Player(const Vector2 position, const float highSpeed, const float lowSpeed)
 	: Mover(position, highSpeed, -M_PI_2, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Reimudot.png")))
 	, lowSpeed(lowSpeed)
@@ -137,4 +157,16 @@ void Enemy::Update()
 	// 1フレームを単位時間とする。
 	position.x += speed * std::cos(angle);
 	position.y += speed * std::sin(angle);
+	Mover::Update();
+}
+
+std::shared_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const float posX, const float posY, const float speed, const float angle)
+{
+	std::shared_ptr<Enemy> newEnemy;
+	switch (id) {
+	case EnemyID::SmallBlue:
+		newEnemy = std::make_unique<Enemy>(Vector2{ posX, posY }, speed, angle);
+	}
+	objectsList.push_back(newEnemy);
+	return newEnemy;
 }

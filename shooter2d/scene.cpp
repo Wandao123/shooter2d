@@ -1,32 +1,38 @@
 ﻿#include <iostream>
 #include "game.h"
-#include "user_interface.h"
 
 using namespace Shooter;
 
 GameScene::GameScene()
 {
-	// ゲーム中に常に表示されるオブジェクトを準備。
-	objectsList.push_back(std::make_unique<FrameUI>(0, Game::Height - 14));
-	objectsList.push_back(std::make_unique<Player>(Vector2{ (Game::Width - Player::Width) / 2.0f, Game::Height - Player::Height * 1.5f }, 4.0f, 2.0f));
+	// 更新対象オブジェクトを生成。
+	player = std::make_unique<Player>(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }, 4.0f, 2.0f);
+	userInterfaceManager = std::make_unique<UserInterfaceManager>();
+	userInterfaceManager->GenerateObject(UserInterfaceID::FrameRate, 0, Game::Height - 14);
+	enemyManager = std::make_unique<EnemyManager>();
 
 	// Luaの初期化。
 	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string);
 	lua.script_file("scripts/stage.lua");  // TODO: エラー処理
+
+	// Luaで使う定数の登録。
 	int width = Game::Width, height = Game::Height;  // 直に代入するとgccでコンパイルできない。
 	lua["ScreenWidth"] = width;
 	lua["ScreenHeight"] = height;
+	lua["EnemyID"] = lua.create_table_with(
+		"SmallBlue", EnemyID::SmallBlue
+	);
 
 	// Luaで使う関数群の登録。
-	lua.new_usertype<Mover>(
+	lua.new_usertype<Enemy>(
 		"Enemy",
 		// Lua側で生成するならば、コンストラクタを定義して ``Enemy.new(...)'' とする。
-		"SetSpeed", &Mover::SetSpeed,
-		"GetSpeed", &Mover::GetSpeed,
-		"SetAngle", &Mover::SetAngle,
-		"GetAngle", &Mover::GetAngle
+		"SetSpeed", &Enemy::SetSpeed,
+		"GetSpeed", &Enemy::GetSpeed,
+		"SetAngle", &Enemy::SetAngle,
+		"GetAngle", &Enemy::GetAngle
 	);
-	lua["GenerateMover"] = generateMover;
+	lua["GenerateEnemy"] = generateEnemy;
 	lua["StartCoroutine"] = sol::overload(
 		startCoroutine,
 		startCoroutineWithArgs
@@ -39,14 +45,16 @@ GameScene::GameScene()
 void GameScene::Update()
 {
 	run();
-	for (auto&& object : objectsList)
-		object->Update();
+	player->Update();
+	userInterfaceManager->Update();
+	enemyManager->Update();
 }
 
 void GameScene::Draw()
 {
-	for (auto&& object : objectsList)
-		object->Draw();
+	player->Draw();
+	userInterfaceManager->Draw();
+	enemyManager->Draw();
 }
 
 void GameScene::run()  // 処理の全容を記述

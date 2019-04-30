@@ -33,6 +33,16 @@ namespace Shooter {
 	private:
 		void PutText() override;
 	};
+
+	enum class UserInterfaceID {
+		FrameRate
+	};
+
+	class UserInterfaceManager : public ObjectManager
+	{
+	public:
+		std::shared_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const int posX, const int posY);
+	};
 }
 
 #endif // !USER_INTERFACE_H

@@ -19,7 +19,7 @@ end
 function smallBlueEnemy(initPosX, initPosY, dir)
 	local speed = 2.0
 	local angle = math.pi / 2
-	local enemy = GenerateMover('SmallBlueEnemy', initPosX, initPosY, speed, angle)
+	local enemy = GenerateEnemy(EnemyID['SmallBlue'], initPosX, initPosY, speed, angle)
 	for i = 1, 120 do
 		coroutine.yield()
 	end

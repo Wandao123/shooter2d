@@ -51,3 +51,14 @@ void FrameUI::PutText()
 	Text.str("");
 	Text << "FPS " << std::fixed << std::setprecision(3) << Time->GetAverageOfFPS();
 }
+
+std::shared_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const int posX, const int posY)
+{
+	std::shared_ptr<UserInterface> newUI;
+	switch (id) {
+	case UserInterfaceID::FrameRate:
+		newUI = std::make_unique<FrameUI>(posX, posY);
+	}
+	objectsList.push_back(newUI);
+	return newUI;
+}

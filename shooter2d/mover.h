@@ -17,6 +17,7 @@ namespace Shooter {
 			, sprite(sprite) {}
 		virtual ~Mover() {}
 		virtual void Draw() override;
+		virtual void Update() override;
 
 		void SetSprite(const std::shared_ptr<Sprite> sprite)
 		{
@@ -42,11 +43,11 @@ namespace Shooter {
 		{
 			this->angle = std::fmod(angle, 2 * M_PI);
 		}
-
 	protected:
 		float speed;  // 単位：ドット毎フレーム
 		float angle;  // x軸から時計回りに回転したときの角度。
 		std::shared_ptr<Sprite> sprite;
+		bool isVisible1Sec() const;
 	};
 
 	// TODO: 後々、抽象クラスにして機体の種類毎にクラスを分ける。
@@ -77,6 +78,17 @@ namespace Shooter {
 		void Update() override;
 	private:
 		std::array<std::array<SDL_Rect, 3>, 3> clips;
+	};
+
+	enum class EnemyID
+	{
+		SmallBlue
+	};
+
+	class EnemyManager : public ObjectManager
+	{
+	public:
+		std::shared_ptr<Enemy> GenerateObject(const EnemyID id, const float posX, const float posY, const float speed, const float angle);
 	};
 }
 
