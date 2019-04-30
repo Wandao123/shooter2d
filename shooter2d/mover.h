@@ -15,7 +15,6 @@ namespace Shooter {
 			, speed(speed)
 			, angle(angle)
 			, sprite(sprite) {}
-		// TODO: 仮想デストラクタが必須？
 		virtual ~Mover() {}
 		virtual void Draw() override;
 

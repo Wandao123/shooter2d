@@ -8,7 +8,8 @@ std::unique_ptr<AssetLoader> assetLoader = std::make_unique<AssetLoader>();
 
 void Mover::Draw()
 {
-	sprite->Draw(static_cast<int>(position.x), static_cast<int>(position.y));
+	sprite->Draw(static_cast<int>(position.x - sprite->GetClip()->w * 0.5f),
+		static_cast<int>(position.y - sprite->GetClip()->h * 0.5f));
 }
 
 Player::Player(const Vector2 position, const float highSpeed, const float lowSpeed)
@@ -80,9 +81,9 @@ void Player::Update()
 void Player::move()
 {
 	position += velocity * Time->GetDeltaTime();
-	if ((position.x < 0) || (position.x + Width > Game::Width))
+	if ((position.x - Width * 0.5f < 0) || (position.x + Width * 0.5f > Game::Width))
 		position.x -= velocity.x * Time->GetDeltaTime();
-	if ((position.y < 0) || (position.y + Height > Game::Height))
+	if ((position.y - Width * 0.5f < 0) || (position.y + Height * 0.5f > Game::Height))
 		position.y -= velocity.y * Time->GetDeltaTime();
 }
 

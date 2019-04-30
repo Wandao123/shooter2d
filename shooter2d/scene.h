@@ -24,6 +24,7 @@ namespace Shooter {
 		void Draw() override;
 		void Update() override;
 	private:
+		// TODO: このままでもオブジェクトのプーリングが可能だが、クラスの肥大化を防ぐため管理クラスとして分けるべき。
 		std::list<std::shared_ptr<GameObject>> objectsList;  // 更新対象オブジェクト。
 		sol::state lua;
 		// HACK: solのコルーチンの呼び出し方のために、組で保持する必要がある。Lua側でcoroutine.createをすれば、スレッドだけでもよい？

@@ -4,6 +4,8 @@
 namespace Shooter {
 	extern SDL_Renderer *Renderer;
 
+	/// <param name="x">描画する位置の左上端のx座標</param>
+	/// <param name="y">描画する位置の左上端のy座標</param>
 	void Sprite::Draw(const int x, const int y) const
 	{
 		SDL_Rect renderClip = { x, y, clip->w, clip->h };
