@@ -11,8 +11,8 @@ namespace Shooter {
 	class UserInterface : public GameObject
 	{
 	public:
-		UserInterface(const int positionX, const int positionY);
-		~UserInterface();
+		UserInterface(const Vector2& positin);
+		virtual ~UserInterface();
 		virtual void Draw();
 		virtual void Update();
 	protected:
@@ -22,26 +22,25 @@ namespace Shooter {
 		virtual void PutText() = 0;
 	private:
 		SDL_Rect renderText;
-		int posX, posY;
 	};
 
 	class FrameUI : public UserInterface
 	{
 	public:
-		FrameUI(const int positionX, const int positionY) : UserInterface(positionX, positionY) {}
+		FrameUI(const Vector2& position) : UserInterface(position) {}
 		~FrameUI() = default;
 	private:
 		void PutText() override;
 	};
 
-	enum class UserInterfaceID {
-		FrameRate
-	};
-
 	class UserInterfaceManager : public ObjectManager
 	{
 	public:
-		std::shared_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const int posX, const int posY);
+		enum class UserInterfaceID {
+			FrameRate
+		};
+
+		std::shared_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2& position);
 	};
 }
 

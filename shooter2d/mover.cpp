@@ -6,38 +6,92 @@ using namespace Shooter;
 
 std::unique_ptr<AssetLoader> assetLoader = std::make_unique<AssetLoader>();
 
+class Reimu : public Player
+{
+public:
+	Reimu(const Vector2& position)
+		: Player(position, 4.5f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Reimudot.png")))
+	{}
+};
+
+class Marisa : public Player
+{
+public:
+	Marisa(const Vector2& position)
+		: Player(position, 5.0f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Marisadot.png")))
+	{}
+};
+
+class Sanae : public Player
+{
+public:
+	Sanae(const Vector2& position)
+		: Player(position, 4.5f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Sanaedot.png")))
+	{}
+};
+
+class SmallBlueEnemy : public Enemy
+{
+public:
+	SmallBlueEnemy(const Vector2& position)
+		: Enemy(position, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Enemy.png")))
+	{
+		InitializeClips();
+	}
+protected:
+	void InitializeClips() override
+	{
+		for (int j = 0; j < clips[0].size(); j++) {
+			clips[0][j] = { j * Width, 0, Width, Height };                 // 停止時
+			clips[1][j] = { (j + 3) * Width, 2 * Height, Width, Height };  // 左移動
+			clips[2][j] = { (j + 3) * Width, 0, Width, Height };           // 右移動
+		}
+	}
+};
+
 void Mover::Draw()
 {
 	sprite->Draw(static_cast<int>(position.x - sprite->GetClip()->w * 0.5f),
 		static_cast<int>(position.y - sprite->GetClip()->h * 0.5f));
 }
 
+void Mover::Spawned(const float speed, const float angle)
+{
+	SetSpeed(speed);
+	SetAngle(angle);
+	enabled = true;
+}
+
+void Mover::Spawned()
+{
+	enabled = true;
+}
+
 void Mover::Update()
 {
-	if (!isVisible1Sec())
+	if (isInvisibleFor1Sec())
 		enabled = false;
 }
 
-// 画面内にあるか否かの判定。画面外に出て1秒経ったらfalseを返す。
-bool Mover::isVisible1Sec() const
+// 画面内にあるか否かの判定。画面外に出て1秒経ったらtrueを返す。
+bool Mover::isInvisibleFor1Sec() const
 {
 	static int counter = 0;
 	if (position.x < 0 || position.x > Game::Width || position.y < 0 || position.y > Game::Height)
 		++counter;
 	else
 		counter = 0;
-	if (counter < 60)
+	if (counter >= 60)
 		return true;
 	else
 		return false;
 }
 
-Player::Player(const Vector2 position, const float highSpeed, const float lowSpeed)
-	: Mover(position, highSpeed, -M_PI_2, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Reimudot.png")))
+Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed, const std::shared_ptr<Sprite> sprite)
+	: Mover(position, highSpeed, -M_PI_2, sprite)
 	, lowSpeed(lowSpeed)
 	, velocity({ 0.0f, 0.0f })
 {
-	// HACK: マジックナンバーの削除。
 	for (int i = 0; i < clips.size(); i++)
 		for (int j = 0; j < clips[i].size(); j++)
 			clips[i][j] = { j * Width, i * Height, Width, Height };
@@ -46,11 +100,11 @@ Player::Player(const Vector2 position, const float highSpeed, const float lowSpe
 void Player::Draw()
 {
 	// HACK: ここはファイル構造に強く依存するため、アルゴリズムだけ巧く抽出できないか？
-	// 少なくとも6フレームは同じ画像を表示。アニメーションは5コマ（4コマ目と5コマ目は繰り返し）ある。
 	auto clipFromImage = [this](Uint32 countedFrames) -> SDL_Rect& {
-		const int DelayFrames = 6;
-		const int NumSlice = 5;
-		static int level = 0;  // 左右に何フレーム進んでいるか表すフラグ。-(DelayFrames * NumSlice - 1) .. DelayFrames * NumSlice - 1 の範囲を動く。
+		const int DelayFrames = 3;  // 左右移動の際に次の画像に切り替わるまでのフレーム数。
+		const int NumSlice = 5;     // 停止時、左移動、右移動における各変化のコマ数。
+		const int Period = 6;       // 停止時などに画像を繰り返す周期。
+		static int level = 0;       // 左右に何フレーム進んでいるか表すフラグ。-(DelayFrames * NumSlice - 1) .. DelayFrames * NumSlice - 1 の範囲を動く。
 		if (velocity.x < 0.0f)
 			level = std::max(level - 1, -(DelayFrames * NumSlice - 1));
 		else if (velocity.x > 0.0f)
@@ -59,11 +113,11 @@ void Player::Draw()
 			level = (level != 0) ? (level - level / std::abs(level)) : 0;
 
 		if (level == 0)
-			return clips[0][(countedFrames / DelayFrames) % NumSlice];
+			return clips[0][(countedFrames / Period) % NumSlice];
 		else if (level == -(DelayFrames * NumSlice - 1))  // 4コマ目と5コマ目だけ繰り返し。
-			return clips[1][(countedFrames / DelayFrames) % 2 + 3];
+			return clips[1][(countedFrames / Period) % 2 + 3];
 		else if (level == DelayFrames * NumSlice - 1)
-			return clips[2][(countedFrames / DelayFrames) % 2 + 3];
+			return clips[2][(countedFrames / Period) % 2 + 3];
 		else if (level < 0)
 			return clips[1][-level / DelayFrames];
 		else
@@ -107,16 +161,26 @@ void Player::move()
 		position.y -= velocity.y * Time->GetDeltaTime();
 }
 
-Enemy::Enemy(const Vector2 position, const float speed, const float angle)
-	: Mover(position, speed, angle, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Enemy.png")))
+std::shared_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vector2& position)
 {
-	// HACK: マジックナンバーの削除。
-	for (int j = 0; j < clips[0].size(); j++) {
-		clips[0][j] = { j * Width, 0, Width, Height };                 // 正面
-		clips[1][j] = { (j + 3) * Width, 2 * Height, Width, Height };  // 左移動
-		clips[2][j] = { (j + 3) * Width, 0, Width, Height };           // 右移動
+	std::shared_ptr<Player> newObject;
+	switch (id) {
+	case PlayerID::Reimu:
+		newObject = assignObject<Reimu>(position);
+		break;
+	case PlayerID::Marisa:
+		newObject = assignObject<Marisa>(position);
+		break;
+	case PlayerID::Sanae:
+		newObject = assignObject<Sanae>(position);
+		break;
 	}
+	return newObject;
 }
+
+Enemy::Enemy(const Vector2& position, const std::shared_ptr<Sprite> sprite)
+	: Mover(position, 0.0f, M_PI_2, sprite)
+{}
 
 void Enemy::Draw()
 {
@@ -160,13 +224,13 @@ void Enemy::Update()
 	Mover::Update();
 }
 
-std::shared_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const float posX, const float posY, const float speed, const float angle)
+std::shared_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const Vector2& position)
 {
-	std::shared_ptr<Enemy> newEnemy;
+	std::shared_ptr<Enemy> newObject;
 	switch (id) {
 	case EnemyID::SmallBlue:
-		newEnemy = std::make_unique<Enemy>(Vector2{ posX, posY }, speed, angle);
+		newObject = assignObject<SmallBlueEnemy>(position);
+		break;
 	}
-	objectsList.push_back(newEnemy);
-	return newEnemy;
+	return newObject;
 }

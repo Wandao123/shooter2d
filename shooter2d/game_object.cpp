@@ -1,3 +1,4 @@
+#include <typeinfo>
 #include "game_object.h"
 
 using namespace Shooter;

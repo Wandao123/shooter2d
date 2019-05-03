@@ -25,7 +25,7 @@ namespace Shooter {
 		void Draw() override;
 		void Update() override;
 	private:
-		std::unique_ptr<Player> player;
+		std::unique_ptr<PlayerManager> playerManager;
 		std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 		std::unique_ptr<EnemyManager> enemyManager;
 		sol::state lua;
@@ -34,9 +34,11 @@ namespace Shooter {
 		void run();
 
 		// 敵の生成。種類が増えたときに面倒なので、Lua側ではなくC++側で生成する。
-		std::function<std::shared_ptr<Enemy>(const EnemyID, const float, const float, const float, const float)> generateEnemy =
-		[this](const EnemyID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Enemy> {
-			return enemyManager->GenerateObject(id, posX, posY, speed, angle);
+		std::function<std::shared_ptr<Enemy>(const EnemyManager::EnemyID, const float, const float, const float, const float)> generateEnemy =
+		[this](const EnemyManager::EnemyID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Enemy> {
+			auto newObject = enemyManager->GenerateObject(id, Vector2{ posX, posY });
+			newObject->Spawned(speed, angle);
+			return newObject;
 		};
 
 		// 本来はコルーチンを直接受け取って実行したい。しかし、スレッドを生成した上で呼び出すには、文字列で関数名を受け取る必要がある。

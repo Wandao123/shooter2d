@@ -6,9 +6,10 @@ using namespace Shooter;
 GameScene::GameScene()
 {
 	// 更新対象オブジェクトを生成。
-	player = std::make_unique<Player>(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }, 4.0f, 2.0f);
+	playerManager = std::make_unique<PlayerManager>();
+	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height })->Spawned();
 	userInterfaceManager = std::make_unique<UserInterfaceManager>();
-	userInterfaceManager->GenerateObject(UserInterfaceID::FrameRate, 0, Game::Height - 14);
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ 0, Game::Height - 14 });
 	enemyManager = std::make_unique<EnemyManager>();
 
 	// Luaの初期化。
@@ -20,7 +21,7 @@ GameScene::GameScene()
 	lua["ScreenWidth"] = width;
 	lua["ScreenHeight"] = height;
 	lua["EnemyID"] = lua.create_table_with(
-		"SmallBlue", EnemyID::SmallBlue
+		"SmallBlue", EnemyManager::EnemyID::SmallBlue
 	);
 
 	// Luaで使う関数群の登録。
@@ -45,14 +46,14 @@ GameScene::GameScene()
 void GameScene::Update()
 {
 	run();
-	player->Update();
+	playerManager->Update();
 	userInterfaceManager->Update();
 	enemyManager->Update();
 }
 
 void GameScene::Draw()
 {
-	player->Draw();
+	playerManager->Draw();
 	userInterfaceManager->Draw();
 	enemyManager->Draw();
 }

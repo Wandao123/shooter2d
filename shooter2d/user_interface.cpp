@@ -4,9 +4,8 @@
 
 using namespace Shooter;
 
-UserInterface::UserInterface(const int positionX, const int positionY)
-	: posX(positionX)
-	, posY(positionY)
+UserInterface::UserInterface(const Vector2& position)
+	: GameObject(true, position)
 {
 	// TODO: 例外の発生。
 #ifdef _WIN64
@@ -43,7 +42,7 @@ void UserInterface::Update()
 	textHeight = textSurface->h;
 	SDL_FreeSurface(textSurface);
 	//renderText = { 0, ScreenHeight - textHeight, textWidth, textHeight };
-	renderText = { posX, posY, textWidth, textHeight };
+	renderText = { static_cast<int>(position.x), static_cast<int>(position.y), textWidth, textHeight };
 }
 
 void FrameUI::PutText()
@@ -52,13 +51,13 @@ void FrameUI::PutText()
 	Text << "FPS " << std::fixed << std::setprecision(3) << Time->GetAverageOfFPS();
 }
 
-std::shared_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const int posX, const int posY)
+std::shared_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const Vector2& position)
 {
-	std::shared_ptr<UserInterface> newUI;
+	std::shared_ptr<UserInterface> newObject;
 	switch (id) {
 	case UserInterfaceID::FrameRate:
-		newUI = std::make_unique<FrameUI>(posX, posY);
+		newObject = assignObject<FrameUI>(position);
+		break;
 	}
-	objectsList.push_back(newUI);
-	return newUI;
+	return newObject;
 }
