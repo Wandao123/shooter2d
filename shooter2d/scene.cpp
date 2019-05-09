@@ -6,11 +6,12 @@ using namespace Shooter;
 GameScene::GameScene()
 {
 	// 更新対象オブジェクトを生成。
-	playerManager = std::make_unique<PlayerManager>();
+	playerManager = std::make_shared<PlayerManager>();
 	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height })->Spawned();
-	userInterfaceManager = std::make_unique<UserInterfaceManager>();
+	userInterfaceManager = std::make_shared<UserInterfaceManager>();
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ 0, Game::Height - 14 });
-	enemyManager = std::make_unique<EnemyManager>();
+	enemyManager = std::make_shared<EnemyManager>();
+	collisionDetector = std::make_unique<CollisionDetector>(playerManager, enemyManager);
 
 	// Luaの初期化。
 	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string);
@@ -31,7 +32,9 @@ GameScene::GameScene()
 		"SetSpeed", &Enemy::SetSpeed,
 		"GetSpeed", &Enemy::GetSpeed,
 		"SetAngle", &Enemy::SetAngle,
-		"GetAngle", &Enemy::GetAngle
+		"GetAngle", &Enemy::GetAngle,
+		"GetPosX", [](Enemy& enemy) -> float { return enemy.GetPosition().x; },
+		"GetPosY", [](Enemy& enemy) -> float { return enemy.GetPosition().y; }
 	);
 	lua["GenerateEnemy"] = generateEnemy;
 	lua["StartCoroutine"] = sol::overload(
@@ -49,6 +52,7 @@ void GameScene::Update()
 	playerManager->Update();
 	userInterfaceManager->Update();
 	enemyManager->Update();
+	collisionDetector->CheckAll();
 }
 
 void GameScene::Draw()
@@ -60,11 +64,22 @@ void GameScene::Draw()
 
 void GameScene::run()  // 処理の全容を記述
 {
-	for (auto task = tasksList.begin(); task != tasksList.end(); task++) {
-		if (task->second.runnable())
-			task->second();
-		else
-			task = tasksList.erase(task);
-		if (tasksList.empty()) break;  // これをしないと実行時エラーが発生。
-	}
+	tasksList.remove_if([](std::pair<sol::thread, sol::coroutine> task) {  // 終了したスレッドを全て削除。
+		//if (task.first.status() == sol::thread_status::dead) {
+		if (task.second.status() == sol::call_status::ok) {
+			task.first.state().collect_garbage();  // タイミングがよく判らないため、明示的に実行。もしスレッドが終了していれば、ObjectManager::objectsListの各要素の参照カウントが1になる筈。
+			return true;
+		} else {
+			return false;
+		}
+	});
+	for (auto&& task : tasksList)
+		task.second();
+	/*int counter = Time->GetCountedFrames();
+	if (counter % 240 == 0)
+		std::cout << enemyManager->GetList().begin()->use_count() << std::endl;
+	if (counter % 15 == 0 && counter <= 70) {
+		auto newObject = enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2{ Game::Width / 4.0f, 0.0f });
+		newObject->Spawned(2.0f, M_PI_2);
+	}*/
 }

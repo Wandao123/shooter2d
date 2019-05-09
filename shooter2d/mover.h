@@ -2,6 +2,7 @@
 #define MOVER_H
 
 #include <array>
+#include "collider.h"
 #include "game_object.h"
 #include "sprite.h"
 
@@ -11,11 +12,13 @@ namespace Shooter {
 	{
 	public:
 		Mover(const Vector2& position, const float speed,
-				const float angle, const std::shared_ptr<Sprite> sprite)
+				const float angle, const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider)
 			: GameObject(false, position)
 			, speed(speed)
 			, angle(angle)
-			, sprite(sprite) {}
+			, sprite(sprite)
+			, collider(std::move(collider))
+		{}
 		virtual ~Mover() {}
 		virtual void Draw() override;
 		void Spawned(const float speed, const float angle);
@@ -29,7 +32,8 @@ namespace Shooter {
 
 		void SetSpeed(const float speed)
 		{
-			this->speed = speed;
+			if (enabled)
+				this->speed = speed;
 		}
 
 		float GetAngle() const
@@ -39,13 +43,26 @@ namespace Shooter {
 
 		void SetAngle(const float angle)
 		{
-			this->angle = std::fmod(angle, 2 * M_PI);
+			if (enabled)
+				this->angle = std::fmod(angle, 2 * M_PI);
+		}
+
+		Collider& GetCollider() const
+		{
+			return *collider;
+		}
+
+		virtual void OnTriggerEnter()
+		{
+			enabled = false;
 		}
 	protected:
 		float speed;  // 単位：ドット毎フレーム
 		float angle;  // x軸から時計回りに回転したときの角度。
 		std::shared_ptr<Sprite> sprite;
-		bool isInvisibleFor1Sec() const;
+		std::unique_ptr<Collider> collider;
+		unsigned int counter = 0;  // enabledがtrueになってからのフレーム数。
+		bool isInside();
 	};
 
 	class Player : public Mover
@@ -53,7 +70,8 @@ namespace Shooter {
 	public:
 		static const int Height = 48;
 		static const int Width = 32;
-		Player(const Vector2& position, const float highSpeed, const float lowSpeed, const std::shared_ptr<Sprite> sprite);
+		Player(const Vector2& position, const float highSpeed, const float lowSpeed,
+			const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider);
 		~Player() = default;
 		void Draw() override;
 		void Update() override;
@@ -82,7 +100,7 @@ namespace Shooter {
 	public:
 		static const int Height = 32;
 		static const int Width = 32;
-		Enemy(const Vector2& position, const std::shared_ptr<Sprite> sprite);
+		Enemy(const Vector2& position, const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider);
 		~Enemy() = default;
 		void Draw() override;
 		virtual void InitializeClips() = 0;

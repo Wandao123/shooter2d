@@ -10,7 +10,7 @@ class Reimu : public Player
 {
 public:
 	Reimu(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Reimudot.png")))
+		: Player(position, 4.5f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(position, 1.0f))
 	{}
 };
 
@@ -18,7 +18,7 @@ class Marisa : public Player
 {
 public:
 	Marisa(const Vector2& position)
-		: Player(position, 5.0f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Marisadot.png")))
+		: Player(position, 5.0f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(position, 1.3f))
 	{}
 };
 
@@ -26,7 +26,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Sanaedot.png")))
+		: Player(position, 4.5f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(position, 1.3f))
 	{}
 };
 
@@ -34,7 +34,7 @@ class SmallBlueEnemy : public Enemy
 {
 public:
 	SmallBlueEnemy(const Vector2& position)
-		: Enemy(position, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Enemy.png")))
+		: Enemy(position, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(position, Enemy::Width * 0.5f))
 	{
 		InitializeClips();
 	}
@@ -57,38 +57,41 @@ void Mover::Draw()
 
 void Mover::Spawned(const float speed, const float angle)
 {
+	enabled = true;
+	counter = 0;
 	SetSpeed(speed);
 	SetAngle(angle);
-	enabled = true;
 }
 
 void Mover::Spawned()
 {
 	enabled = true;
+	counter = 0;
 }
 
 void Mover::Update()
 {
-	if (isInvisibleFor1Sec())
+	if (!isInside())
 		enabled = false;
+	collider->SetPosition(position);
 }
 
-// 画面内にあるか否かの判定。画面外に出て1秒経ったらtrueを返す。
-bool Mover::isInvisibleFor1Sec() const
+bool Mover::isInside()
 {
-	static int counter = 0;
-	if (position.x < 0 || position.x > Game::Width || position.y < 0 || position.y > Game::Height)
+	if (counter < 60) {
 		++counter;
-	else
-		counter = 0;
-	if (counter >= 60)
 		return true;
-	else
+	}
+	if (position.x < -sprite->GetClip()->w / 2 || position.x > Game::Width + sprite->GetClip()->w / 2
+		|| position.y < -sprite->GetClip()->h / 2 || position.y > Game::Height + sprite->GetClip()->h / 2)
 		return false;
+	else
+		return true;
 }
 
-Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed, const std::shared_ptr<Sprite> sprite)
-	: Mover(position, highSpeed, -M_PI_2, sprite)
+Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed,
+	const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider)
+	: Mover(position, highSpeed, -M_PI_2, sprite, std::move(collider))
 	, lowSpeed(lowSpeed)
 	, velocity({ 0.0f, 0.0f })
 {
@@ -150,6 +153,7 @@ void Player::Update()
 		velocity.y = +speedPerSecond;
 	velocity = velocity.Normalize() * speedPerSecond;
 	move();
+	Mover::Update();
 }
 
 void Player::move()
@@ -178,8 +182,8 @@ std::shared_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const V
 	return newObject;
 }
 
-Enemy::Enemy(const Vector2& position, const std::shared_ptr<Sprite> sprite)
-	: Mover(position, 0.0f, M_PI_2, sprite)
+Enemy::Enemy(const Vector2& position, const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider)
+	: Mover(position, 0.0f, M_PI_2, sprite, std::move(collider))
 {}
 
 void Enemy::Draw()
@@ -189,23 +193,22 @@ void Enemy::Draw()
 		const int DelayFrames = 6;
 		const int NumSlice = 3;
 		if (speed > 0.0f) {
-			static SDL_Rect& previousValue = clips[0][0];
 			if (angle == M_PI * 3.0f / 2.0f)
-				return previousValue;
+				return clips[0][(countedFrames / DelayFrames) % NumSlice];  // どう設定するのが適切なのか？
 			else if (angle > M_PI * 11.0f / 12.0f && angle < M_PI * 3.0f / 2.0f)
-				return (previousValue = clips[1][2]);
+				return clips[1][2];
 			else if (angle > M_PI * 3.0f / 4.0f && angle <= M_PI * 11.0f / 12.0f)
-				return (previousValue = clips[1][1]);
+				return clips[1][1];
 			else if (angle > M_PI * 7.0f / 12.0f && angle <= M_PI * 3.0f / 4.0f)
-				return (previousValue = clips[1][0]);
+				return clips[1][0];
 			else if (angle >= M_PI * 5.0f / 12.0f && angle <= M_PI * 7.0f / 12.0f)
 				return clips[0][(countedFrames / DelayFrames) % NumSlice];
 			else if (angle >= M_PI / 4.0f && angle < M_PI * 5.0f / 12.0f)
-				return (previousValue = clips[2][0]);
+				return clips[2][0];
 			else if (angle >= M_PI / 12.0f && angle < M_PI / 4.0f)
-				return (previousValue = clips[2][1]);
+				return clips[2][1];
 			else
-				return (previousValue = clips[2][2]);
+				return clips[2][2];
 		} else {
 			return clips[0][(countedFrames / DelayFrames) % NumSlice];
 		}
@@ -232,5 +235,7 @@ std::shared_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const Vect
 		newObject = assignObject<SmallBlueEnemy>(position);
 		break;
 	}
-	return newObject;
+	newObject->SetSpeed(0.0f);
+	newObject->SetAngle(M_PI_2);
+	return std::move(newObject);
 }

@@ -5,7 +5,7 @@
 #include <sol.hpp>
 #include <functional>
 #include <utility>
-#include "mover.h"
+#include "collision_detector.h"
 #include "user_interface.h"
 
 namespace Shooter {
@@ -25,9 +25,10 @@ namespace Shooter {
 		void Draw() override;
 		void Update() override;
 	private:
-		std::unique_ptr<PlayerManager> playerManager;
-		std::unique_ptr<UserInterfaceManager> userInterfaceManager;
-		std::unique_ptr<EnemyManager> enemyManager;
+		std::shared_ptr<PlayerManager> playerManager;
+		std::shared_ptr<UserInterfaceManager> userInterfaceManager;
+		std::shared_ptr<EnemyManager> enemyManager;
+		std::unique_ptr<CollisionDetector> collisionDetector;
 		sol::state lua;
 		// HACK: solのコルーチンの呼び出し方のために、組で保持する必要がある。Lua側でcoroutine.createをすれば、スレッドだけでもよい？
 		std::list<std::pair<sol::thread, sol::coroutine>> tasksList;  // これに登録されたコルーチンが毎フレーム実行される。
@@ -38,7 +39,7 @@ namespace Shooter {
 		[this](const EnemyManager::EnemyID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Enemy> {
 			auto newObject = enemyManager->GenerateObject(id, Vector2{ posX, posY });
 			newObject->Spawned(speed, angle);
-			return newObject;
+			return std::move(newObject);
 		};
 
 		// 本来はコルーチンを直接受け取って実行したい。しかし、スレッドを生成した上で呼び出すには、文字列で関数名を受け取る必要がある。

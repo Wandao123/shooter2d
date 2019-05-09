@@ -25,6 +25,11 @@ namespace Shooter {
 			return position;
 		}
 
+		void SetPosition(const Vector2& position)
+		{
+			this->position = position;
+		}
+
 		bool IsEnabled() const
 		{
 			return enabled;
@@ -42,6 +47,15 @@ namespace Shooter {
 		virtual ~ObjectManager() {}
 		virtual void Draw();
 		virtual void Update();
+
+		std::list<std::shared_ptr<GameObject>> GetList() const
+		{
+			std::list<std::shared_ptr<GameObject>> temp;
+			for (auto&& object : objectsList)
+				if (object->IsEnabled())
+					temp.push_back(object);
+			return temp;
+		}
 	protected:
 		std::list<std::shared_ptr<GameObject>> objectsList;  // 更新対象オブジェクト。本来なら継承先でGameObjectの具象クラスに対して定義するべきか？
 
@@ -51,11 +65,12 @@ namespace Shooter {
 		std::shared_ptr<ObjectType> assignObject(const Vector2& position)
 		{
 			for (auto&& object : objectsList)
-				if (typeid(*object) == typeid(ObjectType) && !object->IsEnabled())
+				if (typeid(*object) == typeid(ObjectType) && !object->IsEnabled() && object.use_count() <= 1) {
+					object->SetPosition(position);
 					return std::dynamic_pointer_cast<ObjectType>(object);
-			std::shared_ptr<ObjectType> newObject = std::make_shared<ObjectType>(position);
-			objectsList.push_back(newObject);
-			return newObject;
+				}
+			objectsList.push_front(std::make_unique<ObjectType>(position));
+			return std::dynamic_pointer_cast<ObjectType>(*objectsList.begin());;
 		}
 	};
 }
