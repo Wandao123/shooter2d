@@ -11,32 +11,33 @@ namespace Shooter {
 	class Sprite
 	{
 	public:
-		Sprite(const std::shared_ptr<SDL_Texture> texture) : Sprite(texture, std::make_shared<SDL_Rect>()) {}
+		Sprite(const std::shared_ptr<SDL_Texture> texture) : Sprite(texture, std::make_unique<SDL_Rect>()) {}
 
-		Sprite(const std::shared_ptr<SDL_Texture> texture, const std::shared_ptr<SDL_Rect> Clip)
+		Sprite(const std::shared_ptr<SDL_Texture> texture, std::unique_ptr<SDL_Rect>&& clip)
 			: texture(texture)
-			, clip(Clip)
+			, clip(std::move(clip))
 		{}
 
 		void Draw(const int x, const int y) const;
+		void Draw(const int x, const int y, const float angle) const;
 
 		std::shared_ptr<SDL_Texture> GetTexture() const
 		{
 			return texture;
 		}
 
-		std::shared_ptr<SDL_Rect> GetClip() const
+		SDL_Rect& GetClip() const
 		{
-			return clip;
+			return *clip;
 		}
 
-		void SetClip(const std::shared_ptr<SDL_Rect> clip)
+		void SetClip(const SDL_Rect& clip)
 		{
-			this->clip = clip;
+			this->clip = std::make_unique<SDL_Rect>(clip);
 		}
 	private:
 		std::shared_ptr<SDL_Texture> texture;
-		std::shared_ptr<SDL_Rect> clip;
+		std::unique_ptr<SDL_Rect> clip;
 	};
 
 	class AssetLoader

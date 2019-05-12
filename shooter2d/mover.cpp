@@ -10,7 +10,7 @@ class Reimu : public Player
 {
 public:
 	Reimu(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(position, 1.0f))
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.0f))
 	{}
 };
 
@@ -18,7 +18,7 @@ class Marisa : public Player
 {
 public:
 	Marisa(const Vector2& position)
-		: Player(position, 5.0f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(position, 1.3f))
+		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f))
 	{}
 };
 
@@ -26,7 +26,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_shared<Sprite>(assetLoader->GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(position, 1.3f))
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f))
 	{}
 };
 
@@ -34,7 +34,7 @@ class SmallBlueEnemy : public Enemy
 {
 public:
 	SmallBlueEnemy(const Vector2& position)
-		: Enemy(position, std::make_shared<Shooter::Sprite>(assetLoader->GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(position, Enemy::Width * 0.5f))
+		: Enemy(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, Enemy::Width * 0.5f))
 	{
 		InitializeClips();
 	}
@@ -49,10 +49,26 @@ protected:
 	}
 };
 
+class ReimuNormalShot : public Bullet
+{
+public:
+	ReimuNormalShot(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Shot1.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 2, 3, 13, 63 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f))
+	{}
+};
+
+class SmallBullet : public Bullet
+{
+public:
+	SmallBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Shot1.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 1, 13, 15, 15 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.5f))
+	{}
+};
+
 void Mover::Draw()
 {
-	sprite->Draw(static_cast<int>(position.x - sprite->GetClip()->w * 0.5f),
-		static_cast<int>(position.y - sprite->GetClip()->h * 0.5f));
+	sprite->Draw(static_cast<int>(position.x - sprite->GetClip().w * 0.5f),
+		static_cast<int>(position.y - sprite->GetClip().h * 0.5f));
 }
 
 void Mover::Spawned(const float speed, const float angle)
@@ -73,7 +89,6 @@ void Mover::Update()
 {
 	if (!isInside())
 		enabled = false;
-	collider->SetPosition(position);
 }
 
 bool Mover::isInside()
@@ -82,16 +97,47 @@ bool Mover::isInside()
 		++counter;
 		return true;
 	}
-	if (position.x < -sprite->GetClip()->w / 2 || position.x > Game::Width + sprite->GetClip()->w / 2
-		|| position.y < -sprite->GetClip()->h / 2 || position.y > Game::Height + sprite->GetClip()->h / 2)
+	if (position.x < -sprite->GetClip().w / 2 || position.x > Game::Width + sprite->GetClip().w / 2
+		|| position.y < -sprite->GetClip().h / 2 || position.y > Game::Height + sprite->GetClip().h / 2)
 		return false;
 	else
 		return true;
 }
 
-Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed,
-	const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider)
-	: Mover(position, highSpeed, -M_PI_2, sprite, std::move(collider))
+Bullet::Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
+	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider))
+{}
+
+void Bullet::Draw()
+{
+	sprite->Draw(static_cast<int>(position.x - sprite->GetClip().w * 0.5f),
+		static_cast<int>(position.y - sprite->GetClip().h * 0.5f),
+		angle + M_PI_2);
+}
+
+void Bullet::Update()
+{
+	// 1フレームを単位時間とする。
+	position.x += speed * std::cos(angle);
+	position.y += speed * std::sin(angle);
+	Mover::Update();
+}
+
+std::shared_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vector2& position)
+{
+	std::shared_ptr<Bullet> newObject;
+	switch (id) {
+	case BulletID::Small:
+		newObject = assignObject<SmallBullet>(position);
+		break;
+	}
+	newObject->SetSpeed(0.0f);
+	newObject->SetAngle(M_PI_2);
+	return std::move(newObject);
+}
+
+Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
+	: Mover(position, highSpeed, -M_PI_2, std::move(sprite), std::move(collider))
 	, lowSpeed(lowSpeed)
 	, velocity({ 0.0f, 0.0f })
 {
@@ -128,7 +174,7 @@ void Player::Draw()
 	};
 
 	SDL_Rect& currentClip = clipFromImage(Time->GetCountedFrames());
-	sprite->SetClip(std::make_shared<SDL_Rect>(currentClip));
+	sprite->SetClip(currentClip);
 	Mover::Draw();
 }
 
@@ -137,6 +183,7 @@ void Player::Update()
 	// TODO: キー入力処理の分離。
 	float speedPerSecond;  // 単位：ドット毎秒
 	const SDL_Keymod modStates = SDL_GetModState();
+
 	if (modStates & KMOD_SHIFT)
 		speedPerSecond = lowSpeed * Timer::FPS;
 	else
@@ -153,6 +200,10 @@ void Player::Update()
 		velocity.y = +speedPerSecond;
 	velocity = velocity.Normalize() * speedPerSecond;
 	move();
+
+	if (currentKeyStates[SDL_SCANCODE_Z])
+		shoot();
+
 	Mover::Update();
 }
 
@@ -163,6 +214,22 @@ void Player::move()
 		position.x -= velocity.x * Time->GetDeltaTime();
 	if ((position.y - Width * 0.5f < 0) || (position.y + Height * 0.5f > Game::Height))
 		position.y -= velocity.y * Time->GetDeltaTime();
+}
+
+void Player::shoot()
+{
+	const int shotDelayFrames = 6;
+	const float bulletSpeed = 30.0f;
+
+	static int previousShootingFrame = 0;
+	int currentFrame = Time->GetCountedFrames();
+	if (currentFrame - previousShootingFrame > shotDelayFrames) {
+		auto newLeftBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position - Vector2{ 12.0f, 0.0f });
+		auto newRightBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position + Vector2{ 12.0f, 0.0f });
+		newLeftBullet->Spawned(bulletSpeed, -M_PI_2);
+		newRightBullet->Spawned(bulletSpeed, -M_PI_2);
+		previousShootingFrame = currentFrame;
+	}
 }
 
 std::shared_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vector2& position)
@@ -179,11 +246,25 @@ std::shared_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const V
 		newObject = assignObject<Sanae>(position);
 		break;
 	}
+	newObject->SetManager(shared_from_this());
 	return newObject;
 }
 
-Enemy::Enemy(const Vector2& position, const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider)
-	: Mover(position, 0.0f, M_PI_2, sprite, std::move(collider))
+std::shared_ptr<Bullet> PlayerManager::GenerateObject(const BulletID id, const Vector2& position)
+{
+	std::shared_ptr<Bullet> newObject;
+	switch (id) {
+	case BulletID::ReimuNormal:
+		newObject = assignObject<ReimuNormalShot>(position);
+		break;
+	}
+	newObject->SetSpeed(0.0f);
+	newObject->SetAngle(M_PI_2);
+	return std::move(newObject);
+}
+
+Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
+	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider))
 {}
 
 void Enemy::Draw()
@@ -215,7 +296,7 @@ void Enemy::Draw()
 	};
 
 	SDL_Rect& currentClip = clipFromImage(Time->GetCountedFrames());
-	sprite->SetClip(std::make_shared<SDL_Rect>(currentClip));
+	sprite->SetClip(currentClip);
 	Mover::Draw();
 }
 

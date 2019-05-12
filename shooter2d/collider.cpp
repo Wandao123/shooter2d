@@ -1,22 +1,23 @@
 ﻿#include "collider.h"
 
 namespace Shooter {
-	bool CircleCollider::DoesCollideWith(Collider& collider)
+	/// <param name="relativeVector">全体座標系における保有先のMover同士の相対ベクトル</param>
+	/// <param name="collider">衝突判定する対象</param>
+	bool CircleCollider::DoesCollideWith(const Vector2& relativeVector, Collider& collider)
 	{
-		return collider.CheckFor(*this);
+		return collider.CheckFor(relativeVector, *this);
 	}
 
-	bool CircleCollider::CheckFor(const CircleCollider& circle)
+	bool CircleCollider::CheckFor(const Vector2& relativeVector, const CircleCollider& circle)
 	{
-		float distance = std::powf(circle.GetPosition().x - position.x, 2.0f)
-			+ std::powf(circle.GetPosition().y - position.y, 2.0f);
-		if (distance <= std::powf(circle.GetRadius() + radius, 2.0f))
+		float squiredDistance = (relativeVector + circle.GetPosition() - position).SquiredMagnitude();
+		if (squiredDistance <= std::powf(circle.GetRadius() + radius, 2.0f))
 			return true;
 		else
 			return false;
 	}
 
-	bool CircleCollider::CheckFor(const RectangleCollider& rectangle)
+	bool CircleCollider::CheckFor(const Vector2& relativeVector, const RectangleCollider& rectangle)
 	{
 		// TODO: 実装方法？
 		return false;
@@ -27,18 +28,20 @@ namespace Shooter {
 		return radius;
 	}
 
-	bool RectangleCollider::DoesCollideWith(Collider& collider)
+	/// <param name="relativeVector">全体座標系におけるcolliderまでの相対ベクトル</param>
+	/// <param name="collider">衝突判定する対象</param>
+	bool RectangleCollider::DoesCollideWith(const Vector2& relativeVector, Collider& collider)
 	{
-		return collider.CheckFor(*this);
+		return collider.CheckFor(relativeVector, *this);
 	}
 
-	bool RectangleCollider::CheckFor(const CircleCollider& circle)
+	bool RectangleCollider::CheckFor(const Vector2& relativeVector, const CircleCollider& circle)
 	{
 		// TODO: 実装方法？
 		return false;
 	}
 
-	bool RectangleCollider::CheckFor(const RectangleCollider& rectangle)
+	bool RectangleCollider::CheckFor(const Vector2& relativeVector, const RectangleCollider& rectangle)
 	{
 		// TODO: 回転した場合？
 		return false;

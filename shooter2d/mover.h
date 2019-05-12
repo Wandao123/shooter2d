@@ -12,11 +12,11 @@ namespace Shooter {
 	{
 	public:
 		Mover(const Vector2& position, const float speed,
-				const float angle, const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider)
+				const float angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
 			: GameObject(false, position)
 			, speed(speed)
 			, angle(angle)
-			, sprite(sprite)
+			, sprite(std::move(sprite))
 			, collider(std::move(collider))
 		{}
 		virtual ~Mover() {}
@@ -59,11 +59,32 @@ namespace Shooter {
 	protected:
 		float speed;  // 単位：ドット毎フレーム
 		float angle;  // x軸から時計回りに回転したときの角度。
-		std::shared_ptr<Sprite> sprite;
+		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Collider> collider;
 		unsigned int counter = 0;  // enabledがtrueになってからのフレーム数。
 		bool isInside();
 	};
+
+	class Bullet : public Mover
+	{
+	public:
+		Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
+		void Draw() override;
+		void Update() override;
+	};
+
+	class BulletManager : public ObjectManager
+	{
+	public:
+		enum class BulletID
+		{
+			Small
+		};
+
+		std::shared_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
+	};
+
+	class PlayerManager;
 
 	class Player : public Mover
 	{
@@ -71,18 +92,26 @@ namespace Shooter {
 		static const int Height = 48;
 		static const int Width = 32;
 		Player(const Vector2& position, const float highSpeed, const float lowSpeed,
-			const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider);
+			std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
 		~Player() = default;
 		void Draw() override;
 		void Update() override;
+
+		void SetManager(std::shared_ptr<PlayerManager> manager)
+		{
+			this->manager = manager;
+		}
 	private:
 		std::array<std::array<SDL_Rect, 5>, 3> clips;  // 3成分はそれぞれ停止時、左移動、右移動を表す。5成分は変化の差分を表す。
 		float lowSpeed;
 		Vector2 velocity;  // 自機はxy座標系の方が扱いやすい。
+		std::weak_ptr<PlayerManager> manager;
 		void move();
+		void shoot();
 	};
 
-	class PlayerManager : public ObjectManager
+	// このクラスではプレイヤーオブジェクトとプレイヤーの弾オブジェクトの両方を管理する。プレイヤーオブジェクトからの指示に従って弾を生成したいため。
+	class PlayerManager : public ObjectManager, public std::enable_shared_from_this<PlayerManager>
 	{
 	public:
 		enum class PlayerID
@@ -91,8 +120,13 @@ namespace Shooter {
 			Marisa,
 			Sanae
 		};
+		enum class BulletID
+		{
+			ReimuNormal
+		};
 
 		std::shared_ptr<Player> GenerateObject(const PlayerID id, const Vector2& position);
+		std::shared_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
 	};
 
 	class Enemy : public Mover
@@ -100,7 +134,7 @@ namespace Shooter {
 	public:
 		static const int Height = 32;
 		static const int Width = 32;
-		Enemy(const Vector2& position, const std::shared_ptr<Sprite> sprite, std::unique_ptr<Collider>&& collider);
+		Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
 		~Enemy() = default;
 		void Draw() override;
 		virtual void InitializeClips() = 0;

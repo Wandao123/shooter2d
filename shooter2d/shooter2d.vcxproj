@@ -169,6 +169,10 @@
     <Image Include="images\Marisadot.png" />
     <Image Include="images\Reimudot.png" />
     <Image Include="images\Sanaedot.png" />
+    <Image Include="images\Shot1.png" />
+    <Image Include="images\Shot2.png" />
+    <Image Include="images\Shot3.png" />
+    <Image Include="images\shot_all.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

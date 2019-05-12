@@ -20,7 +20,7 @@ namespace Shooter {
 
 		Vector2 operator-(const Vector2 &vector) const
 		{
-			return { this->x - vector.x, this->y + vector.y };
+			return { this->x - vector.x, this->y - vector.y };
 		}
 
 		Vector2 operator*(const float &scalar) const
@@ -38,6 +38,11 @@ namespace Shooter {
 		float Magnitude()
 		{
 			return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
+		}
+
+		float SquiredMagnitude()
+		{
+			return std::pow(x, 2) + std::pow(y, 2);
 		}
 
 		Vector2 Normalize()

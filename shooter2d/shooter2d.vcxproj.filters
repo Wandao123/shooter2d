@@ -97,5 +97,17 @@
     <Image Include="images\Sanaedot.png">
       <Filter>リソース ファイル</Filter>
     </Image>
+    <Image Include="images\Shot1.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="images\Shot2.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="images\Shot3.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="images\shot_all.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>

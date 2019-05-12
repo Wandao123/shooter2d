@@ -14,7 +14,7 @@ function StartStage()
 			coroutine.yield()
 		end
 	end
-	for i = 1, 360 do
+	for i = 1, 120 do
 		coroutine.yield()
 	end
 	for i = 1, 9 do
