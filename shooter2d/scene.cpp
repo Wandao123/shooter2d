@@ -11,7 +11,8 @@ GameScene::GameScene()
 	userInterfaceManager = std::make_shared<UserInterfaceManager>();
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ 0, Game::Height - 14 });
 	enemyManager = std::make_shared<EnemyManager>();
-	collisionDetector = std::make_unique<CollisionDetector>(playerManager, enemyManager);
+	bulletManager = std::make_shared<BulletManager>();
+	collisionDetector = std::make_unique<CollisionDetector>(playerManager, enemyManager, bulletManager);
 
 	// Luaの初期化。
 	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string);
@@ -23,6 +24,9 @@ GameScene::GameScene()
 	lua["ScreenHeight"] = height;
 	lua["EnemyID"] = lua.create_table_with(
 		"SmallBlue", EnemyManager::EnemyID::SmallBlue
+	);
+	lua["BulletID"] = lua.create_table_with(
+		"Small", BulletManager::BulletID::Small
 	);
 
 	// Luaで使う関数群の登録。
@@ -36,11 +40,23 @@ GameScene::GameScene()
 		"GetPosX", [](Enemy& enemy) -> float { return enemy.GetPosition().x; },
 		"GetPosY", [](Enemy& enemy) -> float { return enemy.GetPosition().y; }
 	);
+	lua.new_usertype<Bullet>(
+		"Bullet",
+		"SetSpeed", &Bullet::SetSpeed,
+		"GetSpeed", &Bullet::GetSpeed,
+		"SetAngle", &Bullet::SetAngle,
+		"GetAngle", &Bullet::GetAngle,
+		"GetPosX", [](Bullet& bullet) -> float { return bullet.GetPosition().x; },
+		"GetPosY", [](Bullet& bullet) -> float { return bullet.GetPosition().y; }
+	);
 	lua["GenerateEnemy"] = generateEnemy;
+	lua["GenerateBullet"] = generateBullet;
 	lua["StartCoroutine"] = sol::overload(
 		startCoroutine,
 		startCoroutineWithArgs
 	);
+	lua["GetPlayerPosX"] = [this]() -> float { return playerManager->GetPlayer()->GetPosition().x; };
+	lua["GetPlayerPosY"] = [this]() -> float { return playerManager->GetPlayer()->GetPosition().y; };
 
 	// ステージ・スクリプトの登録。
 	startCoroutine("StartStage");
@@ -52,6 +68,7 @@ void GameScene::Update()
 	playerManager->Update();
 	userInterfaceManager->Update();
 	enemyManager->Update();
+	bulletManager->Update();
 	collisionDetector->CheckAll();
 }
 
@@ -60,13 +77,13 @@ void GameScene::Draw()
 	playerManager->Draw();
 	userInterfaceManager->Draw();
 	enemyManager->Draw();
+	bulletManager->Draw();
 }
 
 void GameScene::run()  // 処理の全容を記述
 {
 	tasksList.remove_if([](std::pair<sol::thread, sol::coroutine> task) {  // 終了したスレッドを全て削除。
-		//if (task.first.status() == sol::thread_status::dead) {
-		if (task.second.status() == sol::call_status::ok) {
+		if (task.first.status() == sol::thread_status::dead) {
 			task.first.state().collect_garbage();  // タイミングがよく判らないため、明示的に実行。もしスレッドが終了していれば、ObjectManager::objectsListの各要素の参照カウントが1になる筈。
 			return true;
 		} else {
@@ -76,8 +93,6 @@ void GameScene::run()  // 処理の全容を記述
 	for (auto&& task : tasksList)
 		task.second();
 	/*int counter = Time->GetCountedFrames();
-	if (counter % 240 == 0)
-		std::cout << enemyManager->GetList().begin()->use_count() << std::endl;
 	if (counter % 15 == 0 && counter <= 70) {
 		auto newObject = enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2{ Game::Width / 4.0f, 0.0f });
 		newObject->Spawned(2.0f, M_PI_2);

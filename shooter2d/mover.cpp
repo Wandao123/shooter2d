@@ -57,11 +57,12 @@ public:
 	{}
 };
 
+// 実際の画像よりも判定は小さい。
 class SmallBullet : public Bullet
 {
 public:
 	SmallBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Shot1.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 1, 13, 15, 15 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.5f))
+		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/shot_all.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 1, 13, 15, 15 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.0f))
 	{}
 };
 
@@ -261,6 +262,16 @@ std::shared_ptr<Bullet> PlayerManager::GenerateObject(const BulletID id, const V
 	newObject->SetSpeed(0.0f);
 	newObject->SetAngle(M_PI_2);
 	return std::move(newObject);
+}
+
+std::shared_ptr<Player> PlayerManager::GetPlayer() const
+{
+	for (auto&& object : objectsList) {
+		auto temp = std::dynamic_pointer_cast<Player>(object);
+		if (temp.get() != nullptr)  // インスタンスの親子関係を調べる。もっとよい方法はないのか？
+			return temp;
+	}
+	return nullptr;
 }
 
 Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)

@@ -28,6 +28,7 @@ namespace Shooter {
 		std::shared_ptr<PlayerManager> playerManager;
 		std::shared_ptr<UserInterfaceManager> userInterfaceManager;
 		std::shared_ptr<EnemyManager> enemyManager;
+		std::shared_ptr<BulletManager> bulletManager;
 		std::unique_ptr<CollisionDetector> collisionDetector;
 		sol::state lua;
 		// HACK: solのコルーチンの呼び出し方のために、組で保持する必要がある。Lua側でcoroutine.createをすれば、スレッドだけでもよい？
@@ -38,6 +39,14 @@ namespace Shooter {
 		std::function<std::shared_ptr<Enemy>(const EnemyManager::EnemyID, const float, const float, const float, const float)> generateEnemy =
 		[this](const EnemyManager::EnemyID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Enemy> {
 			auto newObject = enemyManager->GenerateObject(id, Vector2{ posX, posY });
+			newObject->Spawned(speed, angle);
+			return std::move(newObject);
+		};
+
+		// 敵弾の生成。
+		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generateBullet =
+		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {
+			auto newObject = bulletManager->GenerateObject(id, Vector2{ posX, posY });
 			newObject->Spawned(speed, angle);
 			return std::move(newObject);
 		};

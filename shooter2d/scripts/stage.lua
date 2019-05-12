@@ -39,6 +39,10 @@ function smallBlueEnemy1(initPosX, initPosY, dir)
 	local enemy = GenerateEnemy(EnemyID['SmallBlue'], initPosX, initPosY, speed, angle)
 	coroutine.yield()
 	for i = 1, 120 do
+		if i % 30 == 1 then
+			GenerateBullet(BulletID['Small'], enemy:GetPosX(), enemy:GetPosY(), 5.0,
+				math.pi / 2 - math.atan(GetPlayerPosX() - enemy:GetPosX(), GetPlayerPosY() - enemy:GetPosY()))
+		end
 		coroutine.yield()
 	end
 	local radius = 30.0

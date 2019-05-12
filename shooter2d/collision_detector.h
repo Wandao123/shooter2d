@@ -6,9 +6,10 @@
 namespace Shooter {
 	class CollisionDetector {
 	public:
-		CollisionDetector(std::shared_ptr<PlayerManager> playerManager, std::shared_ptr<EnemyManager> enemyManager)
+		CollisionDetector(std::shared_ptr<PlayerManager> playerManager, std::shared_ptr<EnemyManager> enemyManager, std::shared_ptr<BulletManager> bulletManager)
 			: playerManager(playerManager)
 			, enemyManager(enemyManager)
+			, bulletManager(bulletManager)
 		{}
 
 		void CheckAll();
@@ -16,6 +17,7 @@ namespace Shooter {
 	private:
 		std::shared_ptr<PlayerManager> playerManager;
 		std::shared_ptr<EnemyManager> enemyManager;
+		std::shared_ptr<BulletManager> bulletManager;
 	};
 }
 

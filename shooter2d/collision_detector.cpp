@@ -8,10 +8,16 @@ void CollisionDetector::CheckAll()
 	for (auto&& player : playerManager->GetList())
 		for (auto&& enemy : enemyManager->GetList())
 			CheckBetween(*(std::dynamic_pointer_cast<Mover>(player)), *(std::dynamic_pointer_cast<Mover>(enemy)));
+	auto player = playerManager->GetPlayer();
+	if (player != nullptr)
+		for (auto&& bullet : bulletManager->GetList())
+			CheckBetween(*(std::dynamic_pointer_cast<Mover>(player)), *(std::dynamic_pointer_cast<Mover>(bullet)));
 }
 
 void CollisionDetector::CheckBetween(Mover& mover1, Mover& mover2)
 {
+	if (!mover1.IsEnabled() or !mover2.IsEnabled())
+		return;
 	Vector2 relativeVector = mover2.GetPosition() - mover1.GetPosition();
 	// TODO: すり抜け防止。
 	if (mover1.GetCollider().DoesCollideWith(relativeVector, mover2.GetCollider())) {
