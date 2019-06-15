@@ -13,7 +13,7 @@ public:
 		: Effect(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/effect_circle.png")))
 	{}
 
-	void Spawned() override {}
+	void Played() override {}
 };
 
 class BlueCircleEffect : public Effect
@@ -48,9 +48,9 @@ void Effect::Draw()
 	sprite->Draw(position, 0.0f, scalingRate);
 }
 
-void Effect::Spawned()
+void Effect::Played()
 {
-	enabled = true;
+	enabled = true;  // HACK: この2行は同じなので、Moverと共通化するべきか？
 	counter = 0;
 	alpha = 255;
 	scalingRate = 0.0f;
@@ -59,9 +59,9 @@ void Effect::Spawned()
 void Effect::Update()
 {
 	if (counter < AnimationFrams) {
-		++counter;
 		alpha = 255 - 255 * counter / AnimationFrams;
 		scalingRate = 0.5f + counter * 0.05f;
+		++counter;
 	}  else {
 		enabled = false;
 	}

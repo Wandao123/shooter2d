@@ -48,7 +48,7 @@ class ReimuNormalShot : public Bullet
 {
 public:
 	ReimuNormalShot(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Shot1.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 2, 3, 13, 63 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None)
+		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Shot1.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 2, 3, 13, 63 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
 	{}
 };
 
@@ -57,21 +57,13 @@ class SmallBullet : public Bullet
 {
 public:
 	SmallBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/shot_all.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 1, 13, 15, 15 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.0f), EffectManager::EffectID::BlueCircle)
+		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/shot_all.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 1, 13, 15, 15 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.0f), EffectManager::EffectID::BlueCircle, 1)
 	{}
 };
 
 void Mover::Draw()
 {
 	sprite->Draw(position);
-}
-
-void Mover::Spawned(const float speed, const float angle)
-{
-	enabled = true;
-	counter = 0;
-	SetSpeed(speed);
-	SetAngle(angle);
 }
 
 void Mover::Spawned()
@@ -99,8 +91,8 @@ bool Mover::isInside()
 		return true;
 }
 
-Bullet::Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
-	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID)
+Bullet::Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, unsigned int damage)
+	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, damage)
 {}
 
 void Bullet::Draw()
@@ -114,6 +106,18 @@ void Bullet::Update()
 	position.x += speed * std::cos(angle);
 	position.y += speed * std::sin(angle);
 	Mover::Update();
+}
+
+void Bullet::OnCollide(Mover& mover)
+{
+	enabled = false;
+}
+
+void Bullet::Shot(const float speed, const float angle)
+{
+	Mover::Spawned();
+	SetSpeed(speed);
+	SetAngle(angle);
 }
 
 std::shared_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vector2& position)
@@ -130,7 +134,7 @@ std::shared_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const V
 }
 
 Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
-	: Mover(position, highSpeed, -M_PI_2, std::move(sprite), std::move(collider), effectID)
+	: Mover(position, highSpeed, -M_PI_2, std::move(sprite), std::move(collider), effectID, 1)
 	, lowSpeed(lowSpeed)
 	, velocity({ 0.0f, 0.0f })
 {
@@ -200,6 +204,11 @@ void Player::Update()
 	Mover::Update();
 }
 
+void Player::OnCollide(Mover& mover)
+{
+	enabled = false;
+}
+
 void Player::move()
 {
 	position += velocity * Time->GetDeltaTime();
@@ -219,8 +228,8 @@ void Player::shoot()
 	if (currentFrame - previousShootingFrame > shotDelayFrames) {
 		auto newLeftBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position - Vector2{ 12.0f, 0.0f });
 		auto newRightBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position + Vector2{ 12.0f, 0.0f });
-		newLeftBullet->Spawned(bulletSpeed, -M_PI_2);
-		newRightBullet->Spawned(bulletSpeed, -M_PI_2);
+		newLeftBullet->Shot(bulletSpeed, -M_PI_2);
+		newRightBullet->Shot(bulletSpeed, -M_PI_2);
 		previousShootingFrame = currentFrame;
 	}
 }
@@ -267,7 +276,7 @@ std::shared_ptr<Player> PlayerManager::GetPlayer() const
 }
 
 Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
-	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID)
+	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, 1)
 {}
 
 void Enemy::Draw()
@@ -300,6 +309,12 @@ void Enemy::Draw()
 
 	SDL_Rect& currentClip = clipFromImage(Time->GetCountedFrames());
 	sprite->SetClip(currentClip);
+	if (isDamaged) {
+		sprite->SetColor(128, 128, 128);
+		isDamaged = false;
+	} else {
+		sprite->SetColor(255, 255, 255);
+	}
 	Mover::Draw();
 }
 
@@ -309,6 +324,23 @@ void Enemy::Update()
 	position.x += speed * std::cos(angle);
 	position.y += speed * std::sin(angle);
 	Mover::Update();
+}
+
+void Enemy::OnCollide(Mover& mover)
+{
+	hitPoint -= mover.GetDamage();
+	if (hitPoint <= 0)
+		enabled = false;
+	else
+		isDamaged = true;
+}
+
+void Enemy::Spawned(const float speed, const float angle, const int hitPoint)
+{
+	Mover::Spawned();
+	SetSpeed(speed);
+	SetAngle(angle);
+	this->hitPoint = hitPoint;
 }
 
 std::shared_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const Vector2& position)

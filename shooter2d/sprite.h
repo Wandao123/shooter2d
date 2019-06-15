@@ -37,8 +37,14 @@ namespace Shooter {
 			this->clip = std::make_unique<SDL_Rect>(clip);
 		}
 
+		void SetColor(const Uint8 red, const Uint8 green, const Uint8 blue)
+		{
+			SDL_SetTextureColorMod(texture.get(), red, green, blue);
+		}
+
 		void SetAlpha(const Uint8 alpha)
 		{
+			SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
 			SDL_SetTextureAlphaMod(texture.get(), alpha);
 		}
 	private:

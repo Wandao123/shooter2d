@@ -102,13 +102,13 @@ void GameScene::run()  // 処理の全容を記述
 	std::vector<std::shared_ptr<Enemy>> enemies;
 	if (counter % 15 == 0 && counter <= 70) {
 		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2{ Game::Width / 2.0f, 0.0f }));
-		enemies.back()->Spawned(2.0f, M_PI_2);
+		enemies.back()->Spawned(2.0f, M_PI_2, 100);
 	}
 	if (counter == 75) {
 		auto newObject = effectManager->GenerateObject(EffectManager::EffectID::BlueCircle, Vector2{ Game::Width / 3.0f, 0.0f });
-		newObject->Spawned();
+		newObject->Played();
 	} else if (counter == 85) {
 		auto newObject = effectManager->GenerateObject(EffectManager::EffectID::BlueCircle, Vector2{ Game::Width * 2.0f / 3.0f, 0.0f });
-		newObject->Spawned();
+		newObject->Played();
 	}*/
 }

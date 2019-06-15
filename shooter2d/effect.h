@@ -12,7 +12,7 @@ namespace Shooter {
 		Effect(const Vector2& position, std::unique_ptr<Sprite>&& sprite);
 		virtual ~Effect() {}
 		void Draw() override;
-		virtual void Spawned();
+		virtual void Played();
 		void Update() override;
 	protected:
 		std::array<SDL_Rect, 3> clips;  // 具体的な値は継承先で設定せよ。

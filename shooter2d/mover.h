@@ -5,24 +5,24 @@
 #include "effect.h"
 
 namespace Shooter {
-	// デフォルトでenabledにfalseを設定するため、生成しただけでは更新されない。更新対象に加えるにはSpawnedを実行する。
+	// デフォルトでenabledにfalseを設定するため、生成しただけでは更新されない。
+	// 更新対象に加えるには「実体化関数」（characterは ``Spawned''、bullet は ``Shot''、effect は ``Played''）を実行する。分けたのは、各オブジェクトで渡すべき引数が異なるため。
 	class Mover : public GameObject
 	{
 	public:
-		Mover(const Vector2& position, const float speed, const float angle,
-				std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
+		Mover(const Vector2& position, const float speed, const float angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, const unsigned int damage)
 			: GameObject(false, position)
 			, speed(speed)
 			, angle(angle)
+			, damage(damage)
 			, sprite(std::move(sprite))
 			, collider(std::move(collider))
 			, effectID(effectID)
 		{}
 		virtual ~Mover() {}
 		virtual void Draw() override;
-		void Spawned(const float speed, const float angle);
-		void Spawned();
 		virtual void Update() override;
+		virtual void OnCollide(Mover& mover) = 0;
 
 		float GetSpeed() const
 		{
@@ -51,31 +51,35 @@ namespace Shooter {
 			return *collider;
 		}
 
-		EffectManager::EffectID GetEffectID()
+		EffectManager::EffectID GetEffectID() const
 		{
 			return effectID;
 		}
 
-		virtual void OnTriggerEnter()
+		unsigned int GetDamage() const
 		{
-			enabled = false;
+			return damage;
 		}
 	protected:
 		float speed;  // 単位：ドット毎フレーム
 		float angle;  // x軸から時計回りに回転したときの角度。
+		unsigned int damage;  // 衝突時に相手に与えるダメージ。
 		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Collider> collider;
 		EffectManager::EffectID effectID;  // 消滅エフェクトのID。
 		unsigned int counter = 0;  // enabledがtrueになってからのフレーム数。
 		bool isInside();
+		virtual void Spawned();
 	};
 
 	class Bullet : public Mover
 	{
 	public:
-		Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
+		Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, unsigned int damage);
 		void Draw() override;
 		void Update() override;
+		void OnCollide(Mover& mover) override;
+		void Shot(const float speed, const float angle);
 	};
 
 	class BulletManager : public ObjectManager
@@ -96,15 +100,20 @@ namespace Shooter {
 	public:
 		static const int Height = 48;
 		static const int Width = 32;
-		Player(const Vector2& position, const float highSpeed, const float lowSpeed,
-			std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
+		Player(const Vector2& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
 		~Player() = default;
 		void Draw() override;
 		void Update() override;
+		void OnCollide(Mover& mover) override;
 
 		void SetManager(std::shared_ptr<PlayerManager> manager)
 		{
 			this->manager = manager;
+		}
+
+		void Spawned() override
+		{
+			Mover::Spawned();
 		}
 	private:
 		std::array<std::array<SDL_Rect, 5>, 3> clips;  // 3成分はそれぞれ停止時、左移動、右移動を表す。5成分は変化の差分を表す。
@@ -144,8 +153,12 @@ namespace Shooter {
 		~Enemy() = default;
 		void Draw() override;
 		void Update() override;
+		void OnCollide(Mover& mover) override;
+		void Spawned(const float speed, const float angle, const int hitPoint);
 	protected:
 		std::array<std::array<SDL_Rect, 3>, 3> clips;  // 具体的な値は継承先で設定せよ。
+		int hitPoint;
+		bool isDamaged = false;  // 被弾したか否か。
 	};
 
 	class EnemyManager : public ObjectManager

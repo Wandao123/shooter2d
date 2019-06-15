@@ -37,10 +37,10 @@ namespace Shooter {
 		void run();
 
 		// 敵の生成。種類が増えたときに面倒なので、Lua側ではなくC++側で生成する。
-		std::function<std::shared_ptr<Enemy>(const EnemyManager::EnemyID, const float, const float, const float, const float)> generateEnemy =
-		[this](const EnemyManager::EnemyID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Enemy> {
+		std::function<std::shared_ptr<Enemy>(const EnemyManager::EnemyID, const float, const float, const float, const float, const int hitPoint)> generateEnemy =
+		[this](const EnemyManager::EnemyID id, const float posX, const float posY, const float speed, const float angle, const int hitPoint) -> std::shared_ptr<Enemy> {
 			auto newObject = enemyManager->GenerateObject(id, Vector2{ posX, posY });
-			newObject->Spawned(speed, angle);
+			newObject->Spawned(speed, angle, hitPoint);
 			return std::move(newObject);
 		};
 
@@ -48,7 +48,7 @@ namespace Shooter {
 		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generateBullet =
 		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {
 			auto newObject = bulletManager->GenerateObject(id, Vector2{ posX, posY });
-			newObject->Spawned(speed, angle);
+			newObject->Shot(speed, angle);
 			return std::move(newObject);
 		};
 

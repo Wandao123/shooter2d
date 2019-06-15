@@ -36,7 +36,7 @@ end
 function smallBlueEnemy1(initPosX, initPosY, dir)
 	local speed = 2.0
 	local angle = math.pi / 2
-	local enemy = GenerateEnemy(EnemyID['SmallBlue'], initPosX, initPosY, speed, angle)
+	local enemy = GenerateEnemy(EnemyID['SmallBlue'], initPosX, initPosY, speed, angle, 10)
 	coroutine.yield()
 	for i = 1, 120 do
 		if i % 30 == 1 then
@@ -59,7 +59,7 @@ end
 function smallBlueEnemy2(initPosX, initPosY, dir)
 	local speed = 2.0
 	local angle = math.pi / 2
-	local enemy = GenerateEnemy(EnemyID['SmallBlue'], initPosX, initPosY, speed, angle)
+	local enemy = GenerateEnemy(EnemyID['SmallBlue'], initPosX, initPosY, speed, angle, 10)
 	while enemy:GetPosY() <= 240 do
 		coroutine.yield()
 	end

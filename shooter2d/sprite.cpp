@@ -57,8 +57,6 @@ namespace Shooter {
 		SDL_Texture* texture = IMG_LoadTexture(Renderer, fileName.c_str());
 		if (texture == nullptr) {
 			std::cerr << "Unable to load image " << fileName << "!  SDL_image Error: " << IMG_GetError() << std::endl;
-		} else {
-			SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 		}
 		std::shared_ptr<SDL_Texture> pTexture(texture, SDL_DestroyTexture);
 		return pTexture;
