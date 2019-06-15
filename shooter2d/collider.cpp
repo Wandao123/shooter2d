@@ -11,7 +11,7 @@ namespace Shooter {
 	bool CircleCollider::CheckFor(const Vector2& relativeVector, const CircleCollider& circle)
 	{
 		float squiredDistance = (relativeVector + circle.GetPosition() - position).SquiredMagnitude();
-		if (squiredDistance <= std::powf(circle.GetRadius() + radius, 2.0f))
+		if (squiredDistance <= std::pow(circle.GetRadius() + radius, 2.0f))
 			return true;
 		else
 			return false;
