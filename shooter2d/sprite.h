@@ -6,6 +6,7 @@
 #include <string>
 #include <SDL.h>
 #include <SDL_image.h>
+#include "vector2.h"
 
 namespace Shooter {
 	class Sprite
@@ -18,8 +19,8 @@ namespace Shooter {
 			, clip(std::move(clip))
 		{}
 
-		void Draw(const int x, const int y) const;
-		void Draw(const int x, const int y, const float angle) const;
+		void Draw(const Vector2& position) const;
+		void Draw(const Vector2& position, const float angle, const float scale) const;
 
 		std::shared_ptr<SDL_Texture> GetTexture() const
 		{
@@ -34,6 +35,11 @@ namespace Shooter {
 		void SetClip(const SDL_Rect& clip)
 		{
 			this->clip = std::make_unique<SDL_Rect>(clip);
+		}
+
+		void SetAlpha(const Uint8 alpha)
+		{
+			SDL_SetTextureAlphaMod(texture.get(), alpha);
 		}
 	private:
 		std::shared_ptr<SDL_Texture> texture;

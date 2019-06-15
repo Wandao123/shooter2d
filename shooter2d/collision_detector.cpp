@@ -24,4 +24,8 @@ void CollisionDetector::CheckBetween(Mover& mover1, Mover& mover2)
 		mover1.OnTriggerEnter();
 		mover2.OnTriggerEnter();
 	}
+	if (!mover1.IsEnabled())
+		effectManager->GenerateObject(mover1.GetEffectID(), mover1.GetPosition())->Spawned();
+	if (!mover2.IsEnabled())
+		effectManager->GenerateObject(mover2.GetEffectID(), mover2.GetPosition())->Spawned();
 }

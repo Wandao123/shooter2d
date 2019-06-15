@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="collider.cpp" />
     <ClCompile Include="collision_detector.cpp" />
+    <ClCompile Include="effect.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="game_object.cpp" />
     <ClCompile Include="main.cpp" />
@@ -154,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="collider.h" />
     <ClInclude Include="collision_detector.h" />
+    <ClInclude Include="effect.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="input.h" />
@@ -165,6 +167,7 @@
     <ClInclude Include="user_interface.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="images\effect_circle.png" />
     <Image Include="images\Enemy.png" />
     <Image Include="images\Marisadot.png" />
     <Image Include="images\Reimudot.png" />

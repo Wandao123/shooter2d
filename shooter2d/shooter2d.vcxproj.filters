@@ -48,6 +48,9 @@
     <ClCompile Include="collision_detector.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="effect.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="user_interface.h">
@@ -83,6 +86,9 @@
     <ClInclude Include="collision_detector.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="effect.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\Enemy.png">
@@ -107,6 +113,9 @@
       <Filter>リソース ファイル</Filter>
     </Image>
     <Image Include="images\shot_all.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="images\effect_circle.png">
       <Filter>リソース ファイル</Filter>
     </Image>
   </ItemGroup>

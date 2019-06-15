@@ -4,13 +4,13 @@
 
 using namespace Shooter;
 
-std::unique_ptr<AssetLoader> assetLoader = std::make_unique<AssetLoader>();
+extern std::unique_ptr<AssetLoader> assetLoader;
 
 class Reimu : public Player
 {
 public:
 	Reimu(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.0f))
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.0f), EffectManager::EffectID::BlueCircle)
 	{}
 };
 
@@ -18,7 +18,7 @@ class Marisa : public Player
 {
 public:
 	Marisa(const Vector2& position)
-		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f))
+		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::BlueCircle)
 	{}
 };
 
@@ -26,7 +26,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f))
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::BlueCircle)
 	{}
 };
 
@@ -34,12 +34,7 @@ class SmallBlueEnemy : public Enemy
 {
 public:
 	SmallBlueEnemy(const Vector2& position)
-		: Enemy(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, Enemy::Width * 0.5f))
-	{
-		InitializeClips();
-	}
-protected:
-	void InitializeClips() override
+		: Enemy(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, Enemy::Width * 0.5f), EffectManager::EffectID::BlueCircle)
 	{
 		for (int j = 0; j < clips[0].size(); j++) {
 			clips[0][j] = { j * Width, 0, Width, Height };                 // 停止時
@@ -53,7 +48,7 @@ class ReimuNormalShot : public Bullet
 {
 public:
 	ReimuNormalShot(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Shot1.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 2, 3, 13, 63 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f))
+		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Shot1.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 2, 3, 13, 63 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None)
 	{}
 };
 
@@ -62,14 +57,13 @@ class SmallBullet : public Bullet
 {
 public:
 	SmallBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/shot_all.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 1, 13, 15, 15 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.0f))
+		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/shot_all.png"), std::make_unique<SDL_Rect>(SDL_Rect{ 1, 13, 15, 15 })), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.0f), EffectManager::EffectID::BlueCircle)
 	{}
 };
 
 void Mover::Draw()
 {
-	sprite->Draw(static_cast<int>(position.x - sprite->GetClip().w * 0.5f),
-		static_cast<int>(position.y - sprite->GetClip().h * 0.5f));
+	sprite->Draw(position);
 }
 
 void Mover::Spawned(const float speed, const float angle)
@@ -105,15 +99,13 @@ bool Mover::isInside()
 		return true;
 }
 
-Bullet::Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
-	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider))
+Bullet::Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
+	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID)
 {}
 
 void Bullet::Draw()
 {
-	sprite->Draw(static_cast<int>(position.x - sprite->GetClip().w * 0.5f),
-		static_cast<int>(position.y - sprite->GetClip().h * 0.5f),
-		angle + M_PI_2);
+	sprite->Draw(position, angle + M_PI_2, 1.0f);  // 元の画像は -PI/2 の向きが正位置。よって、画像の回転角は +PI/2 される。
 }
 
 void Bullet::Update()
@@ -137,8 +129,8 @@ std::shared_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const V
 	return std::move(newObject);
 }
 
-Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
-	: Mover(position, highSpeed, -M_PI_2, std::move(sprite), std::move(collider))
+Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
+	: Mover(position, highSpeed, -M_PI_2, std::move(sprite), std::move(collider), effectID)
 	, lowSpeed(lowSpeed)
 	, velocity({ 0.0f, 0.0f })
 {
@@ -274,8 +266,8 @@ std::shared_ptr<Player> PlayerManager::GetPlayer() const
 	return nullptr;
 }
 
-Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
-	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider))
+Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
+	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID)
 {}
 
 void Enemy::Draw()

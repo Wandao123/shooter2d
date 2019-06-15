@@ -1,23 +1,22 @@
 ﻿#ifndef MOVER_H
 #define MOVER_H
 
-#include <array>
 #include "collider.h"
-#include "game_object.h"
-#include "sprite.h"
+#include "effect.h"
 
 namespace Shooter {
 	// デフォルトでenabledにfalseを設定するため、生成しただけでは更新されない。更新対象に加えるにはSpawnedを実行する。
 	class Mover : public GameObject
 	{
 	public:
-		Mover(const Vector2& position, const float speed,
-				const float angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
+		Mover(const Vector2& position, const float speed, const float angle,
+				std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
 			: GameObject(false, position)
 			, speed(speed)
 			, angle(angle)
 			, sprite(std::move(sprite))
 			, collider(std::move(collider))
+			, effectID(effectID)
 		{}
 		virtual ~Mover() {}
 		virtual void Draw() override;
@@ -52,6 +51,11 @@ namespace Shooter {
 			return *collider;
 		}
 
+		EffectManager::EffectID GetEffectID()
+		{
+			return effectID;
+		}
+
 		virtual void OnTriggerEnter()
 		{
 			enabled = false;
@@ -61,6 +65,7 @@ namespace Shooter {
 		float angle;  // x軸から時計回りに回転したときの角度。
 		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Collider> collider;
+		EffectManager::EffectID effectID;  // 消滅エフェクトのID。
 		unsigned int counter = 0;  // enabledがtrueになってからのフレーム数。
 		bool isInside();
 	};
@@ -68,7 +73,7 @@ namespace Shooter {
 	class Bullet : public Mover
 	{
 	public:
-		Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
+		Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
 		void Draw() override;
 		void Update() override;
 	};
@@ -92,7 +97,7 @@ namespace Shooter {
 		static const int Height = 48;
 		static const int Width = 32;
 		Player(const Vector2& position, const float highSpeed, const float lowSpeed,
-			std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
+			std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
 		~Player() = default;
 		void Draw() override;
 		void Update() override;
@@ -135,10 +140,9 @@ namespace Shooter {
 	public:
 		static const int Height = 32;
 		static const int Width = 32;
-		Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
+		Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
 		~Enemy() = default;
 		void Draw() override;
-		virtual void InitializeClips() = 0;
 		void Update() override;
 	protected:
 		std::array<std::array<SDL_Rect, 3>, 3> clips;  // 具体的な値は継承先で設定せよ。

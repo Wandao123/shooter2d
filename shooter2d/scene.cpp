@@ -12,7 +12,8 @@ GameScene::GameScene()
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ 0, Game::Height - 14 });
 	enemyManager = std::make_shared<EnemyManager>();
 	bulletManager = std::make_shared<BulletManager>();
-	collisionDetector = std::make_unique<CollisionDetector>(playerManager, enemyManager, bulletManager);
+	effectManager = std::make_shared<EffectManager>();
+	collisionDetector = std::make_unique<CollisionDetector>(playerManager, enemyManager, bulletManager, effectManager);
 
 	// Luaの初期化。
 	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string);
@@ -69,6 +70,7 @@ void GameScene::Update()
 	userInterfaceManager->Update();
 	enemyManager->Update();
 	bulletManager->Update();
+	effectManager->Update();
 	collisionDetector->CheckAll();
 }
 
@@ -78,6 +80,7 @@ void GameScene::Draw()
 	userInterfaceManager->Draw();
 	enemyManager->Draw();
 	bulletManager->Draw();
+	effectManager->Draw();
 }
 
 void GameScene::run()  // 処理の全容を記述
@@ -93,8 +96,16 @@ void GameScene::run()  // 処理の全容を記述
 	for (auto&& task : tasksList)
 		task.second();
 	/*int counter = Time->GetCountedFrames();
+	std::vector<std::shared_ptr<Enemy>> enemies;
 	if (counter % 15 == 0 && counter <= 70) {
-		auto newObject = enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2{ Game::Width / 4.0f, 0.0f });
-		newObject->Spawned(2.0f, M_PI_2);
+		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2{ Game::Width / 2.0f, 0.0f }));
+		enemies.back()->Spawned(2.0f, M_PI_2);
+	}
+	if (counter == 75) {
+		auto newObject = effectManager->GenerateObject(EffectManager::EffectID::BlueCircle, Vector2{ Game::Width / 3.0f, 0.0f });
+		newObject->Spawned();
+	} else if (counter == 85) {
+		auto newObject = effectManager->GenerateObject(EffectManager::EffectID::BlueCircle, Vector2{ Game::Width * 2.0f / 3.0f, 0.0f });
+		newObject->Spawned();
 	}*/
 }

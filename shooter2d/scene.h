@@ -29,6 +29,7 @@ namespace Shooter {
 		std::shared_ptr<UserInterfaceManager> userInterfaceManager;
 		std::shared_ptr<EnemyManager> enemyManager;
 		std::shared_ptr<BulletManager> bulletManager;
+		std::shared_ptr<EffectManager> effectManager;
 		std::unique_ptr<CollisionDetector> collisionDetector;
 		sol::state lua;
 		// HACK: solのコルーチンの呼び出し方のために、組で保持する必要がある。Lua側でcoroutine.createをすれば、スレッドだけでもよい？
@@ -43,6 +44,7 @@ namespace Shooter {
 			return std::move(newObject);
 		};
 
+		// TODO: 生成元（敵）が撃破されたら生成されないようにする。
 		// 敵弾の生成。
 		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generateBullet =
 		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {

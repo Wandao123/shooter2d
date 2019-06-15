@@ -40,7 +40,7 @@ function smallBlueEnemy1(initPosX, initPosY, dir)
 	coroutine.yield()
 	for i = 1, 120 do
 		if i % 30 == 1 then
-			GenerateBullet(BulletID['Small'], enemy:GetPosX(), enemy:GetPosY(), 5.0,
+			GenerateBullet(BulletID['Small'], enemy:GetPosX(), enemy:GetPosY(), 4.0,
 				math.pi / 2 - math.atan(GetPlayerPosX() - enemy:GetPosX(), GetPlayerPosY() - enemy:GetPosY()))
 		end
 		coroutine.yield()
