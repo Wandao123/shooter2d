@@ -51,7 +51,10 @@ GameScene::GameScene()
 		"GetPosY", [](Bullet& bullet) -> float { return bullet.GetPosition().y; }
 	);
 	lua["GenerateEnemy"] = generateEnemy;
-	lua["GenerateBullet"] = generateBullet;
+	lua["GenerateBullet"] = sol::overload(
+		generateBullet,
+		generateBulletFromEnemy
+	);
 	lua["StartCoroutine"] = sol::overload(
 		startCoroutine,
 		startCoroutineWithArgs

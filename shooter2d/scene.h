@@ -44,13 +44,21 @@ namespace Shooter {
 			return std::move(newObject);
 		};
 
-		// TODO: 生成元（敵）が撃破されたら生成されないようにする。
-		// 敵弾の生成。
+		// 指定された位置に敵弾を生成する。生成元の存在は問わない。
 		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generateBullet =
 		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {
 			auto newObject = bulletManager->GenerateObject(id, Vector2{ posX, posY });
 			newObject->Spawned(speed, angle);
 			return std::move(newObject);
+		};
+
+		// 指定した敵から敵弾を生成する。生成元が存在しなければ生成しない。
+		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, std::shared_ptr<Enemy>, const float, const float)> generateBulletFromEnemy =
+		[this](const BulletManager::BulletID id, std::shared_ptr<Enemy> enemy, const float speed, const float angle) -> std::shared_ptr<Bullet> {
+			if (enemy->IsEnabled())
+				return std::move(generateBullet(id, enemy->GetPosition().x, enemy->GetPosition().y, speed, angle));
+			else
+				return nullptr;
 		};
 
 		// 本来はコルーチンを直接受け取って実行したい。しかし、スレッドを生成した上で呼び出すには、文字列で関数名を受け取る必要がある。
