@@ -26,6 +26,7 @@ namespace Shooter {
 		void Update() override;
 	private:
 		std::shared_ptr<PlayerManager> playerManager;
+		std::shared_ptr<Player> player;
 		std::shared_ptr<UserInterfaceManager> userInterfaceManager;
 		std::shared_ptr<EnemyManager> enemyManager;
 		std::shared_ptr<BulletManager> bulletManager;

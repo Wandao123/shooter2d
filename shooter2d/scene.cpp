@@ -7,7 +7,8 @@ GameScene::GameScene()
 {
 	// 更新対象オブジェクトを生成。
 	playerManager = std::make_shared<PlayerManager>();
-	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height })->Spawned();
+	player = playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
+	player->Spawned();
 	userInterfaceManager = std::make_shared<UserInterfaceManager>();
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ 0, Game::Height - 14 });
 	enemyManager = std::make_shared<EnemyManager>();
@@ -68,13 +69,27 @@ GameScene::GameScene()
 
 void GameScene::Update()
 {
+	static int counterFromDefeated = 0;
+	const int DelayFrames = 60;
+
 	run();
+	if (!player->IsEnabled()) {
+		++counterFromDefeated;
+		if (counterFromDefeated > DelayFrames) {
+			player->SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
+			player->Spawned();
+			counterFromDefeated = 0;
+		}
+	}
 	playerManager->Update();
 	userInterfaceManager->Update();
 	enemyManager->Update();
 	bulletManager->Update();
 	effectManager->Update();
 	collisionDetector->CheckAll();
+	if (player->GetLife() <= 0) {
+		std::cout << "Game Over" << std::endl;
+	}
 }
 
 // SDLにはZ-orderの概念が無いため、描画のタイミングで順番に注意する必要がある。

@@ -172,6 +172,8 @@ void Player::Draw()
 
 	SDL_Rect& currentClip = clipFromImage(Time->GetCountedFrames());
 	sprite->SetClip(currentClip);
+	if (sprite->GetAlpha() < 255 && Time->GetCountedFrames() - beginningFrame >= InvincibleFrames)
+		sprite->SetAlpha(255);
 	Mover::Draw();
 }
 
@@ -206,7 +208,19 @@ void Player::Update()
 
 void Player::OnCollide(Mover& mover)
 {
+	if (Time->GetCountedFrames() - beginningFrame < InvincibleFrames)
+		return;
 	enabled = false;
+	--life;
+}
+
+void Player::Spawned()
+{
+	if (life <= 0)
+		return;
+	Mover::Spawned();
+	beginningFrame = Time->GetCountedFrames();
+	sprite->SetAlpha(128);
 }
 
 void Player::move()

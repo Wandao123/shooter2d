@@ -42,14 +42,21 @@ namespace Shooter {
 			SDL_SetTextureColorMod(texture.get(), red, green, blue);
 		}
 
+		Uint8 GetAlpha() const
+		{
+			return alpha;
+		}
+
 		void SetAlpha(const Uint8 alpha)
 		{
 			SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
 			SDL_SetTextureAlphaMod(texture.get(), alpha);
+			this->alpha = alpha;
 		}
 	private:
 		std::shared_ptr<SDL_Texture> texture;
 		std::unique_ptr<SDL_Rect> clip;
+		Uint8 alpha = 255;
 	};
 
 	class AssetLoader

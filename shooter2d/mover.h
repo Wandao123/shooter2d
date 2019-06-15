@@ -67,9 +67,10 @@ namespace Shooter {
 		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Collider> collider;
 		EffectManager::EffectID effectID;  // 消滅エフェクトのID。
-		unsigned int counter = 0;  // enabledがtrueになってからのフレーム数。
 		bool isInside();
 		virtual void Spawned();
+	private:
+		unsigned int counter = 0;  // enabledがtrueになってからのフレーム数。
 	};
 
 	class Bullet : public Mover
@@ -111,15 +112,27 @@ namespace Shooter {
 			this->manager = manager;
 		}
 
-		void Spawned() override
+		int GetLife() const
 		{
-			Mover::Spawned();
+			return life;
 		}
+
+		/// <param name="life">ゲームオーバーまでの被弾数</param>
+		void SetLife(const int life)
+		{
+			if (life > 0)
+				this->life = life;
+		}
+
+		void Spawned() override;
 	private:
+		const int InvincibleFrames = 90;
 		std::array<std::array<SDL_Rect, 5>, 3> clips;  // 3成分はそれぞれ停止時、左移動、右移動を表す。5成分は変化の差分を表す。
 		float lowSpeed;
 		Vector2 velocity;  // 自機はxy座標系の方が扱いやすい。
 		std::weak_ptr<PlayerManager> manager;
+		int life = 3;  // 1まではプレイ可能で、0になったらゲームオーバー。life - 1 = 残機。
+		Uint32 beginningFrame;
 		void move();
 		void shoot();
 	};
