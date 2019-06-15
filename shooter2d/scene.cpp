@@ -77,13 +77,14 @@ void GameScene::Update()
 	collisionDetector->CheckAll();
 }
 
+// SDLにはZ-orderの概念が無いため、描画のタイミングで順番に注意する必要がある。
 void GameScene::Draw()
 {
-	playerManager->Draw();
 	userInterfaceManager->Draw();
+	effectManager->Draw();
+	playerManager->Draw();
 	enemyManager->Draw();
 	bulletManager->Draw();
-	effectManager->Draw();
 }
 
 void GameScene::run()  // 処理の全容を記述
