@@ -34,7 +34,7 @@ namespace Shooter {
 		}
 
 		// ÉVÅ[ÉìÇÃê›íË
-		scenes.push(std::make_unique<GameScene>());
+		ChangeScene(std::make_unique<GameScene>(*this));
 	}
 
 	Game::~Game()
@@ -78,8 +78,8 @@ namespace Shooter {
 		}
 	}
 
-	/*void Game::changeScene(Scene newScene)
+	void Game::ChangeScene(std::unique_ptr<Scene>&& newScene)
 	{
-
-	}*/
+		scenes.push(std::move(newScene));
+	}
 }

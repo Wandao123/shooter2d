@@ -6,7 +6,16 @@
 #include "scene.h"
 
 namespace Shooter {
-	class Game
+	// Gameクラスにシーンを変えることを伝えるためのインターフェース。要はscenesスタックを操作する関数群。
+	class IChangingSceneListener
+	{
+	public:
+		IChangingSceneListener() = default;
+		virtual ~IChangingSceneListener() = default;
+		virtual void ChangeScene(std::unique_ptr<Scene>&& newScene) = 0;
+	};
+
+	class Game : public IChangingSceneListener
 	{
 	public:
 		static const int Width = 640;
@@ -14,8 +23,8 @@ namespace Shooter {
 		Game();
 		~Game();
 		void Run();
+		void ChangeScene(std::unique_ptr<Scene>&& newScene) override;
 	private:
-		//void changeScene(Scene newScene);
 		std::stack<std::unique_ptr<Scene>> scenes;
 	};
 }

@@ -9,19 +9,33 @@
 #include "user_interface.h"
 
 namespace Shooter {
+	class IChangingSceneListener;
+
 	class Scene
 	{
 	public:
-		Scene() = default;
+		Scene(IChangingSceneListener& listener) : listener(listener) {}
 		virtual ~Scene() = default;
 		virtual void Draw() = 0;
 		virtual void Update() = 0;
+	protected:
+		IChangingSceneListener& listener;
+	};
+
+	class GameOverScene : public Scene
+	{
+	public:
+		GameOverScene(IChangingSceneListener& listener);
+		void Draw() override;
+		void Update() override;
+	private:
+		std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	};
 
 	class GameScene : public Scene
 	{
 	public:
-		GameScene();
+		GameScene(IChangingSceneListener& listener);
 		void Draw() override;
 		void Update() override;
 	private:

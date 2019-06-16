@@ -3,7 +3,25 @@
 
 using namespace Shooter;
 
-GameScene::GameScene()
+GameOverScene::GameOverScene(IChangingSceneListener& listener)
+	: Scene(listener)
+{
+	userInterfaceManager = std::make_unique<UserInterfaceManager>();
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameOver, Vector2{ Game::Width / 2.0f - 40, Game::Height / 2.0f  - 7 });
+}
+
+void GameOverScene::Draw()
+{
+	userInterfaceManager->Draw();
+}
+
+void GameOverScene::Update()
+{
+	userInterfaceManager->Update();
+}
+
+GameScene::GameScene(IChangingSceneListener& listener)
+	: Scene(listener)
 {
 	// 更新対象オブジェクトを生成。
 	playerManager = std::make_shared<PlayerManager>();
@@ -70,7 +88,7 @@ GameScene::GameScene()
 void GameScene::Update()
 {
 	static int counterFromDefeated = 0;
-	const int DelayFrames = 60;
+	const int DelayFrames = 30;
 
 	run();
 	if (!player->IsEnabled()) {
@@ -88,7 +106,7 @@ void GameScene::Update()
 	effectManager->Update();
 	collisionDetector->CheckAll();
 	if (player->GetLife() <= 0) {
-		std::cout << "Game Over" << std::endl;
+		listener.ChangeScene(std::make_unique<GameOverScene>(listener));
 	}
 }
 
