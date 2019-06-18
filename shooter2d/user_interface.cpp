@@ -59,6 +59,19 @@ void UserInterface::Update()
 	renderText = { static_cast<int>(position.x), static_cast<int>(position.y), textWidth, textHeight };
 }
 
+void UserInterface::LoadFont(const unsigned int size)
+{
+	// TODO: 例外の発生。
+#ifdef _WIN64
+	Font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", size);
+#elif __linux__
+	Font = TTF_OpenFont("/usr/share/fonts/TTF/LiberationSans-Regular.ttf", size);
+#endif
+	if (Font == nullptr) {
+		std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
+	}
+}
+
 std::shared_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const Vector2& position)
 {
 	std::shared_ptr<UserInterface> newObject;

@@ -20,19 +20,7 @@ namespace Shooter {
 		TTF_Font *Font;
 		std::stringstream Text;
 		virtual void PutText() = 0;
-
-		void LoadFont(const unsigned int size)
-		{
-			// TODO: 例外の発生。
-#ifdef _WIN64
-			Font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", size);
-#elif __linux__
-			Font = TTF_OpenFont("/usr/share/fonts/TTF/LiberationSans-Regular.ttf", size);
-#endif
-			if (Font == nullptr) {
-				std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
-			}
-		}
+		void LoadFont(const unsigned int size);
 	private:
 		SDL_Rect renderText;
 	};
