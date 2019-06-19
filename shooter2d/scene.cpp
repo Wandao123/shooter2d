@@ -82,7 +82,7 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	lua["GetPlayerPosY"] = [this]() -> float { return playerManager->GetPlayer()->GetPosition().y; };
 
 	// ステージ・スクリプトの登録。
-	startCoroutine("StartStage");
+	startCoroutine(lua["StartStage"]);
 }
 
 void GameScene::Update()

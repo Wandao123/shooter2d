@@ -76,19 +76,18 @@ namespace Shooter {
 				return nullptr;
 		};
 
-		// 本来はコルーチンを直接受け取って実行したい。しかし、スレッドを生成した上で呼び出すには、文字列で関数名を受け取る必要がある。
-		std::function<void(const std::string)> startCoroutine =
-		[this](const std::string name) {
+		std::function<void(const sol::function func)> startCoroutine =
+		[this](const sol::function func) {
 			sol::thread th = sol::thread::create(lua.lua_state());
-			sol::coroutine co = th.state()[name];
+			sol::coroutine co(th.state(), func);
 			co();
 			tasksList.push_back(std::make_pair(th, co));
 		};
 
-		std::function<void(const std::string, sol::variadic_args)> startCoroutineWithArgs =
-		[this](const std::string name, sol::variadic_args va) {
+		std::function<void(const sol::function func, sol::variadic_args)> startCoroutineWithArgs =
+		[this](const sol::function func, sol::variadic_args va) {
 			sol::thread th = sol::thread::create(lua.lua_state());
-			sol::coroutine co = th.state()[name];
+			sol::coroutine co(th.state(), func);
 			co(sol::as_args(std::vector<sol::object>(va.begin(), va.end())));
 			tasksList.push_back(std::make_pair(th, co));
 		};

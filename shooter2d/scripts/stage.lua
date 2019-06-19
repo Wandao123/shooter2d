@@ -1,6 +1,6 @@
 function StartStage()
 	for i = 1, 5 do  -- 5体生成する。
-		StartCoroutine('smallBlueEnemy1', ScreenWidth / 4, 0, 1)
+		StartCoroutine(smallBlueEnemy1, ScreenWidth / 4, 0, 1)
 		for j = 1, 15 do  -- 15フレーム待つ。
 			coroutine.yield()
 		end
@@ -9,7 +9,7 @@ function StartStage()
 		coroutine.yield()
 	end
 	for i = 1, 5 do
-		StartCoroutine('smallBlueEnemy1', ScreenWidth * 3 / 4, 0, -1)
+		StartCoroutine(smallBlueEnemy1, ScreenWidth * 3 / 4, 0, -1)
 		for j = 1, 15 do
 			coroutine.yield()
 		end
@@ -18,8 +18,8 @@ function StartStage()
 		coroutine.yield()
 	end
 	for i = 1, 9 do
-		StartCoroutine('smallBlueEnemy2', ScreenWidth / 2 - 20 * (10 - i) , 0, 1)
-		StartCoroutine('smallBlueEnemy2', ScreenWidth / 2 + 20 * (10 - i) , 0, -1)
+		StartCoroutine(smallBlueEnemy2, ScreenWidth / 2 - 20 * (10 - i) , 0, 1)
+		StartCoroutine(smallBlueEnemy2, ScreenWidth / 2 + 20 * (10 - i) , 0, -1)
 		for j = 1, 15 do
 			coroutine.yield()
 		end
