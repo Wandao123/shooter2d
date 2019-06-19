@@ -12,7 +12,9 @@ namespace Shooter {
 	public:
 		IChangingSceneListener() = default;
 		virtual ~IChangingSceneListener() = default;
-		virtual void ChangeScene(std::unique_ptr<Scene>&& newScene) = 0;
+		virtual void ClearScenes() = 0;
+		virtual void PushScene(std::unique_ptr<Scene>&& newScene) = 0;
+		virtual void PopScene() = 0;
 	};
 
 	class Game : public IChangingSceneListener
@@ -23,7 +25,9 @@ namespace Shooter {
 		Game();
 		~Game();
 		void Run();
-		void ChangeScene(std::unique_ptr<Scene>&& newScene) override;
+		void ClearScenes() override;
+		void PushScene(std::unique_ptr<Scene>&& newScene) override;
+		void PopScene() override;
 	private:
 		std::stack<std::unique_ptr<Scene>> scenes;
 	};

@@ -33,12 +33,14 @@ namespace Shooter {
 			exit(EXIT_FAILURE);
 		}
 
-		// �V�[���̐ݒ�
-		ChangeScene(std::make_unique<GameScene>(*this));
+		// シーンの設定
+		PushScene(std::make_unique<GameScene>(*this));
 	}
 
 	Game::~Game()
 	{
+		ClearScenes();  // 全て破棄してからでないと、以下の終了処理で実行時エラーが生じる（順番に注意）。
+		TTF_Quit();
 		SDL_DestroyRenderer(Shooter::Renderer);
 		SDL_DestroyWindow(Shooter::Window);
 		SDL_Quit();
@@ -64,22 +66,33 @@ namespace Shooter {
 				}
 			}
 
-			// �X�V
+			// 更新
 			Time->Update();
 			scenes.top()->Update();
 
-			// ���ۂ̕`��
+			// 実際の描画
 			SDL_RenderClear(Renderer);
 			scenes.top()->Draw();
 			SDL_RenderPresent(Renderer);
 
-			// FPS����
+			// FPS制御
 			Time->Delay();
 		}
 	}
 
-	void Game::ChangeScene(std::unique_ptr<Scene>&& newScene)
+	void Game::ClearScenes()
+	{
+		while (!scenes.empty())
+			scenes.pop();
+	}
+
+	void Game::PushScene(std::unique_ptr<Scene>&& newScene)
 	{
 		scenes.push(std::move(newScene));
+	}
+
+	void Game::PopScene()
+	{
+		scenes.pop();
 	}
 }

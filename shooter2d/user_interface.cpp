@@ -32,11 +32,16 @@ private:
 
 UserInterface::UserInterface(const Vector2& position)
 	: GameObject(true, position)
+	, Texture(nullptr)
+	, Font(nullptr)
 {}
 
 UserInterface::~UserInterface()
 {
-	TTF_Quit();
+	if (Font != nullptr) {
+		TTF_CloseFont(Font);
+		Font = nullptr;
+	}
 }
 
 void UserInterface::Draw()
@@ -54,18 +59,22 @@ void UserInterface::Update()
 	textWidth = textSurface->w;
 	textHeight = textSurface->h;
 	SDL_FreeSurface(textSurface);
-	TTF_CloseFont(Font);  // デストラクタで解放しようとすると、何故か実行時エラーが発生。
-	Font = nullptr;
 	renderText = { static_cast<int>(position.x), static_cast<int>(position.y), textWidth, textHeight };
 }
 
 void UserInterface::LoadFont(const unsigned int size)
 {
+	if (Font != nullptr) {
+		TTF_CloseFont(Font);
+		Font = nullptr;
+	}
 	// TODO: 例外の発生。
 #ifdef _WIN64
 	Font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", size);
 #elif __linux__
 	Font = TTF_OpenFont("/usr/share/fonts/TTF/LiberationSans-Regular.ttf", size);
+#elif __unix__
+	// Monospace font を指定
 #endif
 	if (Font == nullptr) {
 		std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;

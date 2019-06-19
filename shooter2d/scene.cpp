@@ -106,7 +106,7 @@ void GameScene::Update()
 	effectManager->Update();
 	collisionDetector->CheckAll();
 	if (player->GetLife() <= 0) {
-		listener.ChangeScene(std::make_unique<GameOverScene>(listener));
+		listener.PushScene(std::make_unique<GameOverScene>(listener));
 	}
 }
 
