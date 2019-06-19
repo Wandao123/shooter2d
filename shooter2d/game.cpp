@@ -39,7 +39,8 @@ namespace Shooter {
 
 	Game::~Game()
 	{
-		ClearScenes();  // 全て破棄してからでないと、以下の終了処理で実行時エラーが生じる（順番に注意）。
+		while (!scenes.empty())  // 全て破棄してからでないと、以下の終了処理で実行時エラーが生じる（順番に注意）。
+			scenes.pop();
 		TTF_Quit();
 		SDL_DestroyRenderer(Shooter::Renderer);
 		SDL_DestroyWindow(Shooter::Window);
@@ -80,10 +81,12 @@ namespace Shooter {
 		}
 	}
 
-	void Game::ClearScenes()
+	// 呼び出し元が破棄されるから危険？
+	void Game::ClearAndChangeScene(std::unique_ptr<Scene>&& newScene)
 	{
 		while (!scenes.empty())
 			scenes.pop();
+		scenes.push(std::move(newScene));
 	}
 
 	void Game::PushScene(std::unique_ptr<Scene>&& newScene)
