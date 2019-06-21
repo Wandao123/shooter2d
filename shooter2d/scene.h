@@ -20,31 +20,12 @@ namespace Shooter {
 		IChangingSceneListener& listener;
 	};
 
-	class GameOverScene : public Scene
+	class TitleScene : public Scene
 	{
 	public:
-		GameOverScene(IChangingSceneListener& listener);
+		TitleScene(IChangingSceneListener& listener);
 		void Draw() override;
 		void Update() override;
-	private:
-		std::unique_ptr<UserInterfaceManager> userInterfaceManager;
-	};
-
-	class GameScene : public Scene
-	{
-	public:
-		GameScene(IChangingSceneListener& listener);
-		void Draw() override;
-		void Update() override;
-	private:
-		std::shared_ptr<PlayerManager> playerManager;
-		std::shared_ptr<Player> player;
-		std::shared_ptr<UserInterfaceManager> userInterfaceManager;
-		std::shared_ptr<EnemyManager> enemyManager;
-		std::shared_ptr<BulletManager> bulletManager;
-		std::shared_ptr<EffectManager> effectManager;
-		std::unique_ptr<CollisionDetector> collisionDetector;
-		std::unique_ptr<Script> script;
 	};
 }
 

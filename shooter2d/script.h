@@ -11,6 +11,7 @@ namespace Shooter {
 	class Script
 	{
 	public:
+		// スマート・ポインタではなくとも参照で十分なときには参照をつかう。
 		Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerManager& playerManager);
 		void Run();
 	private:

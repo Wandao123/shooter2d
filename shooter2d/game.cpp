@@ -34,7 +34,7 @@ namespace Shooter {
 		}
 
 		// シーンの設定
-		PushScene(std::make_unique<GameScene>(*this));
+		PushScene(std::make_unique<TitleScene>(*this));
 	}
 
 	Game::~Game()

@@ -4,9 +4,11 @@
 #include "mover.h"
 
 namespace Shooter {
+	// GameSceneクラスのみから呼び出されると想定。
 	class CollisionDetector {
 	public:
-		CollisionDetector(std::shared_ptr<PlayerManager> playerManager, std::shared_ptr<EnemyManager> enemyManager, std::shared_ptr<BulletManager> bulletManager, std::shared_ptr<EffectManager> effectManager)
+		// スマート・ポインタではなくとも参照で十分なときには参照をつかう。
+		CollisionDetector(BulletManager& bulletManager, EffectManager& effectManager, EnemyManager& enemyManager, PlayerManager& playerManager)
 			: playerManager(playerManager)
 			, enemyManager(enemyManager)
 			, bulletManager(bulletManager)
@@ -16,10 +18,10 @@ namespace Shooter {
 		void CheckAll();
 		void CheckBetween(Mover& mover1, Mover& mover2);
 	private:
-		std::shared_ptr<PlayerManager> playerManager;
-		std::shared_ptr<EnemyManager> enemyManager;
-		std::shared_ptr<BulletManager> bulletManager;
-		std::shared_ptr<EffectManager> effectManager;
+		BulletManager& bulletManager;
+		EffectManager& effectManager;
+		EnemyManager& enemyManager;
+		PlayerManager& playerManager;
 	};
 }
 
