@@ -92,8 +92,9 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)packages\sol2;$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\include;$(SolutionDir)packages\sdl2_image.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\include;$(SolutionDir)packages\lua.5.3.5\build\native\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_image.nuget.2.0.4\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\lua.5.3.5\build\native\lib\v141\$(PlatformTarget)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -129,10 +130,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)packages\sol2;$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\include;$(SolutionDir)packages\sdl2_image.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\include;$(SolutionDir)packages\lua.5.3.5\build\native\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

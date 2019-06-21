@@ -16,7 +16,7 @@ void CollisionDetector::CheckAll()
 
 void CollisionDetector::CheckBetween(Mover& mover1, Mover& mover2)
 {
-	if (!mover1.IsEnabled() or !mover2.IsEnabled())
+	if (!mover1.IsEnabled() || !mover2.IsEnabled())
 		return;
 	Vector2 relativeVector = mover2.GetPosition() - mover1.GetPosition();
 	// TODO: すり抜け防止。
