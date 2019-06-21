@@ -34,6 +34,7 @@ UserInterface::UserInterface(const Vector2& position)
 	: GameObject(true, position)
 	, Texture(nullptr)
 	, Font(nullptr)
+	, renderText({ static_cast<int>(position.x), static_cast<int>(position.y), 0, 0 })
 {}
 
 UserInterface::~UserInterface()
