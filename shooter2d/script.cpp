@@ -1,24 +1,24 @@
-#include "game.h"
+ï»¿#include "game.h"
 #include "scene.h"
 
 using namespace Shooter;
 
-/// <param name="bulletManager">GameSceneƒNƒ‰ƒX‚ÌbulletManagerƒƒ“ƒo•Ï”</param>
-/// <param name="enemyManager">GameSceneƒNƒ‰ƒX‚ÌenemyManagerƒƒ“ƒo•Ï”</param>
-/// <param name="playerManager">GameSceneƒNƒ‰ƒX‚ÌplayerManagerƒƒ“ƒo•Ï”</param>
+/// <param name="bulletManager">GameSceneã‚¯ãƒ©ã‚¹ã®bulletManagerãƒ¡ãƒ³ãƒå¤‰æ•°</param>
+/// <param name="enemyManager">GameSceneã‚¯ãƒ©ã‚¹ã®enemyManagerãƒ¡ãƒ³ãƒå¤‰æ•°</param>
+/// <param name="playerManager">GameSceneã‚¯ãƒ©ã‚¹ã®playerManagerãƒ¡ãƒ³ãƒå¤‰æ•°</param>
 Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerManager& playerManager)
 	: enemyManager(enemyManager)
 	, bulletManager(bulletManager)
 	, playerManager(playerManager)
 {
-	// Lua‚Ì‰Šú‰»B
+	// Luaã®åˆæœŸåŒ–ã€‚
 	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string);
-	lua.script_file("scripts/stage.lua");  // TODO: ƒGƒ‰[ˆ—
+	lua.script_file("scripts/stage.lua");  // TODO: ã‚¨ãƒ©ãƒ¼å‡¦ç†
 
-	// ŠeíƒNƒ‰ƒX‚Ì’è‹`
+	// å„ç¨®ã‚¯ãƒ©ã‚¹ã®å®šç¾©
 	lua.new_usertype<Bullet>(
 		"Bullet",
-		// Lua‘¤‚Å¶¬‚·‚é‚È‚ç‚ÎAƒRƒ“ƒXƒgƒ‰ƒNƒ^‚ğ’è‹`‚µ‚Ä ``Enemy.new(...)'' ‚Æ‚·‚éB
+		// Luaå´ã§ç”Ÿæˆã™ã‚‹ãªã‚‰ã°ã€ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã‚’å®šç¾©ã—ã¦ ``Enemy.new(...)'' ã¨ã™ã‚‹ã€‚
 		"SetSpeed", &Bullet::SetSpeed,
 		"GetSpeed", &Bullet::GetSpeed,
 		"SetAngle", &Bullet::SetAngle,
@@ -43,8 +43,8 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		"GetPosY", [](Player& player) -> float { return player.GetPosition().y; }
 	);
 
-	// ’è”‚Ì“o˜^B
-	int width = Game::Width, height = Game::Height;  // ’¼‚É‘ã“ü‚·‚é‚Ægcc‚ÅƒRƒ“ƒpƒCƒ‹‚Å‚«‚È‚¢B
+	// å®šæ•°ã®ç™»éŒ²ã€‚
+	int width = Game::Width, height = Game::Height;  // ç›´ã«ä»£å…¥ã™ã‚‹ã¨gccã§ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã§ããªã„ã€‚
 	lua["ScreenWidth"] = width;
 	lua["ScreenHeight"] = height;
 	lua["EnemyID"] = lua.create_table_with(
@@ -54,7 +54,7 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		"Small", BulletManager::BulletID::Small
 	);
 
-	// ŠÖ”ŒQ‚Ì“o˜^B
+	// é–¢æ•°ç¾¤ã®ç™»éŒ²ã€‚
 	lua["GenerateEnemy"] = generateEnemy;
 	lua["GenerateBullet"] = sol::overload(
 		generateBullet,
@@ -64,18 +64,19 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		startCoroutine,
 		startCoroutineWithArgs
 	);
-	lua["GetPlayer"] = getPlayer;  // ’è”‚Æ‚µ‚Äˆµ‚¤‚×‚«H@‚»‚Ìê‡‚Í–‘O‚É¶¬‚³‚ê‚Ä‚¢‚é‚±‚Æ‚ğ—v‹‚·‚éB
+	lua["GetPlayer"] = getPlayer;  // å®šæ•°ã¨ã—ã¦æ‰±ã†ã¹ãï¼Ÿã€€ãã®å ´åˆã¯äº‹å‰ã«ç”Ÿæˆã•ã‚Œã¦ã„ã‚‹ã“ã¨ã‚’è¦æ±‚ã™ã‚‹ã€‚
 
-	// ƒXƒe[ƒWEƒXƒNƒŠƒvƒg‚Ì“o˜^B
+	// ã‚¹ãƒ†ãƒ¼ã‚¸ãƒ»ã‚¹ã‚¯ãƒªãƒ—ãƒˆã®ç™»éŒ²ã€‚
 	startCoroutine(lua["StartStage"]);
 }
 
-/// <summary>ƒvƒŒƒC’†‚Ì“G‚ÌoŒ»‚â’e‚Ì¶¬‚È‚Ç‚Ì‘S—e‚ğ‹Lq‚·‚éB</summary>
+/// <summary>ãƒ—ãƒ¬ã‚¤ä¸­ã®æ•µã®å‡ºç¾ã‚„å¼¾ã®ç”Ÿæˆãªã©ã®å…¨å®¹ã‚’è¨˜è¿°ã™ã‚‹ã€‚</summary>
 void Script::Run()
 {
-	tasksList.remove_if([](std::pair<sol::thread, sol::coroutine> task) {  // I—¹‚µ‚½ƒXƒŒƒbƒh‚ğ‘S‚ÄíœB
+	// Luaã®ã‚¹ãƒ¬ãƒƒãƒ‰ã‚’å®Ÿè¡Œã€‚
+	tasksList.remove_if([](std::pair<sol::thread, sol::coroutine> task) {  // çµ‚äº†ã—ãŸã‚¹ãƒ¬ãƒƒãƒ‰ã‚’å…¨ã¦å‰Šé™¤ã€‚
 		if (task.first.status() == sol::thread_status::dead) {
-			task.first.state().collect_garbage();  // ƒ^ƒCƒ~ƒ“ƒO‚ª‚æ‚­”»‚ç‚È‚¢‚½‚ßA–¾¦“I‚ÉÀsB‚à‚µƒXƒŒƒbƒh‚ªI—¹‚µ‚Ä‚¢‚ê‚ÎAObjectManager::objectsList‚ÌŠe—v‘f‚ÌQÆƒJƒEƒ“ƒg‚ª1‚É‚È‚é”¤B
+			task.first.state().collect_garbage();  // ã‚¿ã‚¤ãƒŸãƒ³ã‚°ãŒã‚ˆãåˆ¤ã‚‰ãªã„ãŸã‚ã€æ˜ç¤ºçš„ã«å®Ÿè¡Œã€‚ã‚‚ã—ã‚¹ãƒ¬ãƒƒãƒ‰ãŒçµ‚äº†ã—ã¦ã„ã‚Œã°ã€ObjectManager::objectsListã®å„è¦ç´ ã®å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆãŒ1ã«ãªã‚‹ç­ˆã€‚
 			return true;
 		}
 		else {
@@ -85,7 +86,7 @@ void Script::Run()
 	for (auto&& task : tasksList)
 		task.second();
 
-	// Lua‚ğg‚í‚È‚¢ê‡‚ÍAˆÈ‰º‚Ì‚æ‚¤‚É‹Lq‚·‚éB
+	// Luaã‚’ä½¿ã‚ãªã„å ´åˆã¯ã€ä»¥ä¸‹ã®ã‚ˆã†ã«è¨˜è¿°ã™ã‚‹ã€‚
 	/*int counter = Time->GetCountedFrames();
 	std::vector<std::shared_ptr<Enemy>> enemies;
 	if (counter % 15 == 0 && counter <= 70) {

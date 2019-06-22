@@ -11,7 +11,7 @@ namespace Shooter {
 	class Collider
 	{
 	public:
-		/// <param name="position">保有先のMoverからの相対位置</param>
+		/// <param name="position">保有先のMover::position（スプライトの中心位置）からの相対位置</param>
 		Collider(const Vector2& position) : position(position) {}
 		
 		virtual ~Collider() {}

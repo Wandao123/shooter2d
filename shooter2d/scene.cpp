@@ -77,19 +77,48 @@ GameScene::GameScene(IChangingSceneListener& listener)
 
 void GameScene::Update()
 {
-	static int counterFromDefeated = 0;
-	const int DelayFrames = 30;
-
-	script->Run();
-	auto player = playerManager->GetPlayer();
-	if (!player->IsEnabled()) {
-		++counterFromDefeated;
-		if (counterFromDefeated > DelayFrames) {
-			player->SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
-			player->Spawned();
-			counterFromDefeated = 0;
+	auto updatePlayer = [this](Player& player) {
+		// 自機の復活処理。
+		static int counterFromDefeated = 0;
+		const int DelayFrames = 30;
+		if (!player.IsEnabled()) {
+			++counterFromDefeated;
+			if (counterFromDefeated > DelayFrames) {
+				player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
+				player.Spawned();
+				counterFromDefeated = 0;
+			}
 		}
-	}
+		
+		// 自機の入力処理。
+		// TODO: 別クラスへ分離。
+		float speed;
+		const SDL_Keymod modStates = SDL_GetModState();
+
+		if (modStates & KMOD_SHIFT)
+			speed = player.GetLowSpeed();
+		else
+			speed = player.GetHighSpeed();
+		Vector2 velocity = { 0.0f, 0.0f };
+		const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
+		if (currentKeyStates[SDL_SCANCODE_LEFT])
+			velocity.x = -speed;
+		if (currentKeyStates[SDL_SCANCODE_RIGHT])
+			velocity.x = +speed;
+		if (currentKeyStates[SDL_SCANCODE_UP])
+			velocity.y = -speed;
+		if (currentKeyStates[SDL_SCANCODE_DOWN])
+			velocity.y = +speed;
+		velocity = velocity.Normalize() * speed;
+		player.SetVelocity(velocity);
+
+		if (currentKeyStates[SDL_SCANCODE_Z])
+			player.Shoot();
+	};
+
+	auto player = playerManager->GetPlayer();
+	updatePlayer(*player);
+	script->Run();
 	bulletManager->Update();
 	effectManager->Update();
 	enemyManager->Update();

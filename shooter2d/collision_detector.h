@@ -1,7 +1,9 @@
 ﻿#ifndef COLLISION_DETECTOR_H
 #define COLLISION_DETECTOR_H
 
-#include "mover.h"
+#include "bullet.h"
+#include "enemy.h"
+#include "player.h"
 
 namespace Shooter {
 	// GameSceneクラスのみから呼び出されると想定。
@@ -9,10 +11,10 @@ namespace Shooter {
 	public:
 		// スマート・ポインタではなくとも参照で十分なときには参照をつかう。
 		CollisionDetector(BulletManager& bulletManager, EffectManager& effectManager, EnemyManager& enemyManager, PlayerManager& playerManager)
-			: playerManager(playerManager)
-			, enemyManager(enemyManager)
-			, bulletManager(bulletManager)
+			: bulletManager(bulletManager)
 			, effectManager(effectManager)
+			, enemyManager(enemyManager)
+			, playerManager(playerManager)
 		{}
 
 		void CheckAll();

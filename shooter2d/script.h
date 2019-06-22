@@ -1,4 +1,4 @@
-#ifndef SCRIPT_H
+ï»¿#ifndef SCRIPT_H
 #define SCRIPT_H
 
 #include <list>
@@ -7,11 +7,11 @@
 #include "mover.h"
 
 namespace Shooter {
-	// GameSceneƒNƒ‰ƒX‚Ì‚İ‚©‚çŒÄ‚Ño‚³‚ê‚é‚Æ‘z’èB
+	// GameSceneã‚¯ãƒ©ã‚¹ã®ã¿ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã¨æƒ³å®šã€‚
 	class Script
 	{
 	public:
-		// ƒXƒ}[ƒgEƒ|ƒCƒ“ƒ^‚Å‚Í‚È‚­‚Æ‚àQÆ‚Å\•ª‚È‚Æ‚«‚É‚ÍQÆ‚ğ‚Â‚©‚¤B
+		// ã‚¹ãƒãƒ¼ãƒˆãƒ»ãƒã‚¤ãƒ³ã‚¿ã§ã¯ãªãã¨ã‚‚å‚ç…§ã§ååˆ†ãªã¨ãã«ã¯å‚ç…§ã‚’ã¤ã‹ã†ã€‚
 		Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerManager& playerManager);
 		void Run();
 	private:
@@ -19,17 +19,17 @@ namespace Shooter {
 		EnemyManager& enemyManager;
 		PlayerManager& playerManager;
 		sol::state lua;
-		// HACK: sol‚ÌƒRƒ‹[ƒ`ƒ“‚ÌŒÄ‚Ño‚µ•û‚Ì‚½‚ß‚ÉA‘g‚Å•Û‚·‚é•K—v‚ª‚ ‚éBLua‘¤‚Åcoroutine.create‚ğ‚·‚ê‚ÎAƒXƒŒƒbƒh‚¾‚¯‚Å‚à‚æ‚¢H
-		std::list<std::pair<sol::thread, sol::coroutine>> tasksList;  // ‚±‚ê‚É“o˜^‚³‚ê‚½ƒRƒ‹[ƒ`ƒ“‚ª–ˆƒtƒŒ[ƒ€Às‚³‚ê‚éB
+		// HACK: solã®ã‚³ãƒ«ãƒ¼ãƒãƒ³ã®å‘¼ã³å‡ºã—æ–¹ã®ãŸã‚ã«ã€çµ„ã§ä¿æŒã™ã‚‹å¿…è¦ãŒã‚ã‚‹ã€‚Luaå´ã§coroutine.createã‚’ã™ã‚Œã°ã€ã‚¹ãƒ¬ãƒƒãƒ‰ã ã‘ã§ã‚‚ã‚ˆã„ï¼Ÿ
+		std::list<std::pair<sol::thread, sol::coroutine>> tasksList;  // ã“ã‚Œã«ç™»éŒ²ã•ã‚ŒãŸã‚³ãƒ«ãƒ¼ãƒãƒ³ãŒæ¯ãƒ•ãƒ¬ãƒ¼ãƒ å®Ÿè¡Œã•ã‚Œã‚‹ã€‚
 
-		/// <summary>“G‚ğ¶¬‚·‚éB</summary>
-		/// <param name="id">¶¬‚·‚é“G‚ÌID</param>
-		/// <param name="posX">‰ŠúˆÊ’u‚ÌxÀ•W</param>
-		/// <param name="posY">‰ŠúˆÊ’u‚ÌyÀ•W</param>
-		/// <param name="speed">‰Šú‘¬“x‚Ì‘å‚«‚³i‘¬‚³j</param>
-		/// <param name="angle">‰Šú‘¬“x‚Ìx²‚©‚ç‚ÌŠp“x</param>
-		/// <param name="hitPoint">“G‚Ì‘Ì—Í</param>
-		/// <returns>¶¬‚³‚ê‚½“G‚Ö‚Ìƒ|ƒCƒ“ƒ^</returns>
+		/// <summary>æ•µã‚’ç”Ÿæˆã™ã‚‹ã€‚</summary>
+		/// <param name="id">ç”Ÿæˆã™ã‚‹æ•µã®ID</param>
+		/// <param name="posX">åˆæœŸä½ç½®ã®xåº§æ¨™</param>
+		/// <param name="posY">åˆæœŸä½ç½®ã®yåº§æ¨™</param>
+		/// <param name="speed">åˆæœŸé€Ÿåº¦ã®å¤§ãã•ï¼ˆé€Ÿã•ï¼‰</param>
+		/// <param name="angle">åˆæœŸé€Ÿåº¦ã®xè»¸ã‹ã‚‰ã®è§’åº¦</param>
+		/// <param name="hitPoint">æ•µã®ä½“åŠ›</param>
+		/// <returns>ç”Ÿæˆã•ã‚ŒãŸæ•µã¸ã®ãƒã‚¤ãƒ³ã‚¿</returns>
 		std::function<std::shared_ptr<Enemy>(const EnemyManager::EnemyID, const float, const float, const float, const float, const int hitPoint)> generateEnemy =
 		[this](const EnemyManager::EnemyID id, const float posX, const float posY, const float speed, const float angle, const int hitPoint) -> std::shared_ptr<Enemy> {
 			auto newObject = enemyManager.GenerateObject(id, Vector2{ posX, posY });
@@ -37,13 +37,13 @@ namespace Shooter {
 			return std::move(newObject);
 		};
 
-		/// <summary>w’è‚³‚ê‚½ˆÊ’u‚É“G’e‚ğ¶¬‚·‚éB¶¬Œ³‚Ì‘¶İ‚Í–â‚í‚È‚¢B</summary>
-		/// <param name="id">¶¬‚·‚é“G’e‚ÌID</param>
-		/// <param name="posX">‰ŠúˆÊ’u‚ÌxÀ•W</param>
-		/// <param name="posY">‰ŠúˆÊ’u‚ÌyÀ•W</param>
-		/// <param name="speed">‰Šú‘¬“x‚Ì‘å‚«‚³i‘¬‚³j</param>
-		/// <param name="angle">‰Šú‘¬“x‚Ìx²‚©‚ç‚ÌŠp“x</param>
-		/// <returns>¶¬‚³‚ê‚½“G’e‚Ö‚Ìƒ|ƒCƒ“ƒ^</returns>
+		/// <summary>æŒ‡å®šã•ã‚ŒãŸä½ç½®ã«æ•µå¼¾ã‚’ç”Ÿæˆã™ã‚‹ã€‚ç”Ÿæˆå…ƒã®å­˜åœ¨ã¯å•ã‚ãªã„ã€‚</summary>
+		/// <param name="id">ç”Ÿæˆã™ã‚‹æ•µå¼¾ã®ID</param>
+		/// <param name="posX">åˆæœŸä½ç½®ã®xåº§æ¨™</param>
+		/// <param name="posY">åˆæœŸä½ç½®ã®yåº§æ¨™</param>
+		/// <param name="speed">åˆæœŸé€Ÿåº¦ã®å¤§ãã•ï¼ˆé€Ÿã•ï¼‰</param>
+		/// <param name="angle">åˆæœŸé€Ÿåº¦ã®xè»¸ã‹ã‚‰ã®è§’åº¦</param>
+		/// <returns>ç”Ÿæˆã•ã‚ŒãŸæ•µå¼¾ã¸ã®ãƒã‚¤ãƒ³ã‚¿</returns>
 		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generateBullet =
 		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {
 			auto newObject = bulletManager.GenerateObject(id, Vector2{ posX, posY });
@@ -51,13 +51,13 @@ namespace Shooter {
 			return std::move(newObject);
 		};
 
-		/// <summary>w’è‚µ‚½“G‚©‚ç“G’e‚ğ¶¬‚·‚éB¶¬Œ³‚ª‘¶İ‚µ‚È‚¯‚ê‚Î¶¬‚µ‚È‚¢B</summary>
-		/// <param name="id">¶¬‚·‚é“G’e‚ÌID</param>
-		/// <param name="posX">‰ŠúˆÊ’u‚ÌxÀ•W</param>
-		/// <param name="posY">‰ŠúˆÊ’u‚ÌyÀ•W</param>
-		/// <param name="speed">‰Šú‘¬“x‚Ì‘å‚«‚³i‘¬‚³j</param>
-		/// <param name="angle">‰Šú‘¬“x‚Ìx²‚©‚ç‚ÌŠp“x</param>
-		/// <returns>¶¬‚³‚ê‚½“G’e‚Ö‚Ìƒ|ƒCƒ“ƒ^</returns>
+		/// <summary>æŒ‡å®šã—ãŸæ•µã‹ã‚‰æ•µå¼¾ã‚’ç”Ÿæˆã™ã‚‹ã€‚ç”Ÿæˆå…ƒãŒå­˜åœ¨ã—ãªã‘ã‚Œã°ç”Ÿæˆã—ãªã„ã€‚</summary>
+		/// <param name="id">ç”Ÿæˆã™ã‚‹æ•µå¼¾ã®ID</param>
+		/// <param name="posX">åˆæœŸä½ç½®ã®xåº§æ¨™</param>
+		/// <param name="posY">åˆæœŸä½ç½®ã®yåº§æ¨™</param>
+		/// <param name="speed">åˆæœŸé€Ÿåº¦ã®å¤§ãã•ï¼ˆé€Ÿã•ï¼‰</param>
+		/// <param name="angle">åˆæœŸé€Ÿåº¦ã®xè»¸ã‹ã‚‰ã®è§’åº¦</param>
+		/// <returns>ç”Ÿæˆã•ã‚ŒãŸæ•µå¼¾ã¸ã®ãƒã‚¤ãƒ³ã‚¿</returns>
 		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, std::shared_ptr<Enemy>, const float, const float)> generateBulletFromEnemy =
 		[this](const BulletManager::BulletID id, std::shared_ptr<Enemy> enemy, const float speed, const float angle) -> std::shared_ptr<Bullet> {
 			if (enemy->IsEnabled())
@@ -66,8 +66,8 @@ namespace Shooter {
 				return nullptr;
 		};
 
-		/// <summary>ƒRƒ‹[ƒ`ƒ“‚ğ“o˜^‚·‚éB“o˜^‚³‚ê‚½ƒRƒ‹[ƒ`ƒ“‚Í–ˆƒtƒŒ[ƒ€Às‚³‚ê‚éB</summary>
-		/// <param name="func">“o˜^‚·‚éƒRƒ‹[ƒ`ƒ“</param>
+		/// <summary>ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’ç™»éŒ²ã™ã‚‹ã€‚ç™»éŒ²ã•ã‚ŒãŸã‚³ãƒ«ãƒ¼ãƒãƒ³ã¯æ¯ãƒ•ãƒ¬ãƒ¼ãƒ å®Ÿè¡Œã•ã‚Œã‚‹ã€‚</summary>
+		/// <param name="func">ç™»éŒ²ã™ã‚‹ã‚³ãƒ«ãƒ¼ãƒãƒ³</param>
 		std::function<void(const sol::function)> startCoroutine =
 		[this](const sol::function func) {
 			sol::thread th = sol::thread::create(lua.lua_state());
@@ -76,9 +76,9 @@ namespace Shooter {
 			tasksList.push_back(std::make_pair(th, co));
 		};
 
-		/// <summary>ƒRƒ‹[ƒ`ƒ“‚ğ“o˜^‚·‚éB“o˜^‚³‚ê‚½ƒRƒ‹[ƒ`ƒ“‚Í–ˆƒtƒŒ[ƒ€Às‚³‚ê‚éB</summary>
-		/// <param name="func">“o˜^‚·‚éƒRƒ‹[ƒ`ƒ“</param>
-		/// <param name="va">ƒRƒ‹[ƒ`ƒ“‚Ìˆø”ƒŠƒXƒg</param>
+		/// <summary>ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’ç™»éŒ²ã™ã‚‹ã€‚ç™»éŒ²ã•ã‚ŒãŸã‚³ãƒ«ãƒ¼ãƒãƒ³ã¯æ¯ãƒ•ãƒ¬ãƒ¼ãƒ å®Ÿè¡Œã•ã‚Œã‚‹ã€‚</summary>
+		/// <param name="func">ç™»éŒ²ã™ã‚‹ã‚³ãƒ«ãƒ¼ãƒãƒ³</param>
+		/// <param name="va">ã‚³ãƒ«ãƒ¼ãƒãƒ³ã®å¼•æ•°ãƒªã‚¹ãƒˆ</param>
 		std::function<void(const sol::function, sol::variadic_args)> startCoroutineWithArgs =
 		[this](const sol::function func, sol::variadic_args va) {
 			sol::thread th = sol::thread::create(lua.lua_state());
@@ -87,8 +87,8 @@ namespace Shooter {
 			tasksList.push_back(std::make_pair(th, co));
 		};
 
-		/// <summary>©‹@‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾</summary>
-		/// <returns>©‹@‚Ö‚Ìƒ|ƒCƒ“ƒ^</returns>
+		/// <summary>è‡ªæ©Ÿã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—</summary>
+		/// <returns>è‡ªæ©Ÿã¸ã®ãƒã‚¤ãƒ³ã‚¿</returns>
 		std::function<std::shared_ptr<Player>(void)> getPlayer =
 		[this]() -> std::shared_ptr<Player> {
 			return playerManager.GetPlayer();

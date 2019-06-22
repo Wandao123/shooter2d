@@ -12,13 +12,7 @@ namespace Shooter {
 	class Sprite
 	{
 	public:
-		Sprite(const std::shared_ptr<SDL_Texture> texture) : Sprite(texture, std::make_unique<SDL_Rect>()) {}
-
-		Sprite(const std::shared_ptr<SDL_Texture> texture, std::unique_ptr<SDL_Rect>&& clip)
-			: texture(texture)
-			, clip(std::move(clip))
-		{}
-
+		Sprite(const std::shared_ptr<SDL_Texture> texture) : texture(texture) {}
 		void Draw(const Vector2& position) const;
 		void Draw(const Vector2& position, const float angle, const float scale) const;
 
