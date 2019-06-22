@@ -4,6 +4,8 @@
 
 using namespace Shooter;
 
+/******************************** 個別設定用クラス *********************************/
+
 class FrameUI : public UserInterface
 {
 public:
@@ -29,6 +31,8 @@ private:
 		Text << "GAME OVER";
 	}
 };
+
+/******************************** UserInterface *********************************/
 
 UserInterface::UserInterface(const Vector2& position)
 	: GameObject(true, position)
@@ -82,9 +86,11 @@ void UserInterface::LoadFont(const unsigned int size)
 	}
 }
 
-std::shared_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const Vector2& position)
+/******************************** UserInterfaceManager *********************************/
+
+std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const Vector2& position)
 {
-	std::shared_ptr<UserInterface> newObject;
+	std::weak_ptr<UserInterface> newObject;
 	switch (id) {
 	case UserInterfaceID::FrameRate:
 		newObject = assignObject<FrameUI>(position);

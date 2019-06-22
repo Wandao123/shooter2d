@@ -24,7 +24,7 @@ namespace Shooter {
 			Small
 		};
 
-		std::shared_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
+		std::weak_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
 	};
 }
 

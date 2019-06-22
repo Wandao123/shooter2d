@@ -33,7 +33,7 @@ namespace Shooter {
 			GameOver
 		};
 
-		std::shared_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2& position);
+		std::weak_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2& position);
 	};
 }
 

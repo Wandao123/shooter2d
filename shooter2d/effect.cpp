@@ -5,7 +5,9 @@ using namespace Shooter;
 // HACK: 共通化のもっと良い方法？
 std::unique_ptr<AssetLoader> assetLoader = std::make_unique<AssetLoader>();
 
-// 何もしないエフェクト
+/******************************** 個別設定用クラス *********************************/
+
+/// <summary>何もしないエフェクト</summary>
 class NoneEffect : public Effect
 {
 public:
@@ -16,6 +18,7 @@ public:
 	void Played() override {}
 };
 
+/// <summary>放射状に広がる青いエフェクト</summary>
 class BlueCircleEffect : public Effect
 {
 public:
@@ -27,6 +30,8 @@ public:
 		clips[2] = { 128, 256, 128, 128 };
 	}
 };
+
+/******************************** Effect *********************************/
 
 Effect::Effect(const Vector2& position, std::unique_ptr<Sprite>&& sprite)
 	: GameObject(false, position)
@@ -67,9 +72,11 @@ void Effect::Update()
 	}
 }
 
-std::shared_ptr<Effect> EffectManager::GenerateObject(const EffectID id, const Vector2& position)
+/******************************** EffectManager *********************************/
+
+std::weak_ptr<Effect> EffectManager::GenerateObject(const EffectID id, const Vector2& position)
 {
-	std::shared_ptr<Effect> newObject;
+	std::weak_ptr<Effect> newObject;
 	switch (id) {
 	case EffectID::None:
 		newObject = assignObject<NoneEffect>(position);
@@ -78,5 +85,5 @@ std::shared_ptr<Effect> EffectManager::GenerateObject(const EffectID id, const V
 		newObject = assignObject<BlueCircleEffect>(position);
 		break;
 	}
-	return std::move(newObject);
+	return newObject;
 }

@@ -53,15 +53,13 @@ SDL_Rect& Bullet::clipFromImage(Uint32 countedFrames)
 
 /******************************** BulletManager *********************************/
 
-std::shared_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vector2& position)
+std::weak_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vector2& position)
 {
-	std::shared_ptr<Bullet> newObject;
+	std::weak_ptr<Bullet> newObject;
 	switch (id) {
 	case BulletID::Small:
 		newObject = assignObject<SmallBullet>(position);
 		break;
 	}
-	newObject->SetSpeed(0.0f);
-	newObject->SetAngle(M_PI_2);
-	return std::move(newObject);
+	return newObject;
 }

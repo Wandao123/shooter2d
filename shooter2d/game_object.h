@@ -9,7 +9,8 @@
 namespace Shooter {
 	extern std::unique_ptr<Timer> Time;
 
-	// ゲーム中に表示される全てのオブジェクトの親クラス。各最終継承先にはpositionのみを引数に持つコンストラクタを定義せよ（仕様）。
+	/// <summary>ゲーム中に表示される全てのオブジェクトの親クラス。</summary>
+	/// <remarks>各最終継承先にはpositionのみを引数に持つコンストラクタを定義せよ。</remarks>
 	class GameObject
 	{
 	public:
@@ -39,7 +40,12 @@ namespace Shooter {
 		Vector2 position;  // ここで言う位置とは画像の中心のこと。
 	};
 
-	// GameObjectの管理クラス。ここでは生成処理が定義されていない。生成するオブジェクトの種類に応じて、このクラスの継承先で定義せよ。
+	/// <summary>GameObjectの管理クラス。</summary>
+	/// <remarks>
+	/// 生成するオブジェクトの種類に応じて、このクラスの継承先で定義せよ。特に、インスタンスを返す関数を定義していないので、
+	///     std::weak_ptr GenerateObject(生成するオブジェクトのID, 生成する位置)
+	/// という型の関数を継承先で定義すること。下のassignObjectも参照。
+	/// </remarks>
 	class ObjectManager
 	{
 	public:
@@ -48,9 +54,9 @@ namespace Shooter {
 		virtual void Draw();
 		virtual void Update();
 
-		std::list<std::shared_ptr<GameObject>> GetList() const
+		std::list<std::weak_ptr<GameObject>> GetList() const
 		{
-			std::list<std::shared_ptr<GameObject>> temp;
+			std::list<std::weak_ptr<GameObject>> temp;
 			for (auto&& object : objectsList)
 				if (object->IsEnabled())
 					temp.push_back(object);
@@ -59,10 +65,14 @@ namespace Shooter {
 	protected:
 		std::list<std::shared_ptr<GameObject>> objectsList;  // 更新対象オブジェクト。本来なら継承先でGameObjectの具象クラスに対して定義するべきか？
 
-		// 未使用のObjectType型のオブジェクトをobjectsListから探索して、見つかればそれを返す。見つからなければ新しく生成する。
-		// ObjectTypeはGameObjectの子クラスであることと、そのコンストラクタの引数はpositionのみであることが前提。
+		/// <summary>未使用のObjectType型のオブジェクトをobjectsListから探索して、見つかればそれを返す。見つからなければ新しく生成する。</summary>
+		/// <remarks>
+		/// ObjectTypeはGameObjectの子クラスであることと、そのコンストラクタの引数はpositionのみであることが前提。
+		/// また、返り値を受け取ったらすぐに「実体化関数」を呼ぶかlockを呼び出すこと。さもなければ、この関数はweak_ptrを返す
+		/// （参照カウントが増えない）ので、未使用と見なされる。
+		/// </remarks>
 		template <class ObjectType>
-		std::shared_ptr<ObjectType> assignObject(const Vector2& position)
+		std::weak_ptr<ObjectType> assignObject(const Vector2& position)
 		{
 			for (auto&& object : objectsList)
 				if (typeid(*object) == typeid(ObjectType) && !object->IsEnabled() && object.use_count() <= 1) {

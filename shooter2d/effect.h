@@ -33,7 +33,7 @@ namespace Shooter {
 			BlueCircle
 		};
 
-		std::shared_ptr<Effect> GenerateObject(const EffectID id, const Vector2& position);
+		std::weak_ptr<Effect> GenerateObject(const EffectID id, const Vector2& position);
 	};
 }
 

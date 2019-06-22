@@ -88,15 +88,13 @@ SDL_Rect& Enemy::clipFromImage(Uint32 countedFrames)
 
 /******************************** EnemyManager *********************************/
 
-std::shared_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const Vector2& position)
+std::weak_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const Vector2& position)
 {
-	std::shared_ptr<Enemy> newObject;
+	std::weak_ptr<Enemy> newObject;
 	switch (id) {
 	case EnemyID::SmallBlue:
 		newObject = assignObject<SmallBlueEnemy>(position);
 		break;
 	}
-	newObject->SetSpeed(0.0f);
-	newObject->SetAngle(M_PI_2);
-	return std::move(newObject);
+	return newObject;
 }

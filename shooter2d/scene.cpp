@@ -3,6 +3,8 @@
 
 using namespace Shooter;
 
+/******************************** 非公開クラス *********************************/
+
 class GameOverScene : public Scene
 {
 public:
@@ -29,6 +31,8 @@ private:
 	std::unique_ptr<Script> script;
 };
 
+/******************************** TitleScene *********************************/
+
 TitleScene::TitleScene(IChangingSceneListener& listener)
 	: Scene(listener)
 {
@@ -42,6 +46,8 @@ void TitleScene::Update()
 {
 	listener.PushScene(std::make_unique<GameScene>(listener));
 }
+
+/******************************** GameOverScene *********************************/
 
 GameOverScene::GameOverScene(IChangingSceneListener& listener)
 	: Scene(listener)
@@ -60,6 +66,8 @@ void GameOverScene::Update()
 	userInterfaceManager->Update();
 }
 
+/******************************** GameScene *********************************/
+
 GameScene::GameScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, bulletManager(std::make_shared<BulletManager>())
@@ -71,7 +79,7 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	, script(std::make_unique<Script>(*bulletManager, *enemyManager, *playerManager))
 {
 	// 更新対象オブジェクトを生成。
-	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height })->Spawned();
+	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }).lock()->Spawned();
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ 0, Game::Height - 14 });
 }
 
@@ -116,7 +124,7 @@ void GameScene::Update()
 			player.Shoot();
 	};
 
-	auto player = playerManager->GetPlayer();
+	auto player = playerManager->GetPlayer().lock();
 	updatePlayer(*player);
 	script->Run();
 	bulletManager->Update();

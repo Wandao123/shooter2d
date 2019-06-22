@@ -86,9 +86,9 @@ namespace Shooter {
 			ReimuNormal
 		};
 
-		std::shared_ptr<Player> GenerateObject(const PlayerID id, const Vector2& position);
-		std::shared_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
-		std::shared_ptr<Player> GetPlayer() const;
+		std::weak_ptr<Player> GenerateObject(const PlayerID id, const Vector2& position);
+		std::weak_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
+		std::weak_ptr<Player> GetPlayer() const;
 	};
 }
 

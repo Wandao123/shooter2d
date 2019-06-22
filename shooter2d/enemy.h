@@ -29,7 +29,7 @@ namespace Shooter {
 			SmallBlue
 		};
 
-		std::shared_ptr<Enemy> GenerateObject(const EnemyID id, const Vector2& position);
+		std::weak_ptr<Enemy> GenerateObject(const EnemyID id, const Vector2& position);
 	};
 }
 

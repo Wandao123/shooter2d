@@ -102,9 +102,9 @@ void Player::Shoot()
 	int currentFrame = Time->GetCountedFrames();
 	if (currentFrame - previousShootingFrame > shotDelayFrames) {
 		auto newLeftBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position - Vector2{ 12.0f, 0.0f });
+		newLeftBullet.lock()->Shot(bulletSpeed, -M_PI_2);
 		auto newRightBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position + Vector2{ 12.0f, 0.0f });
-		newLeftBullet->Shot(bulletSpeed, -M_PI_2);
-		newRightBullet->Shot(bulletSpeed, -M_PI_2);
+		newRightBullet.lock()->Shot(bulletSpeed, -M_PI_2);
 		previousShootingFrame = currentFrame;
 	}
 }
@@ -136,9 +136,9 @@ SDL_Rect& Player::clipFromImage(Uint32 countedFrames)
 
 /******************************** PlayerManager *********************************/
 
-std::shared_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vector2& position)
+std::weak_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vector2& position)
 {
-	std::shared_ptr<Player> newObject;
+	std::weak_ptr<Player> newObject;
 	switch (id) {
 	case PlayerID::Reimu:
 		newObject = assignObject<Reimu>(position);
@@ -150,29 +150,27 @@ std::shared_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const V
 		newObject = assignObject<Sanae>(position);
 		break;
 	}
-	newObject->setManager(shared_from_this());
+	newObject.lock()->setManager(shared_from_this());
 	return newObject;
 }
 
-std::shared_ptr<Bullet> PlayerManager::GenerateObject(const BulletID id, const Vector2& position)
+std::weak_ptr<Bullet> PlayerManager::GenerateObject(const BulletID id, const Vector2& position)
 {
-	std::shared_ptr<Bullet> newObject;
+	std::weak_ptr<Bullet> newObject;
 	switch (id) {
 	case BulletID::ReimuNormal:
 		newObject = assignObject<ReimuNormalShot>(position);
 		break;
 	}
-	newObject->SetSpeed(0.0f);
-	newObject->SetAngle(M_PI_2);
-	return std::move(newObject);
+	return newObject;
 }
 
-std::shared_ptr<Player> PlayerManager::GetPlayer() const
+std::weak_ptr<Player> PlayerManager::GetPlayer() const
 {
 	for (auto&& object : objectsList) {
 		auto temp = std::dynamic_pointer_cast<Player>(object);
 		if (temp.get() != nullptr)  // インスタンスの親子関係を調べる。もっとよい方法はないのか？
 			return temp;
 	}
-	return nullptr;
+	return {};
 }

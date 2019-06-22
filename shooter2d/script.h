@@ -32,7 +32,7 @@ namespace Shooter {
 		/// <returns>生成された敵へのポインタ</returns>
 		std::function<std::shared_ptr<Enemy>(const EnemyManager::EnemyID, const float, const float, const float, const float, const int hitPoint)> generateEnemy =
 		[this](const EnemyManager::EnemyID id, const float posX, const float posY, const float speed, const float angle, const int hitPoint) -> std::shared_ptr<Enemy> {
-			auto newObject = enemyManager.GenerateObject(id, Vector2{ posX, posY });
+			auto newObject = enemyManager.GenerateObject(id, Vector2{ posX, posY }).lock();
 			newObject->Spawned(speed, angle, hitPoint);
 			return std::move(newObject);
 		};
@@ -46,7 +46,7 @@ namespace Shooter {
 		/// <returns>生成された敵弾へのポインタ</returns>
 		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generateBullet =
 		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {
-			auto newObject = bulletManager.GenerateObject(id, Vector2{ posX, posY });
+			auto newObject = bulletManager.GenerateObject(id, Vector2{ posX, posY }).lock();
 			newObject->Shot(speed, angle);
 			return std::move(newObject);
 		};
@@ -91,7 +91,8 @@ namespace Shooter {
 		/// <returns>自機へのポインタ</returns>
 		std::function<std::shared_ptr<Player>(void)> getPlayer =
 		[this]() -> std::shared_ptr<Player> {
-			return playerManager.GetPlayer();
+			auto player = playerManager.GetPlayer();
+			return (player.expired()) ? nullptr : player.lock();
 		};
 	};
 }
