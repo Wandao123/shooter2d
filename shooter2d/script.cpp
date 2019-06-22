@@ -7,8 +7,8 @@ using namespace Shooter;
 /// <param name="enemyManager">GameSceneクラスのenemyManagerメンバ変数</param>
 /// <param name="playerManager">GameSceneクラスのplayerManagerメンバ変数</param>
 Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerManager& playerManager)
-	: enemyManager(enemyManager)
-	, bulletManager(bulletManager)
+	: bulletManager(bulletManager)
+	, enemyManager(enemyManager)
 	, playerManager(playerManager)
 {
 	// Luaの初期化。
