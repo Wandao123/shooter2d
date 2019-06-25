@@ -29,6 +29,11 @@ WindowsではArialフォント、LinuxではLiberation Sansフォントを使用
 - [Lua 5.3](https://www.lua.org/)
 - [sol2 v2.20.6](https://github.com/ThePhD/sol2)
 
+### コンパイラ
+
+- GCC (>=5)
+- Visual C++ (>=15)/Visual Studio (>=2017)
+
 ## ビルド方法（暫定）
 
 ### Windows (Visual Studio 2019で確認済み)
