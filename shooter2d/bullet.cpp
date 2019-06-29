@@ -2,15 +2,13 @@
 
 using namespace Shooter;
 
-extern std::unique_ptr<AssetLoader> assetLoader;
-
 /******************************** 個別設定用クラス *********************************/
 
 class SmallBullet : public Bullet
 {
 public:
 	SmallBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/shot_all.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.0f), EffectManager::EffectID::BlueCircle, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.0f), EffectManager::EffectID::BlueCircle, 1)
 	{
 		clip = { 1, 13, 15, 15 };
 	}

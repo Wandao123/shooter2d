@@ -1,13 +1,12 @@
 #include <iostream>
 #include <cstdlib>
-//#include <SDL_mixer.h>
-#include <SDL_ttf.h>
 #include "game.h"
 
 namespace Shooter {
 	SDL_Window *Window;
 	SDL_Renderer *Renderer;
-	std::unique_ptr<Timer> Time = std::make_unique<Timer>();
+	std::unique_ptr<Timer> Time;
+	std::unique_ptr<CAssetLoader> AssetLoader;
 
 	Game::Game()
 	{
@@ -22,16 +21,16 @@ namespace Shooter {
 			std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		//Shooter::renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		Shooter::Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED);
+		Shooter::Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		//Shooter::Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED);
 		if (Shooter::Renderer == nullptr) {
 			std::cerr << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		if (TTF_Init() == -1) {
-			std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
-			exit(EXIT_FAILURE);
-		}
+
+		// グローバル変数の初期化
+		Time = std::make_unique<Timer>();
+		AssetLoader = std::make_unique<CAssetLoader>();
 
 		// シーンの設定
 		PushScene(std::make_unique<TitleScene>(*this));
@@ -39,9 +38,11 @@ namespace Shooter {
 
 	Game::~Game()
 	{
-		while (!scenes.empty())  // 全て破棄してからでないと、以下の終了処理で実行時エラーが生じる（順番に注意）。
+		// SDLに依存する全ての変数を破棄してからでないと、以下の終了処理で実行時エラーが生じる（順番に注意）。
+		while (!scenes.empty())
 			scenes.pop();
-		TTF_Quit();
+		AssetLoader.reset();
+		Time.reset();
 		SDL_DestroyRenderer(Shooter::Renderer);
 		SDL_DestroyWindow(Shooter::Window);
 		SDL_Quit();
@@ -81,11 +82,10 @@ namespace Shooter {
 		}
 	}
 
-	// 呼び出し元が破棄されるから危険？
 	void Game::ClearAndChangeScene(std::unique_ptr<Scene>&& newScene)
 	{
 		while (!scenes.empty())
-			scenes.pop();
+			scenes.pop();  // 呼び出し元が破棄されるから危険？
 		scenes.push(std::move(newScene));
 	}
 

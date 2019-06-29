@@ -2,9 +2,6 @@
 
 using namespace Shooter;
 
-// HACK: 共通化のもっと良い方法？
-std::unique_ptr<AssetLoader> assetLoader = std::make_unique<AssetLoader>();
-
 /******************************** 個別設定用クラス *********************************/
 
 /// <summary>何もしないエフェクト</summary>
@@ -12,7 +9,7 @@ class NoneEffect : public Effect
 {
 public:
 	NoneEffect(const Vector2& position)
-		: Effect(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/effect_circle.png")))
+		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png"))
 	{}
 
 	void Played() override {}
@@ -23,7 +20,7 @@ class BlueCircleEffect : public Effect
 {
 public:
 	BlueCircleEffect(const Vector2& position)
-		: Effect(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/effect_circle.png")))
+		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png"))
 	{
 		clips[0] = { 128, 128, 128, 128 };
 		clips[1] = { 128, 128, 128, 128 };
@@ -55,7 +52,7 @@ void Effect::Draw()
 
 void Effect::Played()
 {
-	enabled = true;  // HACK: この2行は同じなので、Moverと共通化するべきか？
+	enabled = true;
 	counter = 0;
 	alpha = 255;
 	scalingRate = 0.0f;

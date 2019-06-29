@@ -3,7 +3,7 @@
 
 #include <array>
 #include "game_object.h"
-#include "sprite.h"
+#include "assets.h"
 
 namespace Shooter {
 	class Effect : public GameObject

@@ -53,7 +53,7 @@ GameOverScene::GameOverScene(IChangingSceneListener& listener)
 	: Scene(listener)
 {
 	userInterfaceManager = std::make_unique<UserInterfaceManager>();
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameOver, Vector2{ Game::Width / 2.0f - 40, Game::Height / 2.0f  - 7 });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameOver, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
 }
 
 void GameOverScene::Draw()
@@ -80,7 +80,7 @@ GameScene::GameScene(IChangingSceneListener& listener)
 {
 	// 更新対象オブジェクトを生成。
 	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }).lock()->Spawned();
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ 0, Game::Height - 14 });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
 }
 
 void GameScene::Update()

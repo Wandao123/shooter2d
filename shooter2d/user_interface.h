@@ -1,28 +1,19 @@
 ﻿#ifndef USER_INTERFACE_H
 #define USER_INTERFACE_H
 
-#include <SDL_ttf.h>
 #include "game_object.h"
+#include "assets.h"
 
 namespace Shooter {
-	extern SDL_Renderer *Renderer;
-	extern TTF_Font *Font;
-
 	class UserInterface : public GameObject
 	{
 	public:
-		UserInterface(const Vector2& positin);
-		virtual ~UserInterface();
+		UserInterface(const Vector2& positin, std::unique_ptr<Label>&& label);
+		virtual ~UserInterface() {}
 		virtual void Draw();
-		virtual void Update();
+		virtual void Update() = 0;
 	protected:
-		SDL_Texture *Texture;
-		TTF_Font *Font;
-		std::stringstream Text;
-		virtual void PutText() = 0;
-		void LoadFont(const unsigned int size);
-	private:
-		SDL_Rect renderText;
+		std::unique_ptr<Label> label;
 	};
 
 	class UserInterfaceManager : public ObjectManager

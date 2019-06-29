@@ -4,86 +4,51 @@
 
 using namespace Shooter;
 
+#ifdef _WIN64
+const std::string Filename = "C:/Windows/Fonts/arial.ttf";
+#elif __linux__
+const std::string Filename = "/usr/share/fonts/TTF/LiberationSans-Regular.ttf";
+#elif __unix__
+#else
+// TODO: 確実に存在するパス？
+#endif
+
 /******************************** 個別設定用クラス *********************************/
 
-class FrameUI : public UserInterface
+class FrameRate : public UserInterface
 {
 public:
-	FrameUI(const Vector2& position) : UserInterface(position) {}
+	FrameRate(const Vector2& position) : UserInterface(position, std::make_unique<Label>(Filename, 14)) {}
 private:
-	void PutText() override
+	void Update() override
 	{
-		LoadFont(14);
-		Text.str("");
-		Text << "FPS " << std::fixed << std::setprecision(3) << Time->GetAverageOfFPS();
+		label->Text.str("");
+		label->Text << "FPS " << std::fixed << std::setprecision(3) << Time->GetAverageOfFPS();
 	}
 };
 
 class GameOver : public UserInterface
 {
 public:
-	GameOver(const Vector2& position) : UserInterface(position) {}
+	GameOver(const Vector2& position) : UserInterface(position, std::make_unique<Label>(Filename, 18)) {}
 private:
-	void PutText() override
+	void Update() override
 	{
-		LoadFont(18);
-		Text.str("");
-		Text << "GAME OVER";
+		label->Text.str("");
+		label->Text << "GAME OVER";
 	}
 };
 
 /******************************** UserInterface *********************************/
 
-UserInterface::UserInterface(const Vector2& position)
+UserInterface::UserInterface(const Vector2& position, std::unique_ptr<Label>&& label)
 	: GameObject(true, position)
-	, Texture(nullptr)
-	, Font(nullptr)
-	, renderText({ static_cast<int>(position.x), static_cast<int>(position.y), 0, 0 })
+	, label(std::move(label))
 {}
-
-UserInterface::~UserInterface()
-{
-	if (Font != nullptr) {
-		TTF_CloseFont(Font);
-		Font = nullptr;
-	}
-}
 
 void UserInterface::Draw()
 {
-	SDL_RenderCopy(Renderer, Texture, nullptr, &renderText);
-}
-
-void UserInterface::Update()
-{
-	PutText();
-	int textWidth = 0, textHeight = 0;
-	SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
-	SDL_Surface *textSurface = TTF_RenderText_Solid(Font, Text.str().c_str(), textColor);
-	Texture = SDL_CreateTextureFromSurface(Renderer, textSurface);
-	textWidth = textSurface->w;
-	textHeight = textSurface->h;
-	SDL_FreeSurface(textSurface);
-	renderText = { static_cast<int>(position.x), static_cast<int>(position.y), textWidth, textHeight };
-}
-
-void UserInterface::LoadFont(const unsigned int size)
-{
-	if (Font != nullptr) {
-		TTF_CloseFont(Font);
-		Font = nullptr;
-	}
-	// TODO: 例外の発生。
-#ifdef _WIN64
-	Font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", size);
-#elif __linux__
-	Font = TTF_OpenFont("/usr/share/fonts/TTF/LiberationSans-Regular.ttf", size);
-#elif __unix__
-	// Monospace font を指定
-#endif
-	if (Font == nullptr) {
-		std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
-	}
+	label->Write(position);
 }
 
 /******************************** UserInterfaceManager *********************************/
@@ -93,7 +58,7 @@ std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInte
 	std::weak_ptr<UserInterface> newObject;
 	switch (id) {
 	case UserInterfaceID::FrameRate:
-		newObject = assignObject<FrameUI>(position);
+		newObject = assignObject<FrameRate>(position);
 		break;
 	case UserInterfaceID::GameOver:
 		newObject = assignObject<GameOver>(position);

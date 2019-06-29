@@ -152,6 +152,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="assets.cpp" />
     <ClCompile Include="bullet.cpp" />
     <ClCompile Include="collider.cpp" />
     <ClCompile Include="collision_detector.cpp" />
@@ -164,11 +165,11 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="script.cpp" />
-    <ClCompile Include="sprite.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="user_interface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="assets.h" />
     <ClInclude Include="bullet.h" />
     <ClInclude Include="collider.h" />
     <ClInclude Include="collision_detector.h" />
@@ -180,7 +181,6 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="script.h" />
-    <ClInclude Include="sprite.h" />
     <ClInclude Include="mover.h" />
     <ClInclude Include="vector2.h" />
     <ClInclude Include="timer.h" />

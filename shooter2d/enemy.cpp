@@ -2,15 +2,13 @@
 
 using namespace Shooter;
 
-extern std::unique_ptr<AssetLoader> assetLoader;
-
 /******************************** 個別設定用クラス *********************************/
 
 class SmallBlueEnemy : public Enemy
 {
 public:
 	SmallBlueEnemy(const Vector2& position)
-		: Enemy(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, Enemy::Width * 0.5f), EffectManager::EffectID::BlueCircle)
+		: Enemy(position, std::make_unique<Sprite>("images/Enemy.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, Enemy::Width * 0.5f), EffectManager::EffectID::BlueCircle)
 	{
 		for (int j = 0; j < clips[0].size(); j++) {
 			clips[0][j] = { j * Width, 0, Width, Height };                 // 停止時

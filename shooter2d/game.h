@@ -6,7 +6,7 @@
 #include "scene.h"
 
 namespace Shooter {
-	// Gameクラスにシーンを変えることを伝えるためのインターフェース。要はscenesスタックを操作する関数群。
+	/// <summary>SceneクラスからGameクラスにシーンの変更を伝えるためのインターフェース。要はscenesスタックを操作する関数群。</summary>
 	class IChangingSceneListener
 	{
 	public:
@@ -17,6 +17,8 @@ namespace Shooter {
 		virtual void PopScene() = 0;
 	};
 
+	/// <summary>ゲームループを記述するクラス。</summary>
+	/// <remarks>基本的に各シーンを表示することのみ担当する。シーンの切り替え先の指定は各Sceneクラスに任せる。</remarks>
 	class Game : public IChangingSceneListener
 	{
 	public:

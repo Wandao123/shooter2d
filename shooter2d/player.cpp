@@ -4,15 +4,13 @@
 
 using namespace Shooter;
 
-extern std::unique_ptr<AssetLoader> assetLoader;
-
 /******************************** 個別設定用クラス *********************************/
 
 class Reimu : public Player
 {
 public:
 	Reimu(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.0f), EffectManager::EffectID::BlueCircle)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Reimudot.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.0f), EffectManager::EffectID::BlueCircle)
 	{}
 };
 
@@ -20,7 +18,7 @@ class Marisa : public Player
 {
 public:
 	Marisa(const Vector2& position)
-		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::BlueCircle)
+		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>("images/Marisadot.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::BlueCircle)
 	{}
 };
 
@@ -28,7 +26,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(assetLoader->GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::BlueCircle)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Sanaedot.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::BlueCircle)
 	{}
 };
 
@@ -36,7 +34,7 @@ class ReimuNormalShot : public Bullet
 {
 public:
 	ReimuNormalShot(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>(assetLoader->GetTexture("images/Shot1.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
+		: Bullet(position, std::make_unique<Sprite>("images/Shot1.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
 	{
 		clip = { 2, 3, 13, 63 };
 	}
