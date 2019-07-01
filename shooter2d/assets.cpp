@@ -47,7 +47,7 @@ void Sprite::Draw(const Vector2& position, const float angle, const float scale)
 Label::Label(const std::string filename, const int size)
 	: font(AssetLoader->GetFont(filename, size))
 {
-	Text.str("Label");  // Textが空白のままだと、いきなりWriteが呼ばれてエラー。
+	Text.str(" ");  // Textが空のままだと、いきなりWriteが呼ばれてエラー。
 }
 
 /// <param name="x">描画する位置のx座標</param>
@@ -55,8 +55,7 @@ Label::Label(const std::string filename, const int size)
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。</remarks>
 void Label::Write(const Vector2& position) const
 {
-	SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
-	SDL_Surface* textSurface = TTF_RenderText_Solid(font.lock().get(), Text.str().c_str(), textColor);
+	SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font.lock().get(), Text.str().c_str(), textColor);
 	if (textSurface == nullptr) {
 		std::cerr << TTF_GetError() << std::endl;
 		return;
@@ -66,6 +65,8 @@ void Label::Write(const Vector2& position) const
 		std::cerr << SDL_GetError() << std::endl;
 		return;
 	}
+	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureAlphaMod(texture, alpha);
 	SDL_Rect renderText = {
 		static_cast<int>(position.x - textSurface->w * 0.5f),
 		static_cast<int>(position.y - textSurface->h * 0.5f),

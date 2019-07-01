@@ -48,7 +48,7 @@ namespace Shooter {
 	private:
 		std::weak_ptr<SDL_Texture> texture;
 		std::unique_ptr<SDL_Rect> clip;
-		Uint8 alpha = 255;
+		Uint8 alpha = 0xFF;
 	};
 
 	class Label
@@ -57,8 +57,20 @@ namespace Shooter {
 		Label(const std::string filename, const int size);
 		std::stringstream Text;
 		void Write(const Vector2& position) const;
+
+		void SetTextColor(const Uint8 red, const Uint8 green, const Uint8 blue)
+		{
+			textColor = { red, green, blue };
+		}
+
+		void SetAlpha(const Uint8 alpha)
+		{
+			this->alpha = alpha;
+		}
 	private:
 		std::weak_ptr<TTF_Font> font;
+		Uint8 alpha = 0xFF;
+		SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
 	};
 
 	/// <summary>画像・フォント・音楽の資源 (asset) を管理する。</summary>

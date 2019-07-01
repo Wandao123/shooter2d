@@ -14,7 +14,6 @@ namespace Shooter {
 	class GameObject
 	{
 	public:
-		GameObject() : GameObject(true, { 0.0f, 0.0f }) {}
 		GameObject(const bool enabled, const Vector2 position) : enabled(enabled), position(position) {}
 		~GameObject() = default;
 		virtual void Draw() = 0;
@@ -26,7 +25,7 @@ namespace Shooter {
 			return position;
 		}
 
-		void SetPosition(const Vector2& position)
+		void SetPosition(const Vector2& position)  // HACK: 右辺値参照と左辺値参照とを使い分けるべき。
 		{
 			this->position = position;
 		}

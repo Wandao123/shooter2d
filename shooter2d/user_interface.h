@@ -5,15 +5,22 @@
 #include "assets.h"
 
 namespace Shooter {
+	/// <summary>スコアや残機数、メニューの表示などを司る。具体的な挙動は継承先で設定。</summary>
+	/// <remarks>継承先のメンバ変数にLabelやSpriteを持たせる場合は、その位置をpositionからの相対位置で設定する。</remarks>
 	class UserInterface : public GameObject
 	{
 	public:
-		UserInterface(const Vector2& positin, std::unique_ptr<Label>&& label);
+		UserInterface(const Vector2& positin);
 		virtual ~UserInterface() {}
-		virtual void Draw();
-		virtual void Update() = 0;
-	protected:
-		std::unique_ptr<Label> label;
+	};
+
+	/// <summary>メニューで選択を行うためのインターフェース</summary>
+	class IMenu
+	{
+	public:
+		virtual int GetCurrentItemIndex() = 0;
+		virtual void Up() = 0;
+		virtual void Down() = 0;
 	};
 
 	class UserInterfaceManager : public ObjectManager
@@ -21,10 +28,16 @@ namespace Shooter {
 	public:
 		enum class UserInterfaceID {
 			FrameRate,
-			GameOver
+			Title,
+			GameOver,
+			GameClear
+		};
+		enum class MenuID {
+			Title
 		};
 
 		std::weak_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2& position);
+		std::weak_ptr<IMenu> GenerateObject(const MenuID id, const Vector2& position);
 	};
 }
 

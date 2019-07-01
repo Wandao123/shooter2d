@@ -15,6 +15,7 @@ namespace Shooter {
 		virtual void ClearAndChangeScene(std::unique_ptr<Scene>&& newScene) = 0;
 		virtual void PushScene(std::unique_ptr<Scene>&& newScene) = 0;
 		virtual void PopScene() = 0;
+		virtual void Quit() = 0;
 	};
 
 	/// <summary>ゲームループを記述するクラス。</summary>
@@ -30,7 +31,9 @@ namespace Shooter {
 		void ClearAndChangeScene(std::unique_ptr<Scene>&& newScene) override;
 		void PushScene(std::unique_ptr<Scene>&& newScene) override;
 		void PopScene() override;
+		void Quit() override;
 	private:
+		bool quitFlag = false;
 		std::stack<std::unique_ptr<Scene>> scenes;
 	};
 }

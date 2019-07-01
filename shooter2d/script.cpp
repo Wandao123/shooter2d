@@ -82,7 +82,7 @@ void Script::Run()
 		else {
 			return false;
 		}
-		});
+	});
 	for (auto&& task : tasksList)
 		task.second();
 
@@ -93,4 +93,12 @@ void Script::Run()
 		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2{ Game::Width / 2.0f, 0.0f }));
 		enemies.back()->Spawned(2.0f, M_PI_2, 100);
 	}*/
+}
+
+bool Script::IsTerminated()
+{
+	if (tasksList.empty())
+		return true;
+	else
+		return false;
 }

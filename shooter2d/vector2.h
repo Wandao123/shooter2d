@@ -5,6 +5,8 @@
 #include <cmath>
 
 namespace Shooter {
+	/// <summary>2次元ベクトルクラス。</summary>
+	/// <remarks>代入を除いて、演算は新しくVector2かfloatを生成する。</remarks>
 	struct Vector2
 	{
 		float x, y;
@@ -63,6 +65,20 @@ namespace Shooter {
 			return this->x * vector.y - this->y * vector.x;
 		}
 	};
+
+	namespace MathUtils {
+		/// <summary>剰余を求める。返り値は被除数と同じ符号。</summary>
+		inline int Remainder(const int Dividend, const int Divisor)
+		{
+			return (Dividend - Divisor * std::trunc(static_cast<double>(Dividend) / Divisor));
+		}
+
+		/// <summary>剰余を求める。返り値は除数と同じ符号。</summary>
+		inline int Modulo(const int Dividend, const int Divisor)
+		{
+			return (Dividend - Divisor * std::floor(static_cast<double>(Dividend) / Divisor));
+		}
+	}
 }
 
 #endif // !VECTOR2_H

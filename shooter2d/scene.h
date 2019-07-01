@@ -26,6 +26,9 @@ namespace Shooter {
 		TitleScene(IChangingSceneListener& listener);
 		void Draw() override;
 		void Update() override;
+	private:
+		std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+		std::weak_ptr<IMenu> menu;
 	};
 }
 

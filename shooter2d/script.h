@@ -14,6 +14,7 @@ namespace Shooter {
 		// スマート・ポインタではなくとも参照で十分なときには参照をつかう。
 		Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerManager& playerManager);
 		void Run();
+		bool IsTerminated();
 	private:
 		BulletManager& bulletManager;
 		EnemyManager& enemyManager;

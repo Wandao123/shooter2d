@@ -13,6 +13,18 @@ public:
 	void Update() override;
 private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+	Uint32 createdFrame;
+};
+
+class GameClearScene : public Scene
+{
+public:
+	GameClearScene(IChangingSceneListener& listener);
+	void Draw() override;
+	void Update() override;
+private:
+	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+	Uint32 createdFrame;
 };
 
 class GameScene : public Scene
@@ -35,24 +47,53 @@ private:
 
 TitleScene::TitleScene(IChangingSceneListener& listener)
 	: Scene(listener)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 {
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 5.0f });
+	menu = userInterfaceManager->GenerateObject(UserInterfaceManager::MenuID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f });
 }
 
 void TitleScene::Draw()
 {
+	userInterfaceManager->Draw();
 }
 
 void TitleScene::Update()
 {
-	listener.PushScene(std::make_unique<GameScene>(listener));
+	// TODO: 入力処理を別クラスへ分離。
+	static const int DelayFrames = 10;
+	static Uint32 keyDownFrame = 0;  // 多重入力禁止用のフラグ
+	const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
+	if (Time->GetCountedFrames() - keyDownFrame > DelayFrames) {
+		if (currentKeyStates[SDL_SCANCODE_UP]) {
+			menu.lock()->Up();
+			keyDownFrame = Time->GetCountedFrames();
+		}
+		else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
+			menu.lock()->Down();
+			keyDownFrame = Time->GetCountedFrames();
+		}
+	}
+	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
+	if (currentKeyStates[SDL_SCANCODE_Z]) {
+		switch (menu.lock()->GetCurrentItemIndex()) {
+		case 0:
+			listener.ClearAndChangeScene(std::make_unique<GameScene>(listener));
+			break;
+		case 1:
+			listener.Quit();
+			break;
+		}
+	}
 }
 
 /******************************** GameOverScene *********************************/
 
 GameOverScene::GameOverScene(IChangingSceneListener& listener)
 	: Scene(listener)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, createdFrame(Time->GetCountedFrames())
 {
-	userInterfaceManager = std::make_unique<UserInterfaceManager>();
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameOver, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
 }
 
@@ -64,6 +105,30 @@ void GameOverScene::Draw()
 void GameOverScene::Update()
 {
 	userInterfaceManager->Update();
+	if (Time->GetCountedFrames() - createdFrame > Time->FPS * 3)
+		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
+}
+
+/******************************** GameClearScene *********************************/
+
+GameClearScene::GameClearScene(IChangingSceneListener& listener)
+	: Scene(listener)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, createdFrame(Time->GetCountedFrames())
+{
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
+}
+
+void GameClearScene::Draw()
+{
+	userInterfaceManager->Draw();
+}
+
+void GameClearScene::Update()
+{
+	userInterfaceManager->Update();
+	if (Time->GetCountedFrames() - createdFrame > Time->FPS * 3)
+		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
 }
 
 /******************************** GameScene *********************************/
@@ -133,9 +198,11 @@ void GameScene::Update()
 	playerManager->Update();
 	userInterfaceManager->Update();
 	collisionDetector->CheckAll();
-	if (player->GetLife() <= 0) {
+	
+	if (player->GetLife() <= 0)
 		listener.PushScene(std::make_unique<GameOverScene>(listener));
-	}
+	if (script->IsTerminated())  // HACK: スクリプトに無限ループが紛れ込んでしまったら、これだと対処できない。スクリプトで実行できるように、オブジェクトを全て削除する命令、あるいはシーンの切り替え命令を実装するべき？
+		listener.PushScene(std::make_unique<GameClearScene>(listener));
 }
 
 // SDLにはZ-orderの概念が無いため、描画のタイミングで順番に注意する必要がある。

@@ -21,8 +21,8 @@ namespace Shooter {
 			std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		Shooter::Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		//Shooter::Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED);
+		//Shooter::Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		Shooter::Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED);
 		if (Shooter::Renderer == nullptr) {
 			std::cerr << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
@@ -52,18 +52,17 @@ namespace Shooter {
 	{
 		SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
 
-		bool quit = false;
 		SDL_Event e;
 		Time->Start();
-		while (!quit) {
+		while (!quitFlag) {
 			while (SDL_PollEvent(&e) != 0) {
 				switch (e.type) {
 				case SDL_QUIT:
-					quit = true;
+					quitFlag = true;
 					break;
 				case SDL_KEYDOWN:
 					if (e.key.keysym.sym == SDLK_ESCAPE)
-						quit = true;
+						quitFlag = true;
 					break;
 				}
 			}
@@ -96,6 +95,12 @@ namespace Shooter {
 
 	void Game::PopScene()
 	{
-		scenes.pop();
+		if (scenes.size() > 1)
+			scenes.pop();
+	}
+
+	void Game::Quit()
+	{
+		quitFlag = true;
 	}
 }
