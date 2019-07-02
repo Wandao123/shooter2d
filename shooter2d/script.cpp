@@ -12,7 +12,7 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 	, playerManager(playerManager)
 {
 	// Luaの初期化。
-	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string);
+	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string, sol::lib::os);
 	lua.script_file("scripts/stage.lua");  // TODO: エラー処理
 
 	// 各種クラスの定義
