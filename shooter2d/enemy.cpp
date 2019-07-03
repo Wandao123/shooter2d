@@ -4,6 +4,20 @@ using namespace Shooter;
 
 /******************************** 個別設定用クラス *********************************/
 
+class SmallRedEnemy : public Enemy
+{
+public:
+	SmallRedEnemy(const Vector2& position)
+		: Enemy(position, std::make_unique<Sprite>("images/Enemy.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, Enemy::Width * 0.5f), EffectManager::EffectID::RedCircle)
+	{
+		for (int j = 0; j < static_cast<int>(clips[0].size()); j++) {
+			clips[0][j] = { j * Width, Height, Width, Height };            // 停止時
+			clips[1][j] = { (j + 3) * Width, 3 * Height, Width, Height };  // 左移動
+			clips[2][j] = { (j + 3) * Width, Height, Width, Height };      // 右移動
+		}
+	}
+};
+
 class SmallBlueEnemy : public Enemy
 {
 public:
@@ -90,6 +104,9 @@ std::weak_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const Vector
 {
 	std::weak_ptr<Enemy> newObject;
 	switch (id) {
+	case EnemyID::SmallRed:
+		newObject = assignObject<SmallRedEnemy>(position);
+		break;
 	case EnemyID::SmallBlue:
 		newObject = assignObject<SmallBlueEnemy>(position);
 		break;

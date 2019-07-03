@@ -21,7 +21,16 @@ namespace Shooter {
 	public:
 		enum class BulletID
 		{
-			Small
+			LargeRed,
+			LargeBlue,
+			MiddleRed,
+			MiddleBlue,
+			SmallRed,
+			SmallBlue,
+			TinyRed,
+			TinyBlue,
+			ScaleRed,
+			ScaleBlue
 		};
 
 		std::weak_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);

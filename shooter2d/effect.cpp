@@ -15,12 +15,45 @@ public:
 	void Played() override {}
 };
 
-/// <summary>放射状に広がる青いエフェクト</summary>
-class BlueCircleEffect : public Effect
+/// <summary>円形に広がるエフェクト</summary>
+class CircleEffect : public Effect
+{
+public:
+	CircleEffect(const Vector2& position, std::unique_ptr<Sprite>&& sprite)
+		: Effect(position, std::move(sprite))
+	{}
+
+	void Update() override
+	{
+		if (counter < AnimationFrames) {
+			alpha = 255 - 255 * counter / AnimationFrames;
+			scalingRate = 0.5f + counter * 0.05f;
+			++counter;
+		}
+		else {
+			enabled = false;
+		}
+		Effect::Update();
+	}
+};
+
+class RedCircleEffect : public CircleEffect
+{
+public:
+	RedCircleEffect(const Vector2& position)
+		: CircleEffect(position, std::make_unique<Sprite>("images/effect_circle.png"))
+	{
+		clips[0] = { 0, 128, 128, 128 };
+		clips[1] = { 0, 128, 128, 128 };
+		clips[2] = { 0, 256, 128, 128 };
+	}
+};
+
+class BlueCircleEffect : public CircleEffect
 {
 public:
 	BlueCircleEffect(const Vector2& position)
-		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png"))
+		: CircleEffect(position, std::make_unique<Sprite>("images/effect_circle.png"))
 	{
 		clips[0] = { 128, 128, 128, 128 };
 		clips[1] = { 128, 128, 128, 128 };
@@ -50,16 +83,6 @@ void Effect::Played()
 
 void Effect::Update()
 {
-	// アニメーションの更新。
-	if (counter < AnimationFrames) {
-		alpha = 255 - 255 * counter / AnimationFrames;
-		scalingRate = 0.5f + counter * 0.05f;
-		++counter;
-	}  else {
-		enabled = false;
-	}
-
-	// 描画の前処理。
 	auto clipFromImage = [this]() -> SDL_Rect& {
 		if (static_cast<float>(counter) / AnimationFrames < 0.3f)
 			return clips[1];
@@ -79,6 +102,9 @@ std::weak_ptr<Effect> EffectManager::GenerateObject(const EffectID id, const Vec
 	switch (id) {
 	case EffectID::None:
 		newObject = assignObject<NoneEffect>(position);
+		break;
+	case EffectID::RedCircle:
+		newObject = assignObject<RedCircleEffect>(position);
 		break;
 	case EffectID::BlueCircle:
 		newObject = assignObject<BlueCircleEffect>(position);

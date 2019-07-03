@@ -10,7 +10,7 @@ class Reimu : public Player
 {
 public:
 	Reimu(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Reimudot.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.0f), EffectManager::EffectID::BlueCircle)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Reimudot.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.0f), EffectManager::EffectID::RedCircle)
 	{}
 };
 
@@ -18,7 +18,7 @@ class Marisa : public Player
 {
 public:
 	Marisa(const Vector2& position)
-		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>("images/Marisadot.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::BlueCircle)
+		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>("images/Marisadot.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::RedCircle)
 	{}
 };
 
@@ -26,7 +26,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Sanaedot.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::BlueCircle)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Sanaedot.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 1.3f), EffectManager::EffectID::RedCircle)
 	{}
 };
 

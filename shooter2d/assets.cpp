@@ -11,11 +11,19 @@ using namespace Shooter;
 /******************************** Sprite *********************************/
 
 Sprite::Sprite(const std::string filename)
-	: texture(AssetLoader->GetImage(filename))
+	: texture(nullptr, nullptr)  // ここでも初期化しないとエラー。
 {
+	// Textureの生成。
+	SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, AssetLoader->GetImage(filename).lock().get());
+	if (rawTexture == nullptr) {
+		std::cerr << "Unable to create texture from " << filename << "! SDL Error: " << SDL_GetError();
+	}
+	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
+	this->texture = std::move(texture);
+
 	// clipメンバ変数の初期値をtexture全体にする。
 	int width, height;
-	SDL_QueryTexture(texture.lock().get(), nullptr, nullptr, &width, &height);
+	SDL_QueryTexture(texture.get(), nullptr, nullptr, &width, &height);
 	SDL_Rect temp = { 0, 0, width, height };
 	SetClip(temp);
 }
@@ -26,7 +34,7 @@ Sprite::Sprite(const std::string filename)
 void Sprite::Draw(const Vector2& position) const
 {
 	SDL_Rect renderClip = { static_cast<int>(position.x - clip->w * 0.5f), static_cast<int>(position.y - clip->h * 0.5f), clip->w, clip->h };
-	SDL_RenderCopy(Renderer, texture.lock().get(), clip.get(), &renderClip);  // エラーコードを受け取った方が良い？
+	SDL_RenderCopy(Renderer, texture.get(), clip.get(), &renderClip);  // エラーコードを受け取った方が良い？
 }
 
 /// <param name="x">描画する位置のx座標</param>
@@ -39,7 +47,7 @@ void Sprite::Draw(const Vector2& position, const float angle, const float scale)
 	int scaledWidth = static_cast<int>(clip->w * scale);
 	int scaledHeight = static_cast<int>(clip->h * scale);
 	SDL_Rect renderClip = { static_cast<int>(position.x - scaledWidth * 0.5f), static_cast<int>(position.y - scaledHeight * 0.5f), scaledWidth, scaledHeight };
-	SDL_RenderCopyEx(Renderer, texture.lock().get(), clip.get(), &renderClip, angle * 180.0 / M_PI, nullptr, SDL_FLIP_NONE);  // エラーコードを受け取った方が良い？
+	SDL_RenderCopyEx(Renderer, texture.get(), clip.get(), &renderClip, angle * 180.0 / M_PI, nullptr, SDL_FLIP_NONE);  // エラーコードを受け取った方が良い？
 }
 
 /******************************** Label *********************************/
@@ -101,15 +109,15 @@ CAssetLoader::~CAssetLoader()
 	IMG_Quit();
 }
 
-std::weak_ptr<SDL_Texture> CAssetLoader::GetImage(const std::string filename)
+std::weak_ptr<SDL_Surface> CAssetLoader::GetImage(const std::string filename)
 {
-	auto addImage = [](const std::string filename) -> std::shared_ptr<SDL_Texture> {
-		SDL_Texture* rawTexture = IMG_LoadTexture(Renderer, filename.c_str());  // TODO: 例外の発生。
-		if (rawTexture == nullptr) {
+	auto addImage = [](const std::string filename) -> std::shared_ptr<SDL_Surface> {
+		SDL_Surface* rawSurface = IMG_Load(filename.c_str());  // TODO: 例外の発生。
+		if (rawSurface == nullptr) {
 			std::cerr << "Unable to load image " << filename << "!  SDL_image Error: " << IMG_GetError() << std::endl;
 		}
-		std::shared_ptr<SDL_Texture> texture(rawTexture, SDL_DestroyTexture);
-		return texture;
+		std::shared_ptr<SDL_Surface> surface(rawSurface, SDL_FreeSurface);
+		return surface;
 	};
 
 	auto iter = images.find(filename);

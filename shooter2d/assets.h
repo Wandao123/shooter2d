@@ -31,7 +31,7 @@ namespace Shooter {
 
 		void SetColor(const Uint8 red, const Uint8 green, const Uint8 blue)
 		{
-			SDL_SetTextureColorMod(texture.lock().get(), red, green, blue);
+			SDL_SetTextureColorMod(texture.get(), red, green, blue);
 		}
 
 		Uint8 GetAlpha() const
@@ -41,12 +41,22 @@ namespace Shooter {
 
 		void SetAlpha(const Uint8 alpha)
 		{
-			SDL_SetTextureBlendMode(texture.lock().get(), SDL_BLENDMODE_BLEND);
-			SDL_SetTextureAlphaMod(texture.lock().get(), alpha);
+			SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture.get(), alpha);
 			this->alpha = alpha;
 		}
+
+		void SetBlendModeAdd()
+		{
+			SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_ADD);
+		}
+
+		void SetBlendModeMod()
+		{
+			SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_MOD);
+		}
 	private:
-		std::weak_ptr<SDL_Texture> texture;
+		std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture;
 		std::unique_ptr<SDL_Rect> clip;
 		Uint8 alpha = 0xFF;
 	};
@@ -81,10 +91,10 @@ namespace Shooter {
 	public:
 		CAssetLoader();
 		~CAssetLoader();
-		std::weak_ptr<SDL_Texture> GetImage(const std::string filename);
+		std::weak_ptr<SDL_Surface> GetImage(const std::string filename);
 		std::weak_ptr<TTF_Font> GetFont(const std::string filename, const int size);
 	private:
-		std::map<std::string, std::shared_ptr<SDL_Texture>> images;
+		std::map<std::string, std::shared_ptr<SDL_Surface>> images;  // Textureを共有すると、透過などの時に他の所有クラスにも影響が出る。
 		std::map<std::tuple<std::string, int>, std::shared_ptr<TTF_Font>> fonts;
 	};
 }

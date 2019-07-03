@@ -4,13 +4,105 @@ using namespace Shooter;
 
 /******************************** 個別設定用クラス *********************************/
 
-class SmallBullet : public Bullet
+class LargeRedBullet : public Bullet
 {
 public:
-	SmallBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 7.0f), EffectManager::EffectID::None, 1)
+	LargeRedBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 21.0f), EffectManager::EffectID::None, 1)
 	{
-		clip = { 1, 13, 15, 15 };
+		clip = { 320, 0, 64, 64 };
+		sprite->SetBlendModeAdd();
+	}
+};
+
+class LargeBlueBullet : public Bullet
+{
+public:
+	LargeBlueBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 21.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 448, 0, 64, 64 };
+		sprite->SetBlendModeAdd();
+	}
+};
+
+class MiddleRedBullet : public Bullet
+{
+public:
+	MiddleRedBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 9.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 0, 50, 30, 30 };
+	}
+};
+
+class MiddleBlueBullet : public Bullet
+{
+public:
+	MiddleBlueBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 9.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 150, 50, 30, 30 };
+	}
+};
+
+class SmallRedBullet : public Bullet
+{
+public:
+	SmallRedBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 4.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 1, 13, 16, 16 };
+	}
+};
+
+class SmallBlueBullet : public Bullet
+{
+public:
+	SmallBlueBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 4.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 91, 13, 16, 16 };
+	}
+};
+
+class TinyRedBullet : public Bullet
+{
+public:
+	TinyRedBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 3.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 1, 2, 9, 9 };
+	}
+};
+
+class TinyBlueBullet : public Bullet
+{
+public:
+	TinyBlueBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 3.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 61, 2, 9, 9 };
+	}
+};
+
+class ScaleRedBullet : public Bullet
+{
+public:
+	ScaleRedBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 3.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 1, 209, 15, 15 };
+	}
+};
+
+class ScaleBlueBullet : public Bullet
+{
+public:
+	ScaleBlueBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 3.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 91, 209, 15, 15 };
 	}
 };
 
@@ -53,8 +145,35 @@ std::weak_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vec
 {
 	std::weak_ptr<Bullet> newObject;
 	switch (id) {
-	case BulletID::Small:
-		newObject = assignObject<SmallBullet>(position);
+	case BulletID::LargeRed:
+		newObject = assignObject<LargeRedBullet>(position);
+		break;
+	case BulletID::LargeBlue:
+		newObject = assignObject<LargeBlueBullet>(position);
+		break;
+	case BulletID::MiddleRed:
+		newObject = assignObject<MiddleRedBullet>(position);
+		break;
+	case BulletID::MiddleBlue:
+		newObject = assignObject<MiddleBlueBullet>(position);
+		break;
+	case BulletID::SmallRed:
+		newObject = assignObject<SmallRedBullet>(position);
+		break;
+	case BulletID::SmallBlue:
+		newObject = assignObject<SmallBlueBullet>(position);
+		break;
+	case BulletID::TinyRed:
+		newObject = assignObject<TinyRedBullet>(position);
+		break;
+	case BulletID::TinyBlue:
+		newObject = assignObject<TinyBlueBullet>(position);
+		break;
+	case BulletID::ScaleRed:
+		newObject = assignObject<ScaleRedBullet>(position);
+		break;
+	case BulletID::ScaleBlue:
+		newObject = assignObject<ScaleBlueBullet>(position);
 		break;
 	}
 	return newObject;

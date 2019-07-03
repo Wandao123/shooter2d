@@ -26,6 +26,7 @@ namespace Shooter {
 	public:
 		enum class EnemyID
 		{
+			SmallRed,
 			SmallBlue
 		};
 

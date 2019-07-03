@@ -49,11 +49,21 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 	lua["ScreenHeight"] = height;
 	lua.new_enum(
 		"EnemyID",
+		"SmallRed", EnemyManager::EnemyID::SmallRed,
 		"SmallBlue", EnemyManager::EnemyID::SmallBlue
 	);
 	lua.new_enum(
 		"BulletID",
-		"Small", BulletManager::BulletID::Small
+		"LargeRed", BulletManager::BulletID::LargeRed,
+		"LargeBlue", BulletManager::BulletID::LargeBlue,
+		"MiddleRed", BulletManager::BulletID::MiddleRed,
+		"MiddleBlue", BulletManager::BulletID::MiddleBlue,
+		"SmallRed", BulletManager::BulletID::SmallRed,
+		"SmallBlue", BulletManager::BulletID::SmallBlue,
+		"TinyRed", BulletManager::BulletID::TinyRed,
+		"TinyBlue", BulletManager::BulletID::TinyBlue,
+		"ScaleRed", BulletManager::BulletID::ScaleRed,
+		"ScaleBlue", BulletManager::BulletID::ScaleBlue
 	);
 
 	// 関数群の登録。
