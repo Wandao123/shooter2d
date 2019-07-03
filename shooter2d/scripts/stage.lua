@@ -57,7 +57,7 @@ function ShootPer(frames, enemy)
 	local MaxFrames = 120
 	for i = 0, MaxFrames do
 		if i % frames == 0 then
-			GenerateBullet(BulletID['Small'], enemy, 4,
+			GenerateBullet(BulletID.Small, enemy, 4,
 				math.pi / 2 - math.atan(GetPlayer():GetPosX() - enemy:GetPosX(), GetPlayer():GetPosY() - enemy:GetPosY()))
 		end
 		coroutine.yield()
@@ -69,7 +69,7 @@ end
 function Curve(initPosX, speed, radius, dir, delay)
 	dir = dir / math.abs(dir)
 	local angle = math.pi / 2
-	local enemy = GenerateEnemy(EnemyID['SmallBlue'], initPosX, 0, speed, angle, 8)
+	local enemy = GenerateEnemy(EnemyID.SmallBlue, initPosX, 0, speed, angle, 8)
 	coroutine.yield()
 	StartCoroutine(ShootPer, delay, enemy)
 	Wait(120)
@@ -86,7 +86,7 @@ end
 -- 真っ直ぐ降りてきて、全方位弾を発射してから引き返す敵。
 -- initPosX: 初期位置; ways: 弾数.
 function AllDirection(initPosX, ways)
-	local enemy = GenerateEnemy(EnemyID['SmallBlue'], initPosX, 0, 1.5, math.pi / 2, 8)
+	local enemy = GenerateEnemy(EnemyID.SmallBlue, initPosX, 0, 1.5, math.pi / 2, 8)
 	Wait(100)
 	enemy:SetSpeed(0)
 	Wait(5)
@@ -100,7 +100,7 @@ function AllDirection(initPosX, ways)
 		startingAngle = math.pi / 2 - math.atan(GetPlayer():GetPosX() - enemy:GetPosX(), GetPlayer():GetPosY() - enemy:GetPosY())
 	end
 	for i = 0, ways - 1 do
-		GenerateBullet(BulletID['Small'], enemy, 1, startingAngle + i * diffAngle)
+		GenerateBullet(BulletID.Small, enemy, 1, startingAngle + i * diffAngle)
 	end
 	Wait(15)
 	local dir = (initPosX < ScreenWidth / 2) and (1) or (-1)  -- 初期位置が左寄りなら右向きに、右寄りなら左向きに進む。

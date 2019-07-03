@@ -47,10 +47,12 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 	int width = Game::Width, height = Game::Height;  // 直に代入するとgccでコンパイルできない。
 	lua["ScreenWidth"] = width;
 	lua["ScreenHeight"] = height;
-	lua["EnemyID"] = lua.create_table_with(
+	lua.new_enum(
+		"EnemyID",
 		"SmallBlue", EnemyManager::EnemyID::SmallBlue
 	);
-	lua["BulletID"] = lua.create_table_with(
+	lua.new_enum(
+		"BulletID",
 		"Small", BulletManager::BulletID::Small
 	);
 
