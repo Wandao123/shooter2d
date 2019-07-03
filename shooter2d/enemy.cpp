@@ -10,7 +10,7 @@ public:
 	SmallBlueEnemy(const Vector2& position)
 		: Enemy(position, std::make_unique<Sprite>("images/Enemy.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, Enemy::Width * 0.5f), EffectManager::EffectID::BlueCircle)
 	{
-		for (int j = 0; j < clips[0].size(); j++) {
+		for (int j = 0; j < static_cast<int>(clips[0].size()); j++) {
 			clips[0][j] = { j * Width, 0, Width, Height };                 // 停止時
 			clips[1][j] = { (j + 3) * Width, 2 * Height, Width, Height };  // 左移動
 			clips[2][j] = { (j + 3) * Width, 0, Width, Height };           // 右移動

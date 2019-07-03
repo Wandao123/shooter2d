@@ -13,7 +13,7 @@ public:
 	void Update() override;
 private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
-	Uint32 createdFrame;
+	unsigned int createdFrame;
 };
 
 class GameClearScene : public Scene
@@ -24,7 +24,7 @@ public:
 	void Update() override;
 private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
-	Uint32 createdFrame;
+	unsigned int createdFrame;
 };
 
 class GameScene : public Scene

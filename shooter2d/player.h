@@ -54,8 +54,8 @@ namespace Shooter {
 		SDL_Rect& clipFromImage(Uint32 countedFrames) override;
 	private:
 		friend class PlayerManager;
-		const int InvincibleFrames = 90;
-		Uint32 beginningFrame;
+		const unsigned int InvincibleFrames = 90;
+		unsigned int beginningFrame;
 		std::array<std::array<SDL_Rect, 5>, 3> clips;  // 3成分はそれぞれ停止時、左移動、右移動を表す。5成分は変化の差分を表す。
 		const float highSpeed;
 		const float lowSpeed;

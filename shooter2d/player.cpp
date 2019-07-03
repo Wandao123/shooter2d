@@ -53,8 +53,8 @@ Player::Player(const Vector2& position, const float highSpeed, const float lowSp
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {
-	for (int i = 0; i < clips.size(); i++)
-		for (int j = 0; j < clips[i].size(); j++)
+	for (int i = 0; i < static_cast<int>(clips.size()); i++)
+		for (int j = 0; j < static_cast<int>(clips[i].size()); j++)
 			clips[i][j] = { j * Width, i * Height, Width, Height };
 }
 

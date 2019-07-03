@@ -6,7 +6,7 @@ using namespace Shooter;
 void Timer::Delay()
 {
 	// 垂直同期をしない場合。小数点以下が桁落ちする分、誤差が生じる。
-	int frameTicks = SDL_GetTicks() - previousTicks;
+	unsigned int frameTicks = SDL_GetTicks() - previousTicks;
 	if (frameTicks < TicksPerFrame)
 		SDL_Delay(TicksPerFrame - frameTicks);
 }
