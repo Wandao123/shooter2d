@@ -60,8 +60,14 @@ Player::Player(const Vector2& position, const float highSpeed, const float lowSp
 
 void Player::Draw()
 {
-	if (sprite->GetAlpha() < 255 && Time->GetCountedFrames() - beginningFrame >= InvincibleFrames)
-		sprite->SetAlpha(255);
+	if (sprite->GetAlpha() < 255) {
+		if (Time->GetCountedFrames() - beginningFrame >= InvincibleFrames)
+			sprite->SetAlpha(255);
+		else if ((Time->GetCountedFrames() - beginningFrame) / 3 % 2 == 0)  // 3フレーム毎に点滅する。
+			sprite->SetAlpha(0);
+		else
+			sprite->SetAlpha(191);
+	}
 	Mover::Draw();
 }
 
@@ -88,7 +94,7 @@ void Player::Spawned()
 		return;
 	Mover::spawned();
 	beginningFrame = Time->GetCountedFrames();
-	sprite->SetAlpha(128);
+	sprite->SetAlpha(191);
 }
 
 void Player::Shoot()

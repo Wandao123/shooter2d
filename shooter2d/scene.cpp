@@ -152,15 +152,12 @@ void GameScene::Update()
 {
 	auto updatePlayer = [this](Player& player) {
 		// 自機の復活処理。
-		static int counterFromDefeated = 0;
-		const int DelayFrames = 30;
-		if (!player.IsEnabled()) {
-			++counterFromDefeated;
-			if (counterFromDefeated > DelayFrames) {
-				player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
-				player.Spawned();
-				counterFromDefeated = 0;
-			}
+		const unsigned int DelayFrames = 30;
+		static unsigned int playerDefeatedFrame = Time->GetCountedFrames();
+		if (!player.IsEnabled() && player.GetLife() > 0 && Time->GetCountedFrames() - playerDefeatedFrame >= DelayFrames) {
+			player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
+			player.Spawned();
+			playerDefeatedFrame = Time->GetCountedFrames();
 		}
 		
 		// 自機の入力処理。
@@ -199,8 +196,13 @@ void GameScene::Update()
 	userInterfaceManager->Update();
 	collisionDetector->CheckAll();
 	
-	if (player->GetLife() <= 0)
-		listener.PushScene(std::make_unique<GameOverScene>(listener));
+	if (player->GetLife() <= 0) {
+		static unsigned int counter = 0;
+		if (counter >= 30)
+			listener.PushScene(std::make_unique<GameOverScene>(listener));
+		else
+			++counter;
+	}
 	if (script->IsTerminated())  // HACK: スクリプトに無限ループが紛れ込んでしまったら、これだと対処できない。スクリプトで実行できるように、オブジェクトを全て削除する命令、あるいはシーンの切り替え命令を実装するべき？
 		listener.PushScene(std::make_unique<GameClearScene>(listener));
 }
