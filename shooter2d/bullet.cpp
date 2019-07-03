@@ -25,10 +25,8 @@ Bullet::Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::u
 	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, damage)
 {}
 
-void Bullet::Draw()
+void Bullet::Draw() const
 {
-	SDL_Rect& currentClip = clipFromImage(Time->GetCountedFrames());
-	sprite->SetClip(currentClip);
 	sprite->Draw(position, angle + M_PI_2, 1.0f);  // 元の画像は -PI/2 の向きが正位置。よって、画像の回転角は +PI/2 される。
 }
 
@@ -44,7 +42,7 @@ void Bullet::Shot(const float speed, const float angle)
 	SetAngle(angle);
 }
 
-SDL_Rect& Bullet::clipFromImage(Uint32 countedFrames)
+SDL_Rect& Bullet::clipFromImage(unsigned int countedFrames)
 {
 	return clip;
 }

@@ -11,13 +11,13 @@ namespace Shooter {
 	public:
 		Effect(const Vector2& position, std::unique_ptr<Sprite>&& sprite);
 		virtual ~Effect() {}
-		void Draw() override;
+		void Draw() const override;
 		virtual void Played();
 		void Update() override;
 	protected:
 		std::array<SDL_Rect, 3> clips;  // 具体的な値は継承先で設定せよ。
 	private:
-		const unsigned int AnimationFrams = 30;
+		const unsigned int AnimationFrames = 30;
 		std::unique_ptr<Sprite> sprite;
 		unsigned int counter = 0;  // エフェクトのアニメーションが起きているフレーム数。アニメーションが進むと減少する。
 		unsigned int alpha = 255;

@@ -35,18 +35,8 @@ Effect::Effect(const Vector2& position, std::unique_ptr<Sprite>&& sprite)
 	, sprite(std::move(sprite))
 {}
 
-void Effect::Draw()
+void Effect::Draw() const
 {
-	auto clipFromImage = [this]() -> SDL_Rect& {
-		if (static_cast<float>(counter) / AnimationFrams < 0.3f)
-			return clips[1];
-		else
-			return clips[2];
-	};
-
-	SDL_Rect& currentClip = clipFromImage();
-	sprite->SetClip(currentClip);
-	sprite->SetAlpha(alpha);
 	sprite->Draw(position, 0.0f, scalingRate);
 }
 
@@ -60,13 +50,25 @@ void Effect::Played()
 
 void Effect::Update()
 {
-	if (counter < AnimationFrams) {
-		alpha = 255 - 255 * counter / AnimationFrams;
+	// アニメーションの更新。
+	if (counter < AnimationFrames) {
+		alpha = 255 - 255 * counter / AnimationFrames;
 		scalingRate = 0.5f + counter * 0.05f;
 		++counter;
 	}  else {
 		enabled = false;
 	}
+
+	// 描画の前処理。
+	auto clipFromImage = [this]() -> SDL_Rect& {
+		if (static_cast<float>(counter) / AnimationFrames < 0.3f)
+			return clips[1];
+		else
+			return clips[2];
+	};
+	SDL_Rect& currentClip = clipFromImage();
+	sprite->SetClip(currentClip);
+	sprite->SetAlpha(alpha);
 }
 
 /******************************** EffectManager *********************************/

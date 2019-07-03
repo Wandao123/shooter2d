@@ -28,8 +28,9 @@ Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::uni
 	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, 1)
 {}
 
-void Enemy::Draw()
+void Enemy::Update()
 {
+	Mover::Update();
 	if (isDamaged) {
 		sprite->SetColor(128, 128, 128);
 		isDamaged = false;
@@ -37,7 +38,6 @@ void Enemy::Draw()
 	else {
 		sprite->SetColor(255, 255, 255);
 	}
-	Mover::Draw();
 }
 
 void Enemy::OnCollide(Mover& mover)
@@ -57,7 +57,7 @@ void Enemy::Spawned(const float speed, const float angle, const int hitPoint)
 	this->hitPoint = hitPoint;
 }
 
-SDL_Rect& Enemy::clipFromImage(Uint32 countedFrames)
+SDL_Rect& Enemy::clipFromImage(unsigned int countedFrames)
 {
 	const int DelayFrames = 6;
 	const int NumSlice = 3;

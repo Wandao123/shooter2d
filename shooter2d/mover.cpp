@@ -4,10 +4,8 @@
 
 using namespace Shooter;
 
-void Mover::Draw()
+void Mover::Draw() const
 {
-	SDL_Rect& currentClip = clipFromImage(Time->GetCountedFrames());
-	sprite->SetClip(currentClip);
 	sprite->Draw(position);
 }
 
@@ -19,9 +17,14 @@ void Mover::spawned()
 
 void Mover::Update()
 {
+	// 移動処理。
 	position += { speed * std::cos(angle), speed * std::sin(angle) };  // 1フレームを単位時間とする。
 	if (!isInside())
 		enabled = false;
+
+	// アニメーション。
+	SDL_Rect& currentClip = clipFromImage(Time->GetCountedFrames());
+	sprite->SetClip(currentClip);
 }
 
 /// <summary>オブジェクトが画面内に存在するか？</summary>

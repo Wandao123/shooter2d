@@ -9,7 +9,7 @@ void ObjectManager::Update()
 			object->Update();
 }
 
-void ObjectManager::Draw()
+void ObjectManager::Draw() const
 {
 	for (auto&& object : objectsList)
 		if (object->IsEnabled())

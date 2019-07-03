@@ -11,14 +11,14 @@ namespace Shooter {
 		static const int Width = 32;
 		Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
 		~Enemy() = default;
-		void Draw() override;
+		void Update() override;
 		void OnCollide(Mover& mover) override;
 		void Spawned(const float speed, const float angle, const int hitPoint);  // 実体化関数
 	protected:
 		std::array<std::array<SDL_Rect, 3>, 3> clips;  // 具体的な値は継承先で設定せよ。
 		int hitPoint;
 		bool isDamaged = false;  // 被弾したか否か。
-		SDL_Rect& clipFromImage(Uint32 countedFrames) override;
+		SDL_Rect& clipFromImage(unsigned int countedFrames) override;
 	};
 
 	class EnemyManager : public ObjectManager

@@ -22,7 +22,7 @@ class FrameRate : public UserInterface
 public:
 	FrameRate(const Vector2& position) : UserInterface(position), label(std::make_unique<Label>(Filename, FontSize / 2)) {}
 
-	void Draw() override
+	void Draw() const override
 	{
 		label->Write(position);
 	}
@@ -48,7 +48,7 @@ public:
 		label->Text.str(u8"2D Bullet Hell Shooter");
 	}
 
-	void Draw() override
+	void Draw() const override
 	{
 		label->Write(position);
 	}
@@ -75,7 +75,7 @@ public:
 		items[1]->Text.str("Quit");
 	}
 
-	void Draw() override
+	void Draw() const override
 	{
 		constexpr float startingPointY = (MaxItems % 2 == 0) ? (MaxItems / 2 - 0.5f) * LineHeight : MaxItems / 2 * LineHeight;
 		for (int i = 0; i < MaxItems; i++)
@@ -126,7 +126,7 @@ public:
 		label->Text.str("GAME OVER");
 	}
 	
-	void Draw() override
+	void Draw() const override
 	{
 		label->Write(position);
 	}
@@ -149,7 +149,7 @@ public:
 		label->Text.str("Stage Clear");
 	}
 
-	void Draw() override
+	void Draw() const override
 	{
 		label->Write(position);
 	}

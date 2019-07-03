@@ -14,7 +14,6 @@ namespace Shooter {
 		static const int Width = 32;
 		Player(const Vector2& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
 		~Player() = default;
-		void Draw() override;
 		void Update() override;
 		void OnCollide(Mover& mover) override;
 		void Shoot();
@@ -51,7 +50,7 @@ namespace Shooter {
 			SetAngle(std::atan2(this->velocity.y, this->velocity.x));
 		}
 	protected:
-		SDL_Rect& clipFromImage(Uint32 countedFrames) override;
+		SDL_Rect& clipFromImage(unsigned int countedFrames) override;
 	private:
 		friend class PlayerManager;
 		const unsigned int InvincibleFrames = 120;

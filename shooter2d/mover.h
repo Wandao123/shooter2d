@@ -29,7 +29,7 @@ namespace Shooter {
 			, effectID(effectID)
 		{}
 		virtual ~Mover() {}
-		virtual void Draw() override;
+		virtual void Draw() const override;
 		virtual void Update() override;
 		virtual void OnCollide(Mover& mover) = 0;
 
@@ -85,7 +85,7 @@ namespace Shooter {
 		/// <summary>現在のフレームにおける画像の切り取り位置を返す。</summary>
 		/// <param name="currentFrames">現在までのフレーム数</param>
 		/// <returns>切り取る矩形</returns>
-		virtual SDL_Rect& clipFromImage(Uint32 countedFrames) = 0;
+		virtual SDL_Rect& clipFromImage(unsigned int countedFrames) = 0;
 	private:
 		unsigned int counter = 0;  // enabledがtrueになってからのフレーム数。
 	};

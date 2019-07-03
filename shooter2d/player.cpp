@@ -58,8 +58,17 @@ Player::Player(const Vector2& position, const float highSpeed, const float lowSp
 			clips[i][j] = { j * Width, i * Height, Width, Height };
 }
 
-void Player::Draw()
+void Player::Update()
 {
+	Mover::Update();
+
+	// 移動制限。
+	if ((position.x - Width * 0.5f < 0) || (position.x + Width * 0.5f > Game::Width))
+		position.x -= velocity.x;
+	if ((position.y - Width * 0.5f < 0) || (position.y + Height * 0.5f > Game::Height))
+		position.y -= velocity.y;
+
+	// 描画の前処理。
 	if (sprite->GetAlpha() < 255) {
 		if (Time->GetCountedFrames() - beginningFrame >= InvincibleFrames)
 			sprite->SetAlpha(255);
@@ -68,16 +77,6 @@ void Player::Draw()
 		else
 			sprite->SetAlpha(191);
 	}
-	Mover::Draw();
-}
-
-void Player::Update()
-{
-	Mover::Update();
-	if ((position.x - Width * 0.5f < 0) || (position.x + Width * 0.5f > Game::Width))
-		position.x -= velocity.x;
-	if ((position.y - Width * 0.5f < 0) || (position.y + Height * 0.5f > Game::Height))
-		position.y -= velocity.y;
 }
 
 void Player::OnCollide(Mover& mover)
@@ -113,7 +112,7 @@ void Player::Shoot()
 	}
 }
 
-SDL_Rect& Player::clipFromImage(Uint32 countedFrames)
+SDL_Rect& Player::clipFromImage(unsigned int countedFrames)
 {
 	const int DelayFrames = 3;  // 左右移動の際に次の画像に切り替わるまでのフレーム数。
 	const int NumSlice = 5;     // 停止時、左移動、右移動における各変化のコマ数。

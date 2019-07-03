@@ -16,7 +16,7 @@ namespace Shooter {
 	public:
 		GameObject(const bool enabled, const Vector2 position) : enabled(enabled), position(position) {}
 		~GameObject() = default;
-		virtual void Draw() = 0;
+		virtual void Draw() const = 0;
 		virtual void Update() = 0;
 
 		// HACK: 参照を返したほうがいい？
@@ -50,7 +50,7 @@ namespace Shooter {
 	public:
 		ObjectManager() {}
 		virtual ~ObjectManager() {}
-		virtual void Draw();
+		virtual void Draw() const;
 		virtual void Update();
 
 		std::list<std::weak_ptr<GameObject>> GetList() const
