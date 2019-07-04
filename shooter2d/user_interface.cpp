@@ -45,7 +45,7 @@ public:
 		: UserInterface(position)
 		, label(std::make_unique<Label>(Filename, FontSize + FontSize / 2))
 	{
-		label->Text.str(u8"2D Bullet Hell Shooter");
+		label->Text.str(u8"Bullet Hell 2D Shmup");
 	}
 
 	void Draw() const override
