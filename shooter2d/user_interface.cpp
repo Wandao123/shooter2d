@@ -46,6 +46,7 @@ public:
 		, label(std::make_unique<Label>(Filename, FontSize + FontSize / 2))
 	{
 		label->Text.str(u8"Bullet Hell 2D Shmup");
+		label->SetTextColor(0, 0xFF, 0);
 	}
 
 	void Draw() const override
@@ -86,7 +87,7 @@ public:
 	{
 		for (int i = 0; i < MaxItems; i++) {
 			if (i != currentItemIndex) {
-				items[i]->SetTextColor(127, 127, 127);
+				//items[i]->SetTextColor(127, 127, 127);
 				items[i]->SetAlpha(127);
 			} else {
 				items[i]->SetTextColor(255, 255, 255);
