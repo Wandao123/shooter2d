@@ -50,8 +50,8 @@ Linux ではディストリビューションに応じてパスが変わりま�
 ### Windows (Visual Studio 2019で確認済み)
 
 1. ソースをダウンロードして shooter2d.sln をVisual Studioで開く。
-1. NuGetを用いてSDLとSDLのライブラリとLuaをインストールする。ここで、「ツール」->「オプション」->「NuGetパッケージマネージャー」からパッケージの復元を有効化すると、自動的にダウンロードされる。
-1. sol2はNuGetからインストールできないので、リンク先の releases から sol.hpp をダウンロードして shooter2d/packages/sol2 に配置する。packages ディレクトリが無い場合は、一旦ビルド（sol2が無いので当然エラーになる）すると作成される。
+1. NuGetを用いてSDLとSDLのライブラリとLuaをインストールする。ここで「プロジェクト」->「Nuget パッケージの管理」->「復元」を行えば、必要なライブラリが全てダウンロードできる。「復元」ボタンが表示されない場合は「ツール」->「オプション」->「NuGetパッケージマネージャー」からパッケージの復元を有効化する。
+1. sol2はNuGetからインストールできないので、リンク先の releases から sol.hpp をダウンロードして shooter2d/packages/sol2 に配置する。
 1. 素材をダウンロードして、shooter2d/shooter2d/images 直下に配置する（下記の図を参考にされたい）。
 1. Visual StudioからDebugビルドする。「lua.dllが無い」と怒られる場合は shooter2d/packages/lua.regist.*/build/native/bin/v141/x64/Debug/lua.dll を shooter2d/x64/Debug にコピーする。Releaseビルドの場合はReleaseディレクトリに対応するDLLファイルをコピーする。
 
