@@ -37,8 +37,8 @@ Linux ではディストリビューションに応じてパスが変わりま�
 - [SDL_image 2.0](https://www.libsdl.org/projects/SDL_image/)
 - [SDL_ttf 2.0](https://www.libsdl.org/projects/SDL_ttf/)
 - [SDL_mixer 2.0](https://www.libsdl.org/projects/SDL_mixer/)
-- [Lua 5.3](https://www.lua.org/)
-- [sol2 v2.20.6](https://github.com/ThePhD/sol2)
+- [Lua 5.3](https://www.lua.org/) distributed with the [MIT license](https://www.lua.org/license.html)
+- [sol2 v2.20.6](https://github.com/ThePhD/sol2) distributed with the [MIT license](https://github.com/ThePhD/sol2/blob/develop/LICENSE.txt)
 
 ### コンパイラ
 
@@ -111,4 +111,4 @@ shooter2d
 
 ## ライセンス
 
-T.B.D.（現在選定中）
+This software is distributed under the terms of the zlib license reproduced [here](LICENSE).
