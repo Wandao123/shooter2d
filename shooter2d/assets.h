@@ -1,15 +1,15 @@
 ﻿#ifndef ASSETS_H
 #define ASSETS_H
 
+#include "vector2.h"
 #include <map>
 #include <memory>
 #include <string>
 #include <sstream>
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-//#include <SDL_mixer.h>
-#include "vector2.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+//#include <SDL2/SDL_mixer.h>
 
 namespace Shooter {
 	class Sprite

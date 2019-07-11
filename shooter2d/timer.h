@@ -1,7 +1,7 @@
 ﻿#ifndef TIMER_H
 #define TIMER_H
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 namespace Shooter {
 	// 描画とは独立に動く。

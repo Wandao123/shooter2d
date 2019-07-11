@@ -1,7 +1,6 @@
 ﻿#ifndef GAME_H
 #define GAME_H
 
-#include <memory>
 #include <stack>
 #include "scene.h"
 

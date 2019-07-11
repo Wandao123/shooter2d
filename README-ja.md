@@ -43,11 +43,13 @@ Linux ではディストリビューションに応じてパスが変わりま�
 ### コンパイラ
 
 - GCC (>=5)
-- Visual C++ (>=15)/Visual Studio (>=2017)
+- Visual C++ 2019
 
 ## ビルド方法（暫定）
 
-### Windows (Visual Studio 2019で確認済み)
+### Windows
+
+#### Visual Studio 2019
 
 1. ソースをダウンロードして shooter2d.sln をVisual Studioで開く。
 1. NuGetを用いてSDLとSDLのライブラリとLuaをインストールする。ここで「プロジェクト」->「Nuget パッケージの管理」->「復元」を行えば、必要なライブラリが全てダウンロードできる。「復元」ボタンが表示されない場合は「ツール」->「オプション」->「NuGetパッケージマネージャー」からパッケージの復元を有効化する。
@@ -57,15 +59,32 @@ Linux ではディストリビューションに応じてパスが変わりま�
 
 ### Linux OS
 
+#### GNU Make
+
 1. ソースをダウンロードする。
 1. パッケージマネージャーなどを用いてSDLとSDLのライブラリとLuaをインストールする。例えば、Debian系ならAPTからインストールできる：
     ```bash
     $ apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev liblua5.3-dev
     ````
 1. sol2は別途ダウンロードして、shooter2d/packages/sol2/sol.hpp に配置する。
-1. 素材のファイルをダウンロードして、shooter2d/shooter2d/images 直下に配置する（下記の図を参考にされたい）。
+1. 素材をダウンロードして、shooter2d/shooter2d/images 直下に配置する（下記の図を参考にされたい）。
 1. shooter2d/shooter2d/lib ディレクトリを作成する。
 1. shooter2d/shooter2d に移動して、`make debug` または `make release` を実行する。
+1. 実行時にフォントが見つからないというエラーが出る場合は、user_interface.cpp を修正する。
+
+#### Meson + Ninja
+
+1. ライブラリのインストールまではGNU Makeと同様。
+1. パッケージマネージャーあるいはpip3を利用して、MesonとNinjaをインストールする。pip3を使う場合は `python3 -m pip install meson ninja` などとコマンドを叩く。
+1. 次のコマンドを実行してビルドする：
+    ```bash
+    $ cd shooter2d
+    $ meson build
+    $ cd build
+    $ ninja
+    ```
+    このとき、sol2が自動的にダウンロードされる。ビルドが成功すれば、shooter2d/build/shooter2dディレクトリに実行可能ファイルが生成される。
+1. 素材をダウンロードして、shooter2d/build/shooter2d/images/*.png に配置する。
 1. 実行時にフォントが見つからないというエラーが出る場合は、user_interface.cpp を修正する。
 
 ### ディレクトリ構成 (2019/07/05)
