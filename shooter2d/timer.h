@@ -1,6 +1,7 @@
 ﻿#ifndef TIMER_H
 #define TIMER_H
 
+//#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 
 namespace Shooter {

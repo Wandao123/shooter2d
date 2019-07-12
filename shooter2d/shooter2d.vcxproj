@@ -93,12 +93,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)packages\sol2;$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\include;$(SolutionDir)packages\sdl2_image.nuget.2.0.5\build\native\include;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\include;$(SolutionDir)packages\lua.5.3.5\build\native\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)packages\sol2</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_image.nuget.2.0.5\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\lua.5.3.5\build\native\lib\v141\$(PlatformTarget)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;lua.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VcpkgRoot)lib\manual-link;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
@@ -131,7 +131,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)packages\sol2;$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\include;$(SolutionDir)packages\sdl2_image.nuget.2.0.5\build\native\include;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\include;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\include;$(SolutionDir)packages\lua.5.3.5\build\native\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)packages\sol2</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -144,8 +144,8 @@
       </EntryPointSymbol>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-      <AdditionalLibraryDirectories>$(SolutionDir)packages\sdl2.nuget.2.0.9\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_image.nuget.2.0.5\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_mixer.nuget.2.0.4\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\sdl2_ttf.nuget.2.0.15\build\native\lib\$(PlatformTarget)\dynamic;$(SolutionDir)packages\lua.5.3.5\build\native\lib\v141\$(PlatformTarget)\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;lua.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VcpkgRoot)lib\manual-link;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

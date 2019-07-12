@@ -14,17 +14,16 @@ Sprite::Sprite(const std::string filename)
 	: texture(nullptr, nullptr)  // ここでも初期化しないとエラー。
 {
 	// Textureの生成。
-	SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, AssetLoader->GetImage(filename).lock().get());
+	std::weak_ptr<SDL_Surface> surface = AssetLoader->GetImage(filename);
+	SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, surface.lock().get());
 	if (rawTexture == nullptr) {
 		std::cerr << "Unable to create texture from " << filename << "! SDL Error: " << SDL_GetError();
 	}
 	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
 	this->texture = std::move(texture);
 
-	// clipメンバ変数の初期値をtexture全体にする。
-	int width, height;
-	SDL_QueryTexture(texture.get(), nullptr, nullptr, &width, &height);
-	SDL_Rect temp = { 0, 0, width, height };
+	// clipメンバ変数の初期値を画像全体にする。
+	SDL_Rect temp = { 0, 0, surface.lock()->w, surface.lock()->h };
 	SetClip(temp);
 }
 

@@ -55,13 +55,14 @@ Linux ではディストリビューションに応じてパスが変わりま�
     ```
     PS> git clone https://github.com/Microsoft/vcpkg.git
     PS> cd vcpkg
+    PS> .\bootstrap-vcpkg.bat
     PS> .\vcpkg integrate install
     PS> .\vcpkg install sdl2:x64-windows sdl2-image:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows lua:x64-windows
     ```
 1. ソースをダウンロードして、shooter2d.sln をVisual Studioで開く。
 1. sol2は上のリンク先の releases からヘッダファイル (sol.hpp) のみをダウンロードする。そのファイルを shooter2d/packages/sol2 ディレクトリに配置する。
 1. 素材をダウンロードして、shooter2d/shooter2d/images 直下に配置する（下記の図を参考にされたい）。
-1. Visual StudioからDebugビルドする。「lua.dllが無い」と怒られる場合は shooter2d/packages/lua.regist.*/build/native/bin/v141/x64/Debug/lua.dll を shooter2d/x64/Debug にコピーする。Releaseビルドの場合はReleaseディレクトリに対応するDLLファイルをコピーする。
+1. Visual StudioからDebugビルドする。
 
 ### Linux OS
 
@@ -93,21 +94,11 @@ Linux ではディストリビューションに応じてパスが変わりま�
 1. 素材をダウンロードして、shooter2d/build/shooter2d/images/*.png に配置する。
 1. 実行時にフォントが見つからないというエラーが出る場合は、user_interface.cpp を修正する。
 
-### ディレクトリ構成 (2019/07/05)
+### ディレクトリ構成 (2019/07/12)
 
 ~~~
 shooter2d
 ├── packages
-│   ├── lua.5.3.*
-│   ├── lua.redist.5.3.*
-│   ├── sdl2.nuget.2.0.*
-│   ├── sdl2.nuget.redist.2.0.*
-│   ├── sdl2_image.nuget.2.0.*
-│   ├── sdl2_image.nuget.redist.2.0.*
-│   ├── sdl2_mixer.nuget.2.0.*
-│   ├── sdl2_mixer.nuget.redist.2.0.*
-│   ├── sdl2_ttf.nuget.2.0.*
-│   ├── sdl2_ttf.nuget.redist.2.0.*
 │   └── sol2
 │       └── sol.hpp
 ├── shooter2d

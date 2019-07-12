@@ -6,6 +6,14 @@
 #include <memory>
 #include <string>
 #include <sstream>
+
+/*
+    SDL.hを読み込む際にSDL_MAIN_HANDLEDを定義して、なおかつ初期化の際にSDL_SetMainReady()を呼ばないと
+        LNK2019 未解決の外部シンボル main が関数 "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ) で参照されました。
+    というエラーが発生する。これはSDLの内部でmainを再定義していることに起因するらしい。このような方法の他にも、
+    SDL2main.libを追加の依存ファイルに指定するという方法でも対処できる。
+*/
+//#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
