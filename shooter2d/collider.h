@@ -1,8 +1,8 @@
 ﻿#ifndef COLLIDER_H
 #define COLLIDER_H
 
-#include <memory>
 #include "vector2.h"
+#include <memory>
 
 namespace Shooter {
 	class CircleCollider;
@@ -19,26 +19,10 @@ namespace Shooter {
 		virtual bool DoesCollideWith(const Vector2& relativeVector, Collider& collider) const = 0;  // colliderと衝突していればtrueを返す。CheckForにたらい回す。
 		virtual bool CheckFor(const Vector2& relativeVector, const CircleCollider& circle) const = 0;        // 円との衝突判定。
 		virtual bool CheckFor(const Vector2& relativeVector, const RectangleCollider& rectangle) const = 0;  // 矩形との衝突判定。
-
-		Vector2 GetPosition() const
-		{
-			return position;
-		}
-
-		void SetPosition(const Vector2& position)
-		{
-			this->position = position;
-		}
-
-		float GetAngle() const
-		{
-			return angle;
-		}
-
-		void SetAngle(const float angle)
-		{
-			this->angle = MathUtils::Modulo(angle, 2 * M_PI);  // 負の値が渡されても、0 <= angle < 2 pi になるように変換する。
-		}
+		Vector2 GetPosition() const;
+		void SetPosition(const Vector2& position);
+		float GetAngle() const;
+		void SetAngle(const float angle);
 	protected:
 		Vector2 position;  // ここでいう位置とは、保有先のMoverクラスのpositionを局所座標系の原点としたとき、その局所座標系における位置。
 		float angle;

@@ -1,5 +1,5 @@
 ﻿#include "game.h"
-#include "scene.h"
+#include "scene.h"  // ここで script.h は読み込み済み。
 
 using namespace Shooter;
 
@@ -13,34 +13,32 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 {
 	// Luaの初期化。
 	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string, sol::lib::os);
-	lua.script_file("scripts/stage.lua");  // TODO: エラー処理
+	//const std::string package_path = lua["package"]["path"];
+	//lua["package"]["path"] = package_path + ";./scripts/?.lua";  // Luaのpackage.pathにscriptsディレクトリを追加。
+	lua.script_file("scripts/main.lua");  // TODO: エラー処理
 
 	// 各種クラスの定義
 	lua.new_usertype<Bullet>(
 		"Bullet",
 		// Lua側で生成するならば、コンストラクタを定義して ``Enemy.new(...)'' とする。
-		"SetSpeed", &Bullet::SetSpeed,
-		"GetSpeed", &Bullet::GetSpeed,
-		"SetAngle", &Bullet::SetAngle,
-		"GetAngle", &Bullet::GetAngle,
-		"GetPosX", [](Bullet& bullet) -> float { return bullet.GetPosition().x; },
-		"GetPosY", [](Bullet& bullet) -> float { return bullet.GetPosition().y; }
+		"Speed", sol::property(&Bullet::GetSpeed, &Bullet::SetSpeed),
+		"Angle", sol::property(&Bullet::GetAngle, &Bullet::SetAngle),
+		"PosX", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().x; }),
+		"PosY", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().y; })
 	);
 	lua.new_usertype<Enemy>(
 		"Enemy",
-		"SetSpeed", &Enemy::SetSpeed,
-		"GetSpeed", &Enemy::GetSpeed,
-		"SetAngle", &Enemy::SetAngle,
-		"GetAngle", &Enemy::GetAngle,
-		"GetPosX", [](Enemy& enemy) -> float { return enemy.GetPosition().x; },
-		"GetPosY", [](Enemy& enemy) -> float { return enemy.GetPosition().y; }
+		"Speed", sol::property(&Enemy::GetSpeed, &Enemy::SetSpeed),
+		"Angle", sol::property(&Enemy::GetAngle, &Enemy::SetAngle),
+		"PosX", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().x; }),
+		"PosY", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().y; })
 	);
 	lua.new_usertype<Player>(
 		"Player",
-		"GetSpeed", &Player::GetSpeed,
-		"GetAngle", &Player::GetAngle,
-		"GetPosX", [](Player& player) -> float { return player.GetPosition().x; },
-		"GetPosY", [](Player& player) -> float { return player.GetPosition().y; }
+		"Speed", sol::property(&Player::GetSpeed),
+		"Angle", sol::property(&Player::GetAngle),
+		"PosX", sol::property([](Player& player) -> float { return player.GetPosition().x; }),
+		"PosY", sol::property([](Player& player) -> float { return player.GetPosition().y; })
 	);
 
 	// 定数の登録。
@@ -79,7 +77,7 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 	lua["GetPlayer"] = getPlayer;  // 定数として扱うべき？　その場合は事前に生成されていることを要求する。
 
 	// ステージ・スクリプトの登録。
-	startCoroutine(lua["StartStage"]);
+	startCoroutine(lua["Main"]);
 }
 
 /// <summary>プレイ中の敵の出現や弾の生成などの全容を記述する。</summary>

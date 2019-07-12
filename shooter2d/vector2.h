@@ -80,7 +80,7 @@ namespace Shooter {
 		/// <summary>剰余を求める。返り値は被除数と同じ符号。</summary>
 		inline int Remainder(const int Dividend, const int Divisor)
 		{
-			return (Dividend - Divisor * std::trunc(static_cast<double>(Dividend) / Divisor));
+			return (Dividend - Divisor * static_cast<int>(std::trunc(static_cast<double>(Dividend) / Divisor)));
 		}
 
 		inline float Remainder(const float Dividend, const float Divisor)
@@ -91,7 +91,7 @@ namespace Shooter {
 		/// <summary>剰余を求める。返り値は除数と同じ符号。</summary>
 		inline int Modulo(const int Dividend, const int Divisor)
 		{
-			return (Dividend - Divisor * std::floor(static_cast<double>(Dividend) / Divisor));
+			return (Dividend - Divisor * static_cast<int>(std::floor(static_cast<double>(Dividend) / Divisor)));
 		}
 
 		inline float Modulo(const float Dividend, const float Divisor)

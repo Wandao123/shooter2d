@@ -54,8 +54,7 @@ namespace Shooter {
 
 		/// <summary>指定した敵から敵弾を生成する。生成元が存在しなければ生成しない。</summary>
 		/// <param name="id">生成する敵弾のID</param>
-		/// <param name="posX">初期位置のx座標</param>
-		/// <param name="posY">初期位置のy座標</param>
+		/// <param name="enemy">生成元の敵へのポインタ</param>
 		/// <param name="speed">初期速度の大きさ（速さ）</param>
 		/// <param name="angle">初期速度のx軸からの角度</param>
 		/// <returns>生成された敵弾へのポインタ</returns>

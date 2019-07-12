@@ -3,6 +3,28 @@
 
 using namespace Shooter;
 
+/******************************** Collider *********************************/
+
+Vector2 Collider::GetPosition() const
+{
+	return position;
+}
+
+void Collider::SetPosition(const Vector2& position)
+{
+	this->position = position;
+}
+
+float Collider::GetAngle() const
+{
+	return angle;
+}
+
+void Collider::SetAngle(const float angle)
+{
+	this->angle = MathUtils::Modulo(angle, 2 * M_PI);  // 負の値が渡されても、0 <= angle < 2 pi になるように変換する。
+}
+
 /******************************** CircleCollider *********************************/
 
 /// <summary>受け取ったColliderクラスのCheckForを呼び出す。</summary>
