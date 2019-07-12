@@ -1,6 +1,6 @@
 # Shooter2d（仮称）
 
-マルチプラットフォームな弾幕STG用ゲームエンジンです。エンジン自体はC++で開発しており、ゲームロジック（敵や弾の動き）はLuaで記述します。
+マルチプラットフォームな弾幕STG用ゲームフレームワークとして制作しています。エンジン部分はC++で開発しており、ゲームロジック（敵や弾の動き）はLuaで記述します。
 
 ## 必要要件
 
@@ -90,7 +90,7 @@ Linux ではディストリビューションに応じてパスが変わりま�
     $ cd build
     $ ninja
     ```
-    このとき、sol2が自動的にダウンロードされる。ビルドが成功すれば、shooter2d/build/shooter2dディレクトリに実行可能ファイルが生成される。
+    このとき、sol2が自動的にダウンロードされる。もし `meson build` の時にLuaが無いと怒られる場合は、shooter2d/subprojects/sol2-\*.\*.\*/subprojects/lua.wrap を shooter2d/subprojects ディレクトリにコピーする。ビルドが成功すれば、shooter2d/build/shooter2dディレクトリに実行可能ファイルが生成される。
 1. 素材をダウンロードして、shooter2d/build/shooter2d/images/*.png に配置する。
 1. 実行時にフォントが見つからないというエラーが出る場合は、user_interface.cpp を修正する。
 
@@ -98,11 +98,13 @@ Linux ではディストリビューションに応じてパスが変わりま�
 
 ~~~
 shooter2d
+├── meson.build
 ├── packages
 │   └── sol2
-│       └── sol.hpp
+│        └── sol.hpp
 ├── shooter2d
 │   ├── Makefile
+│   ├── grabber.sh
 │   ├── images
 │   │   ├── Enemy.png
 │   │   ├── Marisadot.png
@@ -114,15 +116,18 @@ shooter2d
 │   │   ├── effect_circle.png
 │   │   └── shot_all.png
 │   ├── lib
+│   ├── meson.build
 │   ├── scripts
-│   │   └── stage.lua
+│   │   ├── grabber.sh
+│   │   ├── meson.build
+│   │   └── *.lua
 │   ├── shooter2d.vcxproj
 │   ├── *.cpp
 │   └── *.h
 ├── shooter2d.sln
-└── x64
-    ├── Debug
-    └── Release
+└── subprojects
+     ├── sol2.wrap
+     └── (lua.wrap)
 ~~~
 
 ## ライセンス

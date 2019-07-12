@@ -1,5 +1,5 @@
 project('shooter2d', 'cpp',
-    default_options: ['warning_level=3'])
+    default_options: ['cpp_std=c++17', 'warning_level=3'])
 
 sdl2_dep = dependency('sdl2', fallback: ['sdl2', 'sdl2_dep'])
 SDL2_image_dep = dependency('SDL2_image', fallback: ['SDL2_image', 'SDL2_image_dep'])
