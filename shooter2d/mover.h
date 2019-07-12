@@ -51,11 +51,8 @@ namespace Shooter {
 
 		void SetAngle(const float angle)
 		{
-			auto modulo = [](float Dividend, float Divisor) -> float {
-				return (Dividend - Divisor * std::floor(Dividend / Divisor));
-			};
 			if (enabled)
-				this->angle = modulo(angle, 2 * M_PI);  // 負の値が渡されても、0 <= angle < 2 pi になるように変換する。
+				this->angle = MathUtils::Modulo(angle, 2 * M_PI);  // 負の値が渡されても、0 <= angle < 2 pi になるように変換する。
 		}
 
 		Collider& GetCollider() const

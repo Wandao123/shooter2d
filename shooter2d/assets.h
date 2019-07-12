@@ -78,7 +78,7 @@ namespace Shooter {
 
 		void SetTextColor(const Uint8 red, const Uint8 green, const Uint8 blue)
 		{
-			textColor = { red, green, blue };
+			textColor = { red, green, blue, 0xFF };
 		}
 
 		void SetAlpha(const Uint8 alpha)
@@ -88,7 +88,7 @@ namespace Shooter {
 	private:
 		std::weak_ptr<TTF_Font> font;
 		Uint8 alpha = 0xFF;
-		SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
+		SDL_Color textColor = { 0xFF, 0xFF, 0xFF, 0xFF };
 	};
 
 	/// <summary>画像・フォント・音楽の資源 (asset) を管理する。</summary>

@@ -30,6 +30,11 @@ namespace Shooter {
 			return { this->x * scalar, this->y * scalar };
 		}
 
+		Vector2 operator-() const
+		{
+			return { -this->x, -this->y };
+		}
+
 		Vector2 &operator+=(const Vector2& vector)
 		{
 			x += vector.x;
@@ -42,7 +47,7 @@ namespace Shooter {
 			return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
 		}
 
-		float SquiredMagnitude() const
+		float SquaredMagnitude() const
 		{
 			return std::pow(x, 2) + std::pow(y, 2);
 		}
@@ -64,6 +69,11 @@ namespace Shooter {
 		{
 			return this->x * vector.y - this->y * vector.x;
 		}
+
+		Vector2 Rotate(const float angle) const
+		{
+			return { std::cos(angle) * x - std::sin(angle) * y, std::sin(angle) * x + std::cos(angle) * y };
+		}
 	};
 
 	namespace MathUtils {
@@ -73,10 +83,20 @@ namespace Shooter {
 			return (Dividend - Divisor * std::trunc(static_cast<double>(Dividend) / Divisor));
 		}
 
+		inline float Remainder(const float Dividend, const float Divisor)
+		{
+			return (Dividend - Divisor * std::trunc(Dividend / Divisor));
+		}
+
 		/// <summary>剰余を求める。返り値は除数と同じ符号。</summary>
 		inline int Modulo(const int Dividend, const int Divisor)
 		{
 			return (Dividend - Divisor * std::floor(static_cast<double>(Dividend) / Divisor));
+		}
+
+		inline float Modulo(const float Dividend, const float Divisor)
+		{
+			return (Dividend - Divisor * std::floor(Dividend / Divisor));
 		}
 	}
 }

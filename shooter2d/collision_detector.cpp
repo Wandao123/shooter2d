@@ -26,7 +26,7 @@ void CollisionDetector::CheckBetween(Mover& mover1, Mover& mover2)
 		return;
 	Vector2 relativeVector = mover2.GetPosition() - mover1.GetPosition();
 	// TODO: すり抜け防止。
-	if (mover1.GetCollider().DoesCollideWith(relativeVector, mover2.GetCollider())) {
+	if (mover2.GetCollider().DoesCollideWith(relativeVector, mover1.GetCollider())) {
 		mover1.OnCollide(mover2);
 		mover2.OnCollide(mover1);
 	}

@@ -8,7 +8,7 @@ class LargeRedBullet : public Bullet
 {
 public:
 	LargeRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 21.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(21.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 320, 0, 64, 64 };
 		sprite->SetBlendModeAdd();
@@ -19,7 +19,7 @@ class LargeBlueBullet : public Bullet
 {
 public:
 	LargeBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 21.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(21.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 448, 0, 64, 64 };
 		sprite->SetBlendModeAdd();
@@ -30,7 +30,7 @@ class MiddleRedBullet : public Bullet
 {
 public:
 	MiddleRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 9.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(9.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 0, 50, 30, 30 };
 	}
@@ -40,7 +40,7 @@ class MiddleBlueBullet : public Bullet
 {
 public:
 	MiddleBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 9.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(9.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 150, 50, 30, 30 };
 	}
@@ -50,7 +50,7 @@ class SmallRedBullet : public Bullet
 {
 public:
 	SmallRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 4.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(4.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 1, 13, 16, 16 };
 	}
@@ -60,7 +60,7 @@ class SmallBlueBullet : public Bullet
 {
 public:
 	SmallBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 4.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(4.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 91, 13, 16, 16 };
 	}
@@ -70,7 +70,7 @@ class TinyRedBullet : public Bullet
 {
 public:
 	TinyRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 3.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 1, 2, 9, 9 };
 	}
@@ -80,7 +80,7 @@ class TinyBlueBullet : public Bullet
 {
 public:
 	TinyBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 3.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 61, 2, 9, 9 };
 	}
@@ -90,7 +90,7 @@ class ScaleRedBullet : public Bullet
 {
 public:
 	ScaleRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 3.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 1, 209, 15, 15 };
 	}
@@ -100,7 +100,7 @@ class ScaleBlueBullet : public Bullet
 {
 public:
 	ScaleBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, 0.0f }, 3.0f), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
 	{
 		clip = { 91, 209, 15, 15 };
 	}
