@@ -29,9 +29,9 @@ public:
 
 	void Update() override
 	{
-		if (Time->GetCountedFrames() % (Time->FPS / 2) == 0) {
+		if (Timer->GetCountedFrames() % (Timer->FPS / 2) == 0) {
 			label->Text.str("");
-			label->Text << "FPS " << std::fixed << std::setprecision(3) << Time->GetAverageOfFPS();
+			label->Text << "FPS " << std::fixed << std::setprecision(3) << Timer->GetAverageOfFPS();
 		}
 	}
 private:

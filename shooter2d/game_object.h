@@ -1,13 +1,11 @@
 ﻿#ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
-#include <list>
-#include <memory>
 #include "vector2.h"
 #include "timer.h"
 
 namespace Shooter {
-	extern std::unique_ptr<Timer> Time;
+	extern std::unique_ptr<CTimer> Timer;
 
 	/// <summary>ゲーム中に表示される全てのオブジェクトの親クラス。</summary>
 	/// <remarks>各最終継承先にはpositionのみを引数に持つコンストラクタを定義せよ。</remarks>

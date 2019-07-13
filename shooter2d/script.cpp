@@ -124,7 +124,7 @@ Script::Status Script::Run()
 	return status;
 
 	// Luaを使わない場合は、以下のように記述する。
-	/*int counter = Time->GetCountedFrames();
+	/*int counter = Timer->GetCountedFrames();
 	std::vector<std::shared_ptr<Enemy>> enemies;
 	if (counter % 15 == 0 && counter <= 70) {
 		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2{ Game::Width / 2.0f, 0.0f }));
