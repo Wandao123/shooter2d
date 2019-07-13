@@ -11,17 +11,32 @@ namespace Shooter {
 	class Script
 	{
 	public:
+		enum class Status {
+			AllClear,
+			Dead,
+			Running,
+			StageClear
+		};
+
 		// スマート・ポインタではなくとも参照で十分なときには参照をつかう。
 		Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerManager& playerManager);
-		void Run();
-		bool IsTerminated();
+		Status Run();
 	private:
+		enum class SceneID {
+			Title,
+			StageClear,
+			AllClear
+		};
+
+		const std::string MainScript = "scripts/main.lua";
 		BulletManager& bulletManager;
 		EnemyManager& enemyManager;
 		PlayerManager& playerManager;
+		Status status;
 		sol::state lua;
 		// HACK: solのコルーチンの呼び出し方のために、組で保持する必要がある。Lua側でcoroutine.createをすれば、スレッドだけでもよい？
 		std::list<std::pair<sol::thread, sol::coroutine>> tasksList;  // これに登録されたコルーチンが毎フレーム実行される。
+		std::pair<sol::thread, sol::coroutine> mainTask;  // Main関数用の特別なスレッド。
 
 		/// <summary>敵を生成する。</summary>
 		/// <param name="id">生成する敵のID</param>
@@ -64,6 +79,25 @@ namespace Shooter {
 				return std::move(generateBullet(id, enemy->GetPosition().x, enemy->GetPosition().y, speed, angle));
 			else
 				return nullptr;
+		};
+
+		/// <summary>画面を遷移する。</summary>
+		/// <param name="id">遷移先の画面ID</param>
+		std::function<void(SceneID)> changeScene =
+		[this](SceneID id) {
+			tasksList.clear();
+			// HACK: 各種Managerの停止（全てのオブジェクトのenabledをfalseにする）もした方が良い？
+			switch (id) {
+			case SceneID::Title:
+				status = Status::Dead;
+				break;
+			case SceneID::StageClear:
+				status = Status::StageClear;
+				break;
+			case SceneID::AllClear:
+				status = Status::AllClear;
+				break;
+			}
 		};
 
 		/// <summary>コルーチンを登録する。登録されたコルーチンは毎フレーム実行される。</summary>

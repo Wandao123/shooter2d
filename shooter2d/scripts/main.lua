@@ -13,6 +13,7 @@ end]]
 function Main()
 	local stage = require('scripts.stage')
 	stage.Start()
+	ChangeScene(SceneID.AllClear)
 
 	--[[Lua側でコルーチンを実行する場合。
 	local co = coroutine.create(foo)

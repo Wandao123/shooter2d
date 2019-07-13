@@ -56,6 +56,7 @@ Player::Player(const Vector2& position, const float highSpeed, const float lowSp
 	for (int i = 0; i < static_cast<int>(clips.size()); i++)
 		for (int j = 0; j < static_cast<int>(clips[i].size()); j++)
 			clips[i][j] = { j * Width, i * Height, Width, Height };
+	this->sprite->SetClip(clips[0][0]);  // 最初のフレームだけ画像全体が表示されてしまうため、ここで明示的に代入。
 }
 
 void Player::Update()

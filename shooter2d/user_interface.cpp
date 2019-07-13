@@ -163,6 +163,29 @@ private:
 	std::unique_ptr<Label> label;
 };
 
+class GameAllClear : public UserInterface
+{
+public:
+	GameAllClear(const Vector2& position)
+		: UserInterface(position)
+		, label(std::make_unique<Label>(Filename, FontSize))
+	{
+		label->Text.str("All Clear");
+	}
+
+	void Draw() const override
+	{
+		label->Write(position);
+	}
+
+	void Update() override
+	{
+
+	}
+private:
+	std::unique_ptr<Label> label;
+};
+
 /******************************** UserInterface *********************************/
 
 UserInterface::UserInterface(const Vector2& position)
@@ -186,6 +209,9 @@ std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInte
 		break;
 	case UserInterfaceID::GameClear:
 		newObject = assignObject<GameClear>(position);
+		break;
+	case UserInterfaceID::GameAllClear:
+		newObject = assignObject<GameAllClear>(position);
 		break;
 	}
 	return newObject;

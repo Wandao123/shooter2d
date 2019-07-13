@@ -27,6 +27,17 @@ private:
 	unsigned int createdFrame;
 };
 
+class GameAllClearScene : public Scene
+{
+public:
+	GameAllClearScene(IChangingSceneListener& listener);
+	void Draw() override;
+	void Update() override;
+private:
+	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+	unsigned int createdFrame;
+};
+
 class GameScene : public Scene
 {
 public:
@@ -128,6 +139,28 @@ void GameClearScene::Update()
 {
 	userInterfaceManager->Update();
 	if (Time->GetCountedFrames() - createdFrame > Time->FPS * 3)
+		listener.PopScene();
+}
+
+/******************************** GameAllClearScene *********************************/
+
+GameAllClearScene::GameAllClearScene(IChangingSceneListener& listener)
+	: Scene(listener)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, createdFrame(Time->GetCountedFrames())
+{
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameAllClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
+}
+
+void GameAllClearScene::Draw()
+{
+	userInterfaceManager->Draw();
+}
+
+void GameAllClearScene::Update()
+{
+	userInterfaceManager->Update();
+	if (Time->GetCountedFrames() - createdFrame > Time->FPS * 3)
 		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
 }
 
@@ -188,7 +221,7 @@ void GameScene::Update()
 
 	auto player = playerManager->GetPlayer().lock();
 	updatePlayer(*player);
-	script->Run();
+	auto status = script->Run();
 	bulletManager->Update();
 	effectManager->Update();
 	enemyManager->Update();
@@ -203,8 +236,19 @@ void GameScene::Update()
 		else
 			++counter;
 	}
-	if (script->IsTerminated())  // HACK: スクリプトに無限ループが紛れ込んでしまったら、これだと対処できない。スクリプトで実行できるように、オブジェクトを全て削除する命令、あるいはシーンの切り替え命令を実装するべき？
+	switch (status) {
+	case Script::Status::AllClear:
+		listener.PushScene(std::make_unique<GameAllClearScene>(listener));
+		break;
+	case Script::Status::Dead:
+		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
+		break;
+	case Script::Status::Running:
+		break;
+	case Script::Status::StageClear:
 		listener.PushScene(std::make_unique<GameClearScene>(listener));
+		break;
+	}
 }
 
 // SDLにはZ-orderの概念が無いため、描画のタイミングで順番に注意する必要がある。

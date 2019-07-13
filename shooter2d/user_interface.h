@@ -30,7 +30,8 @@ namespace Shooter {
 			FrameRate,
 			Title,
 			GameOver,
-			GameClear
+			GameClear,
+			GameAllClear
 		};
 		enum class MenuID {
 			Title
