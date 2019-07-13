@@ -17,7 +17,7 @@ namespace Shooter {
 		}
 		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
 			std::cerr << "Warning: Linear texture filtering not enabled!" << std::endl;
-		Window = SDL_CreateWindow("2D shooter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Width, Height, SDL_WINDOW_SHOWN);
+		Window = SDL_CreateWindow("Bullet Hell 2D Shmup", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Width, Height, SDL_WINDOW_SHOWN);
 		if (Shooter::Window == nullptr) {
 			std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);

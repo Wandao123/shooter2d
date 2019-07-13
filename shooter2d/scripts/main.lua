@@ -11,8 +11,12 @@
 end]]
 
 function Main()
-	local stage = require('scripts.stage')
-	stage.Start()
+	math.randomseed(os.time())
+	local stage1 = require('scripts.stage1')
+	stage1.Start()
+	ChangeScene(SceneID.StageClear)
+	local stage2 = require('scripts.stage2')
+	stage2.Start()
 	ChangeScene(SceneID.AllClear)
 
 	--[[Lua側でコルーチンを実行する場合。

@@ -92,7 +92,6 @@ function stage:Start()
 		Wait(15)
 	end
 	Wait(120)
-	math.randomseed(os.time())
 	for i = 1, 15 do
 		StartCoroutine(AllDirection, math.random(ScreenWidth / 5, ScreenWidth * 4 / 5), (i % 2 == 0) and (20) or (19))
 		Wait(90)

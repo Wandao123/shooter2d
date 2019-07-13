@@ -246,6 +246,7 @@ void GameScene::Update()
 	case Script::Status::Running:
 		break;
 	case Script::Status::StageClear:
+		player->Erase();
 		listener.PushScene(std::make_unique<GameClearScene>(listener));
 		break;
 	}

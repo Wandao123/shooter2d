@@ -30,7 +30,9 @@ namespace Shooter {
 			TinyRed,
 			TinyBlue,
 			ScaleRed,
-			ScaleBlue
+			ScaleBlue,
+			RiceRed,
+			RiceBlue
 		};
 
 		std::weak_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);

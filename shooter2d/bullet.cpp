@@ -106,6 +106,26 @@ public:
 	}
 };
 
+class RiceRedBullet : public Bullet
+{
+public:
+	RiceRedBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 1, 101, 9, 16 };
+	}
+};
+
+class RiceBlueBullet : public Bullet
+{
+public:
+	RiceBlueBullet(const Vector2& position)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
+	{
+		clip = { 61, 101, 9, 16 };
+	}
+};
+
 /******************************** Bullet *********************************/
 
 /// <param name="position">初期位置</param>
@@ -175,6 +195,12 @@ std::weak_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vec
 		break;
 	case BulletID::ScaleBlue:
 		newObject = assignObject<ScaleBlueBullet>(position);
+		break;
+	case BulletID::RiceRed:
+		newObject = assignObject<RiceRedBullet>(position);
+		break;
+	case BulletID::RiceBlue:
+		newObject = assignObject<RiceBlueBullet>(position);
 		break;
 	}
 	return newObject;

@@ -26,6 +26,7 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		"Angle", sol::property(&Bullet::GetAngle, &Bullet::SetAngle),
 		"PosX", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().x; }),
 		"PosY", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().y; }),
+		"IsEnabled", &Bullet::IsEnabled,
 		"Erase", &Bullet::Erase
 	);
 	lua.new_usertype<Enemy>(
@@ -35,6 +36,7 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		"PosX", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().x; }),
 		"PosY", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().y; }),
 		"Erase", &Enemy::Erase,
+		"IsEnabled", &Enemy::IsEnabled,
 		"HitPoint", sol::property([](Enemy& enemy) -> int { return enemy.GetHitPoint(); })
 	);
 	lua.new_usertype<Player>(
@@ -42,7 +44,8 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		"Speed", sol::property(&Player::GetSpeed),
 		"Angle", sol::property(&Player::GetAngle),
 		"PosX", sol::property([](Player& player) -> float { return player.GetPosition().x; }),
-		"PosY", sol::property([](Player& player) -> float { return player.GetPosition().y; })
+		"PosY", sol::property([](Player& player) -> float { return player.GetPosition().y; }),
+		"IsEnabled", &Player::IsEnabled
 	);
 
 	// 定数の登録。
@@ -65,7 +68,9 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		"TinyRed", BulletManager::BulletID::TinyRed,
 		"TinyBlue", BulletManager::BulletID::TinyBlue,
 		"ScaleRed", BulletManager::BulletID::ScaleRed,
-		"ScaleBlue", BulletManager::BulletID::ScaleBlue
+		"ScaleBlue", BulletManager::BulletID::ScaleBlue,
+		"RiceRed", BulletManager::BulletID::RiceRed,
+		"RiceBlue", BulletManager::BulletID::RiceBlue
 	);
 	lua.new_enum(
 		"SceneID",
