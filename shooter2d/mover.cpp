@@ -21,11 +21,6 @@ void Mover::Update()
 	sprite->SetClip(currentClip);
 }
 
-void Mover::Erase()
-{
-	enabled = false;
-}
-
 /// <summary>オブジェクトが画面内に存在するか？</summary>
 /// <returns>存在すれば真、しなければ偽</returns>
 /// <remarks>生成されてから最初の1秒（60フレーム）は判定せずに真を返す。</remarks>

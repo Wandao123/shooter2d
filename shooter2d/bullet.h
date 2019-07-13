@@ -35,6 +35,7 @@ namespace Shooter {
 			RiceBlue
 		};
 
+		BulletManager();
 		std::weak_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
 	};
 }

@@ -22,8 +22,8 @@ namespace Shooter {
 			std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		//Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED);
+		Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		//Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED);
 		if (Shooter::Renderer == nullptr) {
 			std::cerr << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
@@ -78,7 +78,7 @@ namespace Shooter {
 			SDL_RenderPresent(Renderer);
 
 			// FPS制御
-			Time->Delay();
+			//Time->Delay();
 		}
 	}
 

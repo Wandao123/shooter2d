@@ -76,7 +76,7 @@ function stage:Start()
 			Wait(8)
 		end
 	end
-	Wait(320)
+	Wait(300)
 end
 
 return stage

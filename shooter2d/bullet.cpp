@@ -162,6 +162,19 @@ SDL_Rect& Bullet::clipFromImage(unsigned int countedFrames)
 
 /******************************** BulletManager *********************************/
 
+BulletManager::BulletManager()
+{
+	// HACK: enum class の定数を全て指定する、もっと簡単な方法？　テンプレートなどを駆使すれば可能だが……。
+	// 注意：IDの最初と最後に依存する。
+	for (int i = static_cast<int>(BulletID::LargeRed); i < static_cast<int>(BulletID::RiceBlue); i++) {
+		for (int j = 0; j < 40; j++) {
+			GenerateObject(static_cast<BulletID>(i), Vector2{ 0.0f, 0.0f }).lock()->Shot(0.0f, 0.0f);  // 予め生成する。
+		}
+	}
+	for (auto&& bullet : objectsList)
+		bullet->Erase();
+}
+
 std::weak_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vector2& position)
 {
 	std::weak_ptr<Bullet> newObject;

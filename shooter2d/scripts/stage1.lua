@@ -110,7 +110,7 @@ function stage:Start()
 		StartCoroutine(Curve, id, ScreenWidth / 4 + 15, 2, 30, 1, 60)
 		Wait(15)
 	end
-	Wait(300)
+	Wait(320)
 end
 
 return stage

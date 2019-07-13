@@ -34,7 +34,6 @@ namespace Shooter {
 		virtual void Draw() const override;
 		virtual void Update() override;
 		virtual void OnCollide(Mover& mover) = 0;
-		void Erase();
 
 		float GetSpeed() const
 		{

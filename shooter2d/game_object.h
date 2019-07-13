@@ -30,6 +30,11 @@ namespace Shooter {
 			this->position = position;
 		}
 
+		void Erase()
+		{
+			enabled = false;
+		}
+
 		bool IsEnabled() const
 		{
 			return enabled;
