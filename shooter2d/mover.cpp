@@ -9,12 +9,6 @@ void Mover::Draw() const
 	sprite->Draw(position);
 }
 
-void Mover::spawned()
-{
-	enabled = true;
-	counter = 0;
-}
-
 void Mover::Update()
 {
 	// 移動処理。
@@ -25,6 +19,11 @@ void Mover::Update()
 	// アニメーション。
 	SDL_Rect& currentClip = clipFromImage(Time->GetCountedFrames());
 	sprite->SetClip(currentClip);
+}
+
+void Mover::Erase()
+{
+	enabled = false;
 }
 
 /// <summary>オブジェクトが画面内に存在するか？</summary>
@@ -41,4 +40,11 @@ bool Mover::isInside()
 		return false;
 	else
 		return true;
+}
+
+void Mover::spawned()
+{
+	enabled = true;
+	hitPoint = 1;
+	counter = 0;
 }

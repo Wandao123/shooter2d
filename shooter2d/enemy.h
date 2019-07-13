@@ -16,7 +16,6 @@ namespace Shooter {
 		void Spawned(const float speed, const float angle, const int hitPoint);  // 実体化関数
 	protected:
 		std::array<std::array<SDL_Rect, 3>, 3> clips;  // 具体的な値は継承先で設定せよ。
-		int hitPoint;
 		bool isDamaged = false;  // 被弾したか否か。
 		SDL_Rect& clipFromImage(unsigned int countedFrames) override;
 	};

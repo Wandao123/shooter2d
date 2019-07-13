@@ -51,7 +51,7 @@
 
 ### 生成関数
 
-#### Bullet GenerateBullet(BulletID id, float posX, float posY, float speed, float angle) _overloaded_
+#### Bullet GenerateBullet(BulletID id, float posX, float posY, float speed, float angle) [overloaded]
 
 弾オブジェクトを生成した上で、初期状態に従って表示します。
 
@@ -61,7 +61,7 @@
 1. __speed:__ 初期速度の大きさ（速さ）
 1. __angle:__ 初期速度の角度（向き）
 
-#### Bullet GenerateBullet(BulletID id, Enemy enemy, float speed, float angle) _overloaded_
+#### Bullet GenerateBullet(BulletID id, Enemy enemy, float speed, float angle) [overloaded]
 
 弾オブジェクトを生成した上で、初期状態に従って表示します。
 
@@ -83,21 +83,33 @@
 
 ### 自機・敵・弾で共通の関数
 
-#### float Object.Angle _property_
+#### float *Object*.Angle property
 
 オブジェクトのx軸に対する回転角を表します。自機オブジェクトでは読み込み専用です。
 
-#### float Object.PosX _property (read only)_
+#### float *Object*.PosX property (read only)
 
 オブジェクトの位置のx座標を取得します。
 
-#### float Object.PosY _property (read only)_
+#### float *Object*.PosY property (read only)
 
 オブジェクトの位置のy座標を取得します。
 
-#### float Object.Speed _property_
+#### float *Object*.Speed property
 
 オブジェクトの速さを表します。単位は1ドット毎フレームです。自機オブジェクトでは読み込み専用です。
+
+### 敵・弾で共通の関数
+
+#### void Erase(void)
+
+オブジェクトを消去します。このとき、消滅エフェクトは実行されません。
+
+### 敵オブジェクトの関数
+
+#### int *Object*.HitPoint property (read only)
+
+敵の体力を表します。
 
 ### その他
 
@@ -114,13 +126,13 @@
 
 自機オブジェクトを取得します。
 
-#### void StartCoroutine(func) _overloaded_
+#### void StartCoroutine(func) [overloaded]
 
 funcコルーチンを1フレーム毎に `coroutine.yield` が呼ばれるまで実行します。funcには引数を渡しません。
 
 1. __func:__ Luaの関数
 
-#### void StartCoroutine(func, arg1, arg2, ...) _overloaded_
+#### void StartCoroutine(func, arg1, arg2, ...) [overloaded]
 
 funcコルーチンを1フレーム毎に `coroutine.yield` が呼ばれるまで実行します。funcには (arg1, arg2, ...) という引数を渡します。
 

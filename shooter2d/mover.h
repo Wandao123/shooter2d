@@ -19,11 +19,13 @@ namespace Shooter {
 		/// <param name="collider">当たり判定クラスへのポインタ</param>
 		/// <param name="effectID">消滅エフェクトのID</param>
 		/// <param name="damage">衝突時に相手に与えるダメージ</param>
-		Mover(const Vector2& position, const float speed, const float angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, const unsigned int damage)
+		/// <param name="hitPoint">体力</param>
+		Mover(const Vector2& position, const float speed, const float angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, const unsigned int damage, const int hitPoint)
 			: GameObject(false, position)
 			, speed(speed)
 			, angle(angle)
 			, damage(damage)
+			, hitPoint(hitPoint)
 			, sprite(std::move(sprite))
 			, collider(std::move(collider))
 			, effectID(effectID)
@@ -32,6 +34,7 @@ namespace Shooter {
 		virtual void Draw() const override;
 		virtual void Update() override;
 		virtual void OnCollide(Mover& mover) = 0;
+		void Erase();
 
 		float GetSpeed() const
 		{
@@ -69,10 +72,16 @@ namespace Shooter {
 		{
 			return damage;
 		}
+
+		int GetHitPoint() const
+		{
+			return hitPoint;
+		}
 	protected:
 		float speed;  // 単位：ドット毎フレーム
 		float angle;  // x軸を基準とした角度。時計回りの方向を正とする。
 		unsigned int damage;  // 衝突時に相手に与えるダメージ。
+		int hitPoint;  // 体力。「消滅」と「撃破」とを区別するために弾でも設定が必須。外部からこれを参照する以外に、OnCollideに返り値を持たせる実装もできるかもしれない。
 		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Collider> collider;
 		EffectManager::EffectID effectID;  // 消滅エフェクトのID。

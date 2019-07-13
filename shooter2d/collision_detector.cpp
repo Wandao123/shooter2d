@@ -30,8 +30,8 @@ void CollisionDetector::CheckBetween(Mover& mover1, Mover& mover2)
 		mover1.OnCollide(mover2);
 		mover2.OnCollide(mover1);
 	}
-	if (!mover1.IsEnabled())
+	if (mover1.GetHitPoint() <= 0)
 		effectManager.GenerateObject(mover1.GetEffectID(), mover1.GetPosition()).lock()->Played();
-	if (!mover2.IsEnabled())
+	if (mover2.GetHitPoint() <= 0)
 		effectManager.GenerateObject(mover2.GetEffectID(), mover2.GetPosition()).lock()->Played();
 }

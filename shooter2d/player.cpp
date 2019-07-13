@@ -49,7 +49,7 @@ public:
 /// <param name="collider">当たり判定クラスへのポインタ</param>
 /// <param name="effectID">消滅エフェクトのID</param>
 Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
-	: Mover(position, 0.0f, -M_PI_2, std::move(sprite), std::move(collider), effectID, 1)
+	: Mover(position, 0.0f, -M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {
@@ -85,6 +85,7 @@ void Player::OnCollide(Mover& mover)
 	if (Time->GetCountedFrames() - beginningFrame < InvincibleFrames)
 		return;
 	enabled = false;
+	hitPoint = 0;
 	--life;
 }
 

@@ -48,7 +48,7 @@ end
 local function AllDirection(initPosX, ways)
 	local enemyColor = (ways % 2 == 0) and EnemyID.SmallBlue or EnemyID.SmallRed  -- 偶数弾なら青、奇数弾なら赤。
 	local bulletColor = (ways % 2 == 0) and BulletID.SmallBlue or BulletID.SmallRed
-	local enemy = GenerateEnemy(enemyColor, initPosX, 0, 1.5, math.pi / 2, 8)
+	local enemy = GenerateEnemy(enemyColor, initPosX, 0, 1.5, math.pi / 2, 24)
 	Wait(100)
 	enemy.Speed = 0
 	Wait(5)

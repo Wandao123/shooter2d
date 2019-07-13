@@ -39,7 +39,7 @@ public:
 /// <param name="collider">当たり判定クラスへのポインタ</param>
 /// <param name="effectID">消滅エフェクトのID</param>
 Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
-	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, 1)
+	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
 {}
 
 void Enemy::Update()

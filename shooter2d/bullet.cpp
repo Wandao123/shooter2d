@@ -114,7 +114,7 @@ public:
 /// <param name="effectID">消滅エフェクトのID</param>
 /// <param name="damage">衝突時に相手に与えるダメージ</param>
 Bullet::Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, unsigned int damage)
-	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, damage)
+	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, damage, 0)
 {}
 
 void Bullet::Draw() const
@@ -125,6 +125,7 @@ void Bullet::Draw() const
 void Bullet::OnCollide(Mover& mover)
 {
 	enabled = false;
+	hitPoint = 0;
 }
 
 void Bullet::Shot(const float speed, const float angle)

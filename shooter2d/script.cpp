@@ -25,14 +25,17 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		"Speed", sol::property(&Bullet::GetSpeed, &Bullet::SetSpeed),
 		"Angle", sol::property(&Bullet::GetAngle, &Bullet::SetAngle),
 		"PosX", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().x; }),
-		"PosY", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().y; })
+		"PosY", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().y; }),
+		"Erase", &Bullet::Erase
 	);
 	lua.new_usertype<Enemy>(
 		"Enemy",
 		"Speed", sol::property(&Enemy::GetSpeed, &Enemy::SetSpeed),
 		"Angle", sol::property(&Enemy::GetAngle, &Enemy::SetAngle),
 		"PosX", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().x; }),
-		"PosY", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().y; })
+		"PosY", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().y; }),
+		"Erase", &Enemy::Erase,
+		"HitPoint", sol::property([](Enemy& enemy) -> int { return enemy.GetHitPoint(); })
 	);
 	lua.new_usertype<Player>(
 		"Player",
