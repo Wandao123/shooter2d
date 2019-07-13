@@ -1,19 +1,19 @@
 ﻿#ifndef TIMER_H
 #define TIMER_H
 
+#include <list>
+#include <memory>
+
 //#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 
 namespace Shooter {
-	// 描画とは独立に動く。
-	class Timer
+	/// <summary>FPS管理やフレーム数を共通化するクラス。他のゲーム用のオブジェクトとは独立に扱う。</summary>
+	class CTimer
 	{
 	public:
 		static const unsigned int FPS = 60;
-		static const unsigned int TicksPerFrame = 1000 / FPS;
-		Timer()
-			: countedFrames(0), startTicks(0), previousTicks(0), deltaTime(0) {}
-		~Timer() = default;
+		CTimer() : countedFrames(0), deltaTime(0), averageOfFPS(60) {}
 		void Delay();
 		void Start();
 		void Update();
@@ -32,13 +32,14 @@ namespace Shooter {
 		{
 			return averageOfFPS;
 		}
-
 	private:
+		const std::size_t MaxStoredTicks = 120;
+		const unsigned int UpdatingInterval = 60;
+
 		unsigned int countedFrames;
-		Uint32 startTicks;
-		Uint32 previousTicks;
 		float deltaTime;  // 前のフレームからの経過時間（秒）
 		float averageOfFPS;
+		std::list<Uint32> ticksList;
 	};
 }
 

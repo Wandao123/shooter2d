@@ -75,14 +75,14 @@ void TitleScene::Update()
 	static const int DelayFrames = 10;
 	static Uint32 keyDownFrame = 0;  // 多重入力禁止用のフラグ
 	const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
-	if (Time->GetCountedFrames() - keyDownFrame > DelayFrames) {
+	if (Timer->GetCountedFrames() - keyDownFrame > DelayFrames) {
 		if (currentKeyStates[SDL_SCANCODE_UP]) {
 			menu.lock()->Up();
-			keyDownFrame = Time->GetCountedFrames();
+			keyDownFrame = Timer->GetCountedFrames();
 		}
 		else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
 			menu.lock()->Down();
-			keyDownFrame = Time->GetCountedFrames();
+			keyDownFrame = Timer->GetCountedFrames();
 		}
 	}
 	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
@@ -103,7 +103,7 @@ void TitleScene::Update()
 GameOverScene::GameOverScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, createdFrame(Time->GetCountedFrames())
+	, createdFrame(Timer->GetCountedFrames())
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameOver, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
 }
@@ -116,7 +116,7 @@ void GameOverScene::Draw()
 void GameOverScene::Update()
 {
 	userInterfaceManager->Update();
-	if (Time->GetCountedFrames() - createdFrame > Time->FPS * 3)
+	if (Timer->GetCountedFrames() - createdFrame > Timer->FPS * 3)
 		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
 }
 
@@ -125,7 +125,7 @@ void GameOverScene::Update()
 GameClearScene::GameClearScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, createdFrame(Time->GetCountedFrames())
+	, createdFrame(Timer->GetCountedFrames())
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
 }
@@ -138,7 +138,7 @@ void GameClearScene::Draw()
 void GameClearScene::Update()
 {
 	userInterfaceManager->Update();
-	if (Time->GetCountedFrames() - createdFrame > Time->FPS * 3)
+	if (Timer->GetCountedFrames() - createdFrame > Timer->FPS * 3)
 		listener.PopScene();
 }
 
@@ -147,7 +147,7 @@ void GameClearScene::Update()
 GameAllClearScene::GameAllClearScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, createdFrame(Time->GetCountedFrames())
+	, createdFrame(Timer->GetCountedFrames())
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameAllClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
 }
@@ -160,7 +160,7 @@ void GameAllClearScene::Draw()
 void GameAllClearScene::Update()
 {
 	userInterfaceManager->Update();
-	if (Time->GetCountedFrames() - createdFrame > Time->FPS * 3)
+	if (Timer->GetCountedFrames() - createdFrame > Timer->FPS * 3)
 		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
 }
 
@@ -179,6 +179,9 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	// 更新対象オブジェクトを生成。
 	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }).lock()->Spawned();
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+
+	// 生成に時間が掛かるため、タイマーも初期化。
+	Timer->Start();
 }
 
 void GameScene::Update()
@@ -186,11 +189,11 @@ void GameScene::Update()
 	auto updatePlayer = [this](Player& player) {
 		// 自機の復活処理。
 		const unsigned int DelayFrames = 30;
-		static unsigned int playerDefeatedFrame = Time->GetCountedFrames();
-		if (!player.IsEnabled() && player.GetLife() > 0 && Time->GetCountedFrames() - playerDefeatedFrame >= DelayFrames) {
+		static unsigned int playerDefeatedFrame = Timer->GetCountedFrames();
+		if (!player.IsEnabled() && player.GetLife() > 0 && Timer->GetCountedFrames() - playerDefeatedFrame >= DelayFrames) {
 			player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
 			player.Spawned();
-			playerDefeatedFrame = Time->GetCountedFrames();
+			playerDefeatedFrame = Timer->GetCountedFrames();
 		}
 		
 		// 自機の入力処理。
