@@ -71,9 +71,9 @@ void Player::Update()
 
 	// 描画の前処理。
 	if (sprite->GetAlpha() < 255) {
-		if (Timer->GetCountedFrames() - beginningFrame >= InvincibleFrames)
+		if (Timer::Create().GetCountedFrames() - beginningFrame >= InvincibleFrames)
 			sprite->SetAlpha(255);
-		else if ((Timer->GetCountedFrames() - beginningFrame) / 3 % 2 == 0)  // 3フレーム毎に点滅する。
+		else if ((Timer::Create().GetCountedFrames() - beginningFrame) / 3 % 2 == 0)  // 3フレーム毎に点滅する。
 			sprite->SetAlpha(0);
 		else
 			sprite->SetAlpha(191);
@@ -82,7 +82,7 @@ void Player::Update()
 
 void Player::OnCollide(Mover& mover)
 {
-	if (Timer->GetCountedFrames() - beginningFrame < InvincibleFrames)
+	if (Timer::Create().GetCountedFrames() - beginningFrame < InvincibleFrames)
 		return;
 	enabled = false;
 	hitPoint = 0;
@@ -94,7 +94,7 @@ void Player::Spawned()
 	if (life <= 0)
 		return;
 	Mover::spawned();
-	beginningFrame = Timer->GetCountedFrames();
+	beginningFrame = Timer::Create().GetCountedFrames();
 	sprite->SetAlpha(191);
 }
 
@@ -104,7 +104,7 @@ void Player::Shoot()
 	const float bulletSpeed = 30.0f;
 
 	static int previousShootingFrame = 0;
-	int currentFrame = Timer->GetCountedFrames();
+	int currentFrame = Timer::Create().GetCountedFrames();
 	if (currentFrame - previousShootingFrame > shotDelayFrames) {
 		auto newLeftBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position - Vector2{ 12.0f, 0.0f });
 		newLeftBullet.lock()->Shot(bulletSpeed, -M_PI_2);

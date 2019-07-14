@@ -45,7 +45,7 @@ namespace Shooter {
 		/// <param name="velocity">xy座標系での移動速度（単位：ドット毎フレーム）</param>
 		void SetVelocity(const Vector2& velocity)
 		{
-			this->velocity = velocity * CTimer::FPS * Timer->GetDeltaTime();
+			this->velocity = velocity * Timer::FPS * Timer::Create().GetDeltaTime();
 			SetSpeed(this->velocity.Magnitude());
 			SetAngle(std::atan2(this->velocity.y, this->velocity.x));
 		}

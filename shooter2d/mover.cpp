@@ -17,7 +17,7 @@ void Mover::Update()
 		enabled = false;
 
 	// アニメーション。
-	SDL_Rect& currentClip = clipFromImage(Timer->GetCountedFrames());
+	SDL_Rect& currentClip = clipFromImage(Timer::Create().GetCountedFrames());
 	sprite->SetClip(currentClip);
 }
 

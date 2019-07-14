@@ -4,8 +4,22 @@
 
 using namespace Shooter;
 
+Timer* Timer::instance = nullptr;
+
+Timer& Timer::Create()
+{
+	if (!instance)
+		instance = new Timer();
+	return *instance;
+}
+
+void Timer::Destroy()
+{
+	delete instance;
+}
+
 /// <summary>垂直同期をしない場合に必要な時間だけ待機する。小数点以下が桁落ちする分、誤差が生じる。</summary>
-void CTimer::Delay()
+void Timer::Delay()
 {
 	auto delayingTime = [this]() -> Uint32 {
 		if (countedFrames <= 1) {
@@ -21,7 +35,7 @@ void CTimer::Delay()
 	SDL_Delay(delayingTime());
 }
 
-void CTimer::Start()
+void Timer::Start()
 {
 	countedFrames = 0;
 	deltaTime = 0.0f;
@@ -29,7 +43,7 @@ void CTimer::Start()
 	ticksList.clear();
 }
 
-void CTimer::Update()
+void Timer::Update()
 {
 	++countedFrames;
 	ticksList.push_back(SDL_GetTicks());

@@ -5,8 +5,6 @@
 namespace Shooter {
 	SDL_Window *Window;
 	SDL_Renderer *Renderer;
-	std::unique_ptr<CTimer> Timer;
-	std::unique_ptr<CAssetLoader> AssetLoader;
 
 	Game::Game()
 	{
@@ -29,9 +27,9 @@ namespace Shooter {
 			exit(EXIT_FAILURE);
 		}
 
-		// グローバル変数の初期化
-		Timer = std::make_unique<CTimer>();
-		AssetLoader = std::make_unique<CAssetLoader>();
+		// グローバル変数（シングルトン）の初期化
+		Timer::Create();
+		AssetLoader::Create();
 
 		// シーンの設定
 		PushScene(std::make_unique<TitleScene>(*this));
@@ -42,8 +40,8 @@ namespace Shooter {
 		// SDLに依存する全ての変数を破棄してからでないと、以下の終了処理で実行時エラーが生じる（順番に注意）。
 		while (!scenes.empty())
 			scenes.pop();
-		AssetLoader.reset();
-		Timer.reset();
+		AssetLoader::Destroy();
+		Timer::Destroy();
 		SDL_DestroyRenderer(Shooter::Renderer);
 		SDL_DestroyWindow(Shooter::Window);
 		SDL_Quit();
@@ -54,7 +52,7 @@ namespace Shooter {
 		SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
 
 		SDL_Event e;
-		Timer->Start();
+		Timer::Create().Start();
 		while (!quitFlag) {
 			while (SDL_PollEvent(&e) != 0) {
 				switch (e.type) {
@@ -69,7 +67,7 @@ namespace Shooter {
 			}
 
 			// 更新
-			Timer->Update();
+			Timer::Create().Update();
 			scenes.top()->Update();
 
 			// 実際の描画
@@ -78,7 +76,7 @@ namespace Shooter {
 			SDL_RenderPresent(Renderer);
 
 			// FPS制御
-			Timer->Delay();
+			Timer::Create().Delay();
 		}
 	}
 

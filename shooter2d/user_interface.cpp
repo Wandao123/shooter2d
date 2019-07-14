@@ -29,9 +29,9 @@ public:
 
 	void Update() override
 	{
-		if (Timer->GetCountedFrames() % (Timer->FPS / 2) == 0) {
+		if (Timer::Create().GetCountedFrames() % (Timer::FPS / 2) == 0) {
 			label->Text.str("");
-			label->Text << "FPS " << std::fixed << std::setprecision(3) << Timer->GetAverageOfFPS();
+			label->Text << "FPS " << std::fixed << std::setprecision(3) << Timer::Create().GetAverageOfFPS();
 		}
 	}
 private:

@@ -3,7 +3,6 @@
 
 namespace Shooter {
 	extern SDL_Renderer* Renderer;
-	extern std::unique_ptr<CAssetLoader> AssetLoader;
 }
 
 using namespace Shooter;
@@ -14,7 +13,7 @@ Sprite::Sprite(const std::string filename)
 	: texture(nullptr, nullptr)  // ここでも初期化しないとエラー。
 {
 	// Textureの生成。
-	std::weak_ptr<SDL_Surface> surface = AssetLoader->GetImage(filename);
+	std::weak_ptr<SDL_Surface> surface = AssetLoader::Create().GetImage(filename);
 	SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, surface.lock().get());
 	if (rawTexture == nullptr) {
 		std::cerr << "Unable to create texture from " << filename << "! SDL Error: " << SDL_GetError();
@@ -52,7 +51,7 @@ void Sprite::Draw(const Vector2& position, const float angle, const float scale)
 /******************************** Label *********************************/
 
 Label::Label(const std::string filename, const int size)
-	: font(AssetLoader->GetFont(filename, size))
+	: font(AssetLoader::Create().GetFont(filename, size))
 {
 	Text.str(" ");  // Textが空のままだと、いきなりWriteが呼ばれてエラー。
 }
@@ -87,7 +86,9 @@ void Label::Write(const Vector2& position) const
 
 /******************************** AssetLoader *********************************/
 
-CAssetLoader::CAssetLoader()
+AssetLoader* AssetLoader::instance = nullptr;
+
+AssetLoader::AssetLoader()
 {
 	int imgFlags = IMG_INIT_PNG;
 	if (!(IMG_Init(imgFlags) & imgFlags)) {
@@ -100,7 +101,7 @@ CAssetLoader::CAssetLoader()
 	}
 }
 
-CAssetLoader::~CAssetLoader()
+AssetLoader::~AssetLoader()
 {
 	images.clear();
 	fonts.clear();
@@ -108,7 +109,20 @@ CAssetLoader::~CAssetLoader()
 	IMG_Quit();
 }
 
-std::weak_ptr<SDL_Surface> CAssetLoader::GetImage(const std::string filename)
+AssetLoader& AssetLoader::Create()
+{
+	if (!instance)
+		instance = new AssetLoader();
+	return *instance;
+}
+
+void AssetLoader::Destroy()
+{
+	delete instance;
+	instance = nullptr;
+}
+
+std::weak_ptr<SDL_Surface> AssetLoader::GetImage(const std::string filename)
 {
 	auto addImage = [](const std::string filename) -> std::shared_ptr<SDL_Surface> {
 		SDL_Surface* rawSurface = IMG_Load(filename.c_str());  // TODO: 例外の発生。
@@ -129,7 +143,7 @@ std::weak_ptr<SDL_Surface> CAssetLoader::GetImage(const std::string filename)
 	}
 }
 
-std::weak_ptr<TTF_Font> CAssetLoader::GetFont(const std::string filename, const int size)
+std::weak_ptr<TTF_Font> AssetLoader::GetFont(const std::string filename, const int size)
 {
 	auto addFont = [](const std::string filename, const int size) -> std::shared_ptr<TTF_Font> {
 		TTF_Font* rawFont = TTF_OpenFont(filename.c_str(), size);  // TODO: 例外の発生。

@@ -94,11 +94,20 @@ namespace Shooter {
 	/// <summary>画像・フォント・音楽の資源 (asset) を管理する。</summary>
 	/// <remarks>ファイルを開いたり、そのポインタの管理はこのクラスに一任する。外から資源を使う際にはSpriteクラスなどを用いる。</remarks>
 	// HACK: 外部からファイルを指定するのではなく、必要なファイルをすべてこのクラスのコンストラクタで開くべき？　その方がプレイ中に余計な処理が入らない。
-	class CAssetLoader
+	class AssetLoader
 	{
+	private:
+		AssetLoader();
+		~AssetLoader();
+		static AssetLoader* instance;  // unique_ptr側からコンストラクタ・デストラクタにアクセスできないので、生ポインタを使う。
 	public:
-		CAssetLoader();
-		~CAssetLoader();
+		AssetLoader(const AssetLoader&) = delete;
+		AssetLoader& operator=(const AssetLoader&) = delete;
+		AssetLoader(AssetLoader&&) = delete;
+		AssetLoader& operator=(const AssetLoader&&) = delete;
+		static AssetLoader& Create();
+		static void Destroy();
+
 		std::weak_ptr<SDL_Surface> GetImage(const std::string filename);
 		std::weak_ptr<TTF_Font> GetFont(const std::string filename, const int size);
 	private:

@@ -62,6 +62,7 @@ TitleScene::TitleScene(IChangingSceneListener& listener)
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 5.0f });
 	menu = userInterfaceManager->GenerateObject(UserInterfaceManager::MenuID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
 }
 
 void TitleScene::Draw()
@@ -75,14 +76,14 @@ void TitleScene::Update()
 	static const int DelayFrames = 10;
 	static Uint32 keyDownFrame = 0;  // 多重入力禁止用のフラグ
 	const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
-	if (Timer->GetCountedFrames() - keyDownFrame > DelayFrames) {
+	if (Timer::Create().GetCountedFrames() - keyDownFrame > DelayFrames) {
 		if (currentKeyStates[SDL_SCANCODE_UP]) {
 			menu.lock()->Up();
-			keyDownFrame = Timer->GetCountedFrames();
+			keyDownFrame = Timer::Create().GetCountedFrames();
 		}
 		else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
 			menu.lock()->Down();
-			keyDownFrame = Timer->GetCountedFrames();
+			keyDownFrame = Timer::Create().GetCountedFrames();
 		}
 	}
 	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
@@ -103,7 +104,7 @@ void TitleScene::Update()
 GameOverScene::GameOverScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, createdFrame(Timer->GetCountedFrames())
+	, createdFrame(Timer::Create().GetCountedFrames())
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameOver, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
 }
@@ -116,7 +117,7 @@ void GameOverScene::Draw()
 void GameOverScene::Update()
 {
 	userInterfaceManager->Update();
-	if (Timer->GetCountedFrames() - createdFrame > Timer->FPS * 3)
+	if (Timer::Create().GetCountedFrames() - createdFrame > Timer::FPS * 3)
 		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
 }
 
@@ -125,7 +126,7 @@ void GameOverScene::Update()
 GameClearScene::GameClearScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, createdFrame(Timer->GetCountedFrames())
+	, createdFrame(Timer::Create().GetCountedFrames())
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
 }
@@ -138,7 +139,7 @@ void GameClearScene::Draw()
 void GameClearScene::Update()
 {
 	userInterfaceManager->Update();
-	if (Timer->GetCountedFrames() - createdFrame > Timer->FPS * 3)
+	if (Timer::Create().GetCountedFrames() - createdFrame > Timer::Create().FPS * 3)
 		listener.PopScene();
 }
 
@@ -147,7 +148,7 @@ void GameClearScene::Update()
 GameAllClearScene::GameAllClearScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, createdFrame(Timer->GetCountedFrames())
+	, createdFrame(Timer::Create().GetCountedFrames())
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameAllClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
 }
@@ -160,7 +161,7 @@ void GameAllClearScene::Draw()
 void GameAllClearScene::Update()
 {
 	userInterfaceManager->Update();
-	if (Timer->GetCountedFrames() - createdFrame > Timer->FPS * 3)
+	if (Timer::Create().GetCountedFrames() - createdFrame > Timer::Create().FPS * 3)
 		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
 }
 
@@ -181,7 +182,7 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
 
 	// 生成に時間が掛かるため、タイマーも初期化。
-	Timer->Start();
+	Timer::Create().Start();
 }
 
 void GameScene::Update()
@@ -189,11 +190,11 @@ void GameScene::Update()
 	auto updatePlayer = [this](Player& player) {
 		// 自機の復活処理。
 		const unsigned int DelayFrames = 30;
-		static unsigned int playerDefeatedFrame = Timer->GetCountedFrames();
-		if (!player.IsEnabled() && player.GetLife() > 0 && Timer->GetCountedFrames() - playerDefeatedFrame >= DelayFrames) {
+		static unsigned int playerDefeatedFrame = Timer::Create().GetCountedFrames();
+		if (!player.IsEnabled() && player.GetLife() > 0 && Timer::Create().GetCountedFrames() - playerDefeatedFrame >= DelayFrames) {
 			player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
 			player.Spawned();
-			playerDefeatedFrame = Timer->GetCountedFrames();
+			playerDefeatedFrame = Timer::Create().GetCountedFrames();
 		}
 		
 		// 自機の入力処理。
