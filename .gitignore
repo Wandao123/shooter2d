@@ -265,3 +265,6 @@ images/
 *.o
 *.d
 main
+CMakeLists.txt
+resource.h
+*.rc

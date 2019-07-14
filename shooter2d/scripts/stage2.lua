@@ -1,14 +1,14 @@
 local stage = {}
 
--- frames‚Éw’è‚³‚ê‚½ƒtƒŒ[ƒ€”‚¾‚¯‘Ò‚ÂB
+-- framesã«æŒ‡å®šã•ã‚ŒãŸãƒ•ãƒ¬ãƒ¼ãƒ æ•°ã ã‘å¾…ã¤ã€‚
 local function Wait(frames)
 	for i = 1, frames do
 		coroutine.yield()
 	end
 end
 
--- ^‚Á’¼‚®~‚è‚Ä‚«‚ÄA©‹@‘_‚¢‚Ì•ª—ô’e‚ğ•ú‚Â“GB
--- enemyColor: “G‚ÌF; initPosX: ‰ŠúˆÊ’u.
+-- çœŸã£ç›´ãé™ã‚Šã¦ãã¦ã€è‡ªæ©Ÿç‹™ã„ã®åˆ†è£‚å¼¾ã‚’æ”¾ã¤æ•µã€‚
+-- enemyColor: æ•µã®è‰²; initPosX: åˆæœŸä½ç½®.
 local function Fission(enemyColor, initPosX)
 	local enemy = GenerateEnemy(enemyColor, initPosX, 0, 1.5, math.pi / 2, 80)
 	Wait(90)
@@ -20,14 +20,14 @@ local function Fission(enemyColor, initPosX)
 		Wait(10)
 		if bullet ~= nil then
 			bullet:Erase()
-			local angle = math.pi / 2 - math.atan(GetPlayer().PosX - bullet.PosX, GetPlayer().PosY - bullet.PosY)  -- ©‹@‚Ì•ûŒüB
+			local angle = math.pi / 2 - math.atan(GetPlayer().PosX - bullet.PosX, GetPlayer().PosY - bullet.PosY)  -- è‡ªæ©Ÿã®æ–¹å‘ã€‚
 			GenerateBullet(bulletColor, bullet.PosX, bullet.PosY, 6, angle + math.pi / 6)
 			GenerateBullet(bulletColor, bullet.PosX, bullet.PosY, 6, angle)
 			GenerateBullet(bulletColor, bullet.PosX, bullet.PosY, 6, angle - math.pi / 6)
 		end
 		Wait(15)
 	end
-	local dir = (initPosX < ScreenWidth / 2) and 1 or -1  -- ‰ŠúˆÊ’u‚ª¶Šñ‚è‚È‚ç‰EŒü‚«‚ÉA‰EŠñ‚è‚È‚ç¶Œü‚«‚Éi‚ŞB
+	local dir = (initPosX < ScreenWidth / 2) and 1 or -1  -- åˆæœŸä½ç½®ãŒå·¦å¯„ã‚Šãªã‚‰å³å‘ãã«ã€å³å¯„ã‚Šãªã‚‰å·¦å‘ãã«é€²ã‚€ã€‚
 	enemy.Speed = 3
 	for i = 0, 5 do
 		enemy.Angle = math.pi / 2 - dir * i * math.pi / 6
@@ -35,8 +35,8 @@ local function Fission(enemyColor, initPosX)
 	end
 end
 
--- Œ‚‚¿•Ô‚µ’e‚ğ•ú‚Â“GB
--- enemyColor: “G‚ÌF; initPosY: ‰ŠúˆÊ’u; speed: ˆÚ“®‚Ì‘¬‚³i³•‰‚ğl—¶j.
+-- æ’ƒã¡è¿”ã—å¼¾ã‚’æ”¾ã¤æ•µã€‚
+-- enemyColor: æ•µã®è‰²; initPosY: åˆæœŸä½ç½®; speed: ç§»å‹•ã®é€Ÿã•ï¼ˆæ­£è² ã‚’è€ƒæ…®ï¼‰.
 local function Revenge(enemyColor, initPosY, speed)
 	local initPosX, angle
 	if speed < 0 then

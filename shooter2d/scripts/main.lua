@@ -19,11 +19,11 @@ function Main()
 	stage2.Start()
 	ChangeScene(SceneID.AllClear)
 
-	--[[Lua‘¤‚ÅƒRƒ‹[ƒ`ƒ“‚ğÀs‚·‚éê‡B
+	--[[Luaå´ã§ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’å®Ÿè¡Œã™ã‚‹å ´åˆã€‚
 	local co = coroutine.create(foo)
 	repeat
 		coroutine.resume(co, ScreenWidth / 4, 2)
-		coroutine.yield()  -- 1ƒtƒŒ[ƒ€–ˆ‚ÉŒÄ‚Ño‚µŒ³‚É•Ô‚·B
+		coroutine.yield()  -- 1ãƒ•ãƒ¬ãƒ¼ãƒ æ¯ã«å‘¼ã³å‡ºã—å…ƒã«è¿”ã™ã€‚
 	until coroutine.status(co) == 'dead'
 	collectgarbage()]]
 end
