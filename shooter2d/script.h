@@ -2,9 +2,14 @@
 #define SCRIPT_H
 
 #include <list>
-#include <sol.hpp>
 #include <functional>
 #include "mover.h"
+
+#ifdef _WIN64
+#include <sol/sol.hpp>
+#elif __linux__
+#include <sol.hpp>
+#endif
 
 namespace Shooter {
 	// GameSceneクラスのみから呼び出されると想定。

@@ -65,14 +65,33 @@ Linux ではディストリビューションに応じてパスが変わりま�
     PS> cd vcpkg
     PS> .\bootstrap-vcpkg.bat
     PS> .\vcpkg integrate install
-    PS> .\vcpkg install sdl2:x64-windows sdl2-image:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows lua:x64-windows
+    PS> .\vcpkg install sdl2:x64-windows sdl2-image:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows lua:x64-windows sol2:x64-windows
     ```
+    途中で ``Please install the English language pack.'' というエラーが出て進めない場合は、Visual Studio Installerから英語の言語パックをインストールする。
 1. ソースをダウンロードして、shooter2d.sln をVisual Studioで開く。
-1. sol2は上のリンク先の releases からヘッダファイル (sol.hpp) のみをダウンロードする。そのファイルを shooter2d/packages/sol2 ディレクトリに配置する。
 1. 素材をダウンロードして、shooter2d/shooter2d/images 直下に配置する（下記の図を参考にされたい）。
 1. Visual StudioからDebugビルドする。
 
 ### Linux OS
+
+#### Meson + Ninja（推奨）
+
+1. ソースをダウンロードする。
+1. パッケージマネージャーなどを用いてSDLとSDLのライブラリとLuaをインストールする。例えば、Debian系ならAPTからインストールできる：
+    ```bash
+    $ apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev liblua5.3-dev
+    ````
+1. パッケージマネージャーあるいはpip3を利用して、MesonとNinjaをインストールする。pip3を使う場合は `python3 -m pip install meson ninja` などとコマンドを叩く。
+1. 次のコマンドを実行してビルドする：
+    ```bash
+    $ cd shooter2d
+    $ meson build
+    $ cd build
+    $ ninja
+    ```
+    このとき、sol2が自動的にダウンロードされる。もし `meson build` の時にLuaが無いと怒られる場合は、shooter2d/subprojects/sol2-\*.\*.\*/subprojects/lua.wrap を shooter2d/subprojects ディレクトリにコピーする。ビルドが成功すれば、shooter2d/build/shooter2dディレクトリに実行可能ファイルが生成される。
+1. 素材をダウンロードして、shooter2d/build/shooter2d/images/*.png に配置する。
+1. 実行時にフォントが見つからないというエラーが出る場合は、user_interface.cpp を修正する。
 
 #### GNU Make
 
@@ -87,29 +106,14 @@ Linux ではディストリビューションに応じてパスが変わりま�
 1. shooter2d/shooter2d に移動して、`make debug` または `make release` を実行する。
 1. 実行時にフォントが見つからないというエラーが出る場合は、user_interface.cpp を修正する。
 
-#### Meson + Ninja
-
-1. ライブラリのインストールまではGNU Makeと同様。
-1. パッケージマネージャーあるいはpip3を利用して、MesonとNinjaをインストールする。pip3を使う場合は `python3 -m pip install meson ninja` などとコマンドを叩く。
-1. 次のコマンドを実行してビルドする：
-    ```bash
-    $ cd shooter2d
-    $ meson build
-    $ cd build
-    $ ninja
-    ```
-    このとき、sol2が自動的にダウンロードされる。もし `meson build` の時にLuaが無いと怒られる場合は、shooter2d/subprojects/sol2-\*.\*.\*/subprojects/lua.wrap を shooter2d/subprojects ディレクトリにコピーする。ビルドが成功すれば、shooter2d/build/shooter2dディレクトリに実行可能ファイルが生成される。
-1. 素材をダウンロードして、shooter2d/build/shooter2d/images/*.png に配置する。
-1. 実行時にフォントが見つからないというエラーが出る場合は、user_interface.cpp を修正する。
-
-### ディレクトリ構成 (2019/07/12)
+### ディレクトリ構成 (2019/07/15)
 
 ~~~
 shooter2d
 ├── meson.build
 ├── packages
 │   └── sol2
-│        └── sol.hpp
+│       └── sol.hpp
 ├── shooter2d
 │   ├── Makefile
 │   ├── grabber.sh
