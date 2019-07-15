@@ -72,11 +72,28 @@ Linux ではディストリビューションに応じてパスが変わりま�
 1. 素材をダウンロードして、shooter2d/shooter2d/images 直下に配置する（下記の図を参考にされたい）。
 1. Visual StudioからDebugビルドする。
 
+#### 補足：静的リンク
+
+1. vcpkgで静的ライブラリをインストールする：
+    ```
+    PS> .\vcpkg install sdl2:x64-windows-static sdl2-image:x64-windows-static sdl2-mixer:x64-windows-static sdl2-ttf:x64-windows-static lua:x64-windows-static sol2:x64-windows-static
+    ```
+1. [マニュアル](https://github.com/Microsoft/vcpkg/blob/master/docs/users/integration.md#triplet-selection)を参考にshooter2d.vcxprojを書き替える。具体的には、shooter2d.vcxprojを適当なテキストエディタで開いて、PropatyGroupタグの中身にVcpkgTripletを追加する：
+    ```
+    <PropertyGroup Label="Globals">
+      <!-- .... -->
+      <VcpkgTriplet Condition="'$(Platform)'=='Win32'">x86-windows-static</VcpkgTriplet>
+      <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static</VcpkgTriplet>
+    </PropertyGroup>
+    ```
+1. shooter2d.slnをVisual Studioで開いて「プロジェクト」->「プロパティ」->「リンク」->「追加の依存ライブラリ」に opengl32.lib, version.lib, winmm.lib, imm32.lib を書き加える。
+1. Visual StudioからReleaseビルドする。
+
 ### Linux OS
 
 #### Meson + Ninja（推奨）
 
-1. ソースをダウンロードする。
+1. ソースをダウンロードする。注意：ダウンロードされたファイルの改行コードがLF (Linux) になっていないと、`meson build` でエラーが発生することがある。
 1. パッケージマネージャーなどを用いてSDLとSDLのライブラリとLuaをインストールする。例えば、Debian系ならAPTからインストールできる：
     ```bash
     $ apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev liblua5.3-dev
