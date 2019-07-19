@@ -17,6 +17,7 @@ namespace Shooter {
 	protected:
 		std::array<std::array<SDL_Rect, 3>, 3> clips;  // 具体的な値は継承先で設定せよ。
 		bool isDamaged = false;  // 被弾したか否か。
+		std::unique_ptr<Sound> sound;
 		SDL_Rect& clipFromImage(unsigned int countedFrames) override;
 	};
 

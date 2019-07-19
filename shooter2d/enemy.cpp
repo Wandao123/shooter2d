@@ -40,7 +40,10 @@ public:
 /// <param name="effectID">消滅エフェクトのID</param>
 Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
 	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
-{}
+	, sound(std::make_unique<Sound>("se/enemy_damage.wav", Sound::Mode::Chunk))
+{
+	this->sound->SetVolume(Sound::MaxVolume / 16);
+}
 
 void Enemy::Update()
 {
@@ -61,6 +64,8 @@ void Enemy::OnCollide(Mover& mover)
 		enabled = false;
 	else
 		isDamaged = true;
+
+	sound->Played();
 }
 
 void Enemy::Spawned(const float speed, const float angle, const int hitPoint)

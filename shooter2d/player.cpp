@@ -10,7 +10,7 @@ class Reimu : public Player
 {
 public:
 	Reimu(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Reimudot.png"), std::make_unique<CircleCollider>(1.0f), EffectManager::EffectID::RedCircle)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Reimudot.png"), std::make_unique<CircleCollider>(1.0f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
@@ -18,7 +18,7 @@ class Marisa : public Player
 {
 public:
 	Marisa(const Vector2& position)
-		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>("images/Marisadot.png"), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::RedCircle)
+		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>("images/Marisadot.png"), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
@@ -26,7 +26,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Sanaedot.png"), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::RedCircle)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Sanaedot.png"), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
@@ -35,9 +35,19 @@ class ReimuNormalShot : public Bullet
 public:
 	ReimuNormalShot(const Vector2& position)
 		: Bullet(position, std::make_unique<Sprite>("images/Shot1.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
+		, sound(std::make_unique<Sound>("se/sha04.wav", Sound::Mode::Chunk))
 	{
 		clip = { 2, 3, 13, 63 };
+		sound->SetVolume(Sound::MaxVolume / 36);
 	}
+
+	void Shot(const float speed, const float angle) override
+	{
+		Bullet::Shot(speed, angle);
+		sound->Played();
+	}
+private:
+	std::unique_ptr<Sound> sound;
 };
 
 /******************************** Player *********************************/

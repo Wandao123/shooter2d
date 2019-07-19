@@ -6,18 +6,19 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <variant>
 
 /*
-    SDL.hを読み込む際にSDL_MAIN_HANDLEDを定義して、なおかつ初期化の際にSDL_SetMainReady()を呼ばないと
-        LNK2019 未解決の外部シンボル main が関数 "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ) で参照されました。
-    というエラーが発生する。これはSDLの内部でmainを再定義していることに起因するらしい。このような方法の他にも、
-    SDL2main.libを追加の依存ファイルに指定するという方法でも対処できる。
+SDL.hを読み込む際にSDL_MAIN_HANDLEDを定義して、なおかつ初期化の際にSDL_SetMainReady()を呼ばないと
+    LNK2019 未解決の外部シンボル main が関数 "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ) で参照されました。
+というエラーが発生する。これはSDLの内部でmainを再定義していることに起因するらしい。このような方法の他にも、
+SDL2main.libを追加の依存ファイルに指定するという方法でも対処できる。
 */
 //#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-//#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_mixer.h>
 
 namespace Shooter {
 	class Sprite
@@ -37,7 +38,7 @@ namespace Shooter {
 			this->clip = std::make_unique<SDL_Rect>(clip);
 		}
 
-		void SetColor(const Uint8 red, const Uint8 green, const Uint8 blue)
+		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue)
 		{
 			SDL_SetTextureColorMod(texture.get(), red, green, blue);
 		}
@@ -47,7 +48,7 @@ namespace Shooter {
 			return alpha;
 		}
 
-		void SetAlpha(const Uint8 alpha)
+		void SetAlpha(const unsigned char alpha)
 		{
 			SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
 			SDL_SetTextureAlphaMod(texture.get(), alpha);
@@ -76,12 +77,12 @@ namespace Shooter {
 		std::stringstream Text;
 		void Write(const Vector2& position) const;
 
-		void SetTextColor(const Uint8 red, const Uint8 green, const Uint8 blue)
+		void SetTextColor(const unsigned char red, const unsigned char green, const unsigned char blue)
 		{
 			textColor = { red, green, blue, 0xFF };
 		}
 
-		void SetAlpha(const Uint8 alpha)
+		void SetAlpha(const unsigned char alpha)
 		{
 			this->alpha = alpha;
 		}
@@ -89,6 +90,33 @@ namespace Shooter {
 		std::weak_ptr<TTF_Font> font;
 		Uint8 alpha = 0xFF;
 		SDL_Color textColor = { 0xFF, 0xFF, 0xFF, 0xFF };
+	};
+
+	class Sound
+	{
+	public:
+		static const int MaxVolume = MIX_MAX_VOLUME;
+		enum class Mode {
+			Chunk,
+			Music
+		};
+
+		Sound(const std::string filename, const Mode mode);
+		void Played() const;
+		
+		void SetVolume(const int volume)
+		{
+			this->volume = volume;
+			std::visit([this](auto a) { changeVolume(a); }, audio);
+		}
+	private:
+		Mode mode;
+		int volume;
+		std::variant<std::weak_ptr<Mix_Chunk>, std::weak_ptr<Mix_Music>> audio;
+		void playSound(std::weak_ptr<Mix_Chunk> audio) const;
+		void playSound(std::weak_ptr<Mix_Music> audio) const;
+		void changeVolume(std::weak_ptr<Mix_Chunk> audio);
+		void changeVolume(std::weak_ptr<Mix_Music> audio);
 	};
 
 	/// <summary>画像・フォント・音楽の資源 (asset) を管理する。</summary>
@@ -110,9 +138,13 @@ namespace Shooter {
 
 		std::weak_ptr<SDL_Surface> GetImage(const std::string filename);
 		std::weak_ptr<TTF_Font> GetFont(const std::string filename, const int size);
+		std::weak_ptr<Mix_Chunk> GetChunk(const std::string filename);
+		std::weak_ptr<Mix_Music> GetMusic(const std::string filename);
 	private:
 		std::map<std::string, std::shared_ptr<SDL_Surface>> images;  // Textureを共有すると、透過などの時に他の所有クラスにも影響が出る。
 		std::map<std::tuple<std::string, int>, std::shared_ptr<TTF_Font>> fonts;
+		std::map<std::string, std::shared_ptr<Mix_Chunk>> chunks;
+		std::map<std::string, std::shared_ptr<Mix_Music>> musics;
 	};
 }
 

@@ -17,7 +17,7 @@ Linux ではディストリビューションに応じてパスが変わりま�
 
 本プログラムは『東方弾幕風』の素材を使用しております。そのリンクを以下に示します。このような素材をご公開されている皆様にはこの場を借りて感謝申し上げます。素材の関係上、現在のところ本プログラムは東方Projectの二次創作ガイドラインに則ります。（今後自作の素材で置き換えるかもしれません）。
 
-- [自機・自弾・敵](http://coolier.dip.jp/th_up4/index.php?id=6360)
+- [自機・自弾・敵画像](http://coolier.dip.jp/th_up4/index.php?id=6360)
     - Enemy.png
     - Marisadot.png
     - Reimudot.png
@@ -25,10 +25,19 @@ Linux ではディストリビューションに応じてパスが変わりま�
     - Shot1.png
     - Shot2.png
     - Shot3.png
-- [敵弾](http://coolier.dip.jp/th_up3/file/th3_4065.lzh) （えむ様）
+- [敵弾画像](http://coolier.dip.jp/th_up3/file/th3_4065.lzh) （えむ様）
     - shot_all.png
-- [エフェクト](http://coolier.dip.jp/th_up3/file/th3_7474.lzh) （貴方が作る東方STG～東方弾幕風 8の880 様）
+- [エフェクト画像](http://coolier.dip.jp/th_up3/file/th3_7474.lzh) （貴方が作る東方STG～東方弾幕風8の880様）
     - effect_circle.png
+- [敵SE](http://coolier.dip.jp/th_up4/index.php?id=2637) （４１３y様）
+    - enemy_damage.wav
+    - enemy_vanish[エフェクトＡ].wav --> rename this to enemy_vanish_effect-A.wav
+    - shot1.wav
+- [被弾音](https://commons.nicovideo.jp/material/nc899) （koshibone様）
+    - nc899.wav
+- [ショット音](http://osabisi.sakura.ne.jp/m2/tm4/se/se_old_pack00.zip) （Osabisi様）
+    - sha04.wav
+
 - 参考：https://danmakufu.wiki.fc2.com/wiki/%E7%B4%A0%E6%9D%90%E3%83%AA%E3%83%B3%E3%82%AF
 
 ### 依存ライブラリ
@@ -151,6 +160,12 @@ shooter2d
 │   │   ├── meson.build
 │   │   └── *.lua
 │   ├── shooter2d.vcxproj
+│   ├── se
+│   │   ├── enemy_damage.wav
+│   │   ├── enemy_vanish_effect-A.wav
+│   │   ├── nc899.wav
+│   │   ├── sha04.wav
+│   │   └── shot1.wav
 │   ├── *.cpp
 │   └── *.h
 ├── shooter2d.sln

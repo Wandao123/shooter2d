@@ -262,6 +262,7 @@ __pycache__/
 
 # Local settings
 images/
+se/
 *.o
 *.d
 main

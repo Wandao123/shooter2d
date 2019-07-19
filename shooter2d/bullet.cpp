@@ -4,123 +4,142 @@ using namespace Shooter;
 
 /******************************** 個別設定用クラス *********************************/
 
-class LargeRedBullet : public Bullet
+class EnemyBullet : public Bullet
+{
+public:
+	EnemyBullet(const Vector2& position, std::unique_ptr<Collider>&& collider)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::move(collider), EffectManager::EffectID::None, 1)
+		, sound(std::make_unique<Sound>("se/shot1.wav", Sound::Mode::Chunk))
+	{
+		sound->SetVolume(Sound::MaxVolume / 8);
+	}
+
+	void Shot(const float speed, const float angle) override
+	{
+		Bullet::Shot(speed, angle);
+		sound->Played();
+	}
+private:
+	std::unique_ptr<Sound> sound;
+};
+
+class LargeRedBullet : public EnemyBullet
 {
 public:
 	LargeRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(21.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(21.0f))
 	{
 		clip = { 320, 0, 64, 64 };
 		sprite->SetBlendModeAdd();
 	}
 };
 
-class LargeBlueBullet : public Bullet
+class LargeBlueBullet : public EnemyBullet
 {
 public:
 	LargeBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(21.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(21.0f))
 	{
 		clip = { 448, 0, 64, 64 };
 		sprite->SetBlendModeAdd();
 	}
 };
 
-class MiddleRedBullet : public Bullet
+class MiddleRedBullet : public EnemyBullet
 {
 public:
 	MiddleRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(9.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(9.0f))
 	{
 		clip = { 0, 50, 30, 30 };
 	}
 };
 
-class MiddleBlueBullet : public Bullet
+class MiddleBlueBullet : public EnemyBullet
 {
 public:
 	MiddleBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(9.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(9.0f))
 	{
 		clip = { 150, 50, 30, 30 };
 	}
 };
 
-class SmallRedBullet : public Bullet
+class SmallRedBullet : public EnemyBullet
 {
 public:
 	SmallRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(4.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(4.0f))
 	{
 		clip = { 1, 13, 16, 16 };
 	}
 };
 
-class SmallBlueBullet : public Bullet
+class SmallBlueBullet : public EnemyBullet
 {
 public:
 	SmallBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(4.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(4.0f))
 	{
 		clip = { 91, 13, 16, 16 };
 	}
 };
 
-class TinyRedBullet : public Bullet
+class TinyRedBullet : public EnemyBullet
 {
 public:
 	TinyRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 1, 2, 9, 9 };
 	}
 };
 
-class TinyBlueBullet : public Bullet
+class TinyBlueBullet : public EnemyBullet
 {
 public:
 	TinyBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 61, 2, 9, 9 };
 	}
 };
 
-class ScaleRedBullet : public Bullet
+class ScaleRedBullet : public EnemyBullet
 {
 public:
 	ScaleRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 1, 209, 15, 15 };
 	}
 };
 
-class ScaleBlueBullet : public Bullet
+class ScaleBlueBullet : public EnemyBullet
 {
 public:
 	ScaleBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 91, 209, 15, 15 };
 	}
 };
 
-class RiceRedBullet : public Bullet
+class RiceRedBullet : public EnemyBullet
 {
 public:
 	RiceRedBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 1, 101, 9, 16 };
 	}
 };
 
-class RiceBlueBullet : public Bullet
+class RiceBlueBullet : public EnemyBullet
 {
 public:
 	RiceBlueBullet(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::make_unique<CircleCollider>(3.0f), EffectManager::EffectID::None, 1)
+		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 61, 101, 9, 16 };
 	}
@@ -164,15 +183,14 @@ SDL_Rect& Bullet::clipFromImage(unsigned int countedFrames)
 
 BulletManager::BulletManager()
 {
+	std::list<std::shared_ptr<Bullet>> bullets;
 	// HACK: enum class の定数を全て指定する、もっと簡単な方法？　テンプレートなどを駆使すれば可能だが……。
 	// 注意：IDの最初と最後に依存する。
 	for (int i = static_cast<int>(BulletID::LargeRed); i < static_cast<int>(BulletID::RiceBlue); i++) {
 		for (int j = 0; j < 40; j++) {
-			GenerateObject(static_cast<BulletID>(i), Vector2{ 0.0f, 0.0f }).lock()->Shot(0.0f, 0.0f);  // 予め生成する。
+			bullets.push_back(GenerateObject(static_cast<BulletID>(i), Vector2{ 0.0f, 0.0f }).lock());  // 予め生成する。
 		}
 	}
-	for (auto&& bullet : objectsList)
-		bullet->Erase();
 }
 
 std::weak_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vector2& position)

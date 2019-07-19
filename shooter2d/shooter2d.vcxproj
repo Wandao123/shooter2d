@@ -198,6 +198,13 @@
   <ItemGroup>
     <ResourceCompile Include="shooter2d.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="se\enemy_damage.wav" />
+    <Media Include="se\enemy_vanish_effect-A.wav" />
+    <Media Include="se\nc899.wav" />
+    <Media Include="se\sha04.wav" />
+    <Media Include="se\shot1.wav" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>

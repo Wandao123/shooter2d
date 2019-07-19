@@ -148,4 +148,21 @@
       <Filter>リソース ファイル</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="se\enemy_damage.wav">
+      <Filter>リソース ファイル</Filter>
+    </Media>
+    <Media Include="se\enemy_vanish_effect-A.wav">
+      <Filter>リソース ファイル</Filter>
+    </Media>
+    <Media Include="se\nc899.wav">
+      <Filter>リソース ファイル</Filter>
+    </Media>
+    <Media Include="se\sha04.wav">
+      <Filter>リソース ファイル</Filter>
+    </Media>
+    <Media Include="se\shot1.wav">
+      <Filter>リソース ファイル</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

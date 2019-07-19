@@ -84,6 +84,46 @@ void Label::Write(const Vector2& position) const
 	SDL_FreeSurface(textSurface);
 }
 
+/******************************** Sound *********************************/
+
+Sound::Sound(const std::string filename, const Mode mode)
+	: mode(mode)
+{
+	switch (this->mode) {
+	case Mode::Chunk:
+		audio = AssetLoader::Create().GetChunk(filename);
+		break;
+	case Mode::Music:
+		audio = AssetLoader::Create().GetMusic(filename);
+		break;
+	}
+}
+
+void Sound::Played() const
+{
+	std::visit([this](auto a) { playSound(a); }, audio);
+}
+
+void Sound::playSound(std::weak_ptr<Mix_Chunk> audio) const
+{
+	Mix_PlayChannel(-1, audio.lock().get(), 0);  // エラーコードを受け取った方が良い？
+}
+
+void Sound::playSound(std::weak_ptr<Mix_Music> audio) const
+{
+	Mix_PlayMusic(audio.lock().get(), 0);  // エラーコードを受け取った方が良い？
+}
+
+void Sound::changeVolume(std::weak_ptr<Mix_Chunk> audio)
+{
+	Mix_VolumeChunk(audio.lock().get(), volume);
+}
+
+void Sound::changeVolume(std::weak_ptr<Mix_Music> audio)
+{
+	Mix_VolumeMusic(volume);
+}
+
 /******************************** AssetLoader *********************************/
 
 AssetLoader* AssetLoader::instance = nullptr;
@@ -99,12 +139,20 @@ AssetLoader::AssetLoader()
 		std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+		std::cerr << "SDL_mixer could not initialize!SDL_mixer Error :" << Mix_GetError() << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	Mix_AllocateChannels(32);
 }
 
 AssetLoader::~AssetLoader()
 {
 	images.clear();
 	fonts.clear();
+	chunks.clear();
+	musics.clear();
+	Mix_Quit();
 	TTF_Quit();
 	IMG_Quit();
 }
@@ -158,10 +206,51 @@ std::weak_ptr<TTF_Font> AssetLoader::GetFont(const std::string filename, const i
 	auto iter = fonts.find(key);
 	if (iter != fonts.end()) {
 		return iter->second;
-	}
-	else {
+	} else {
 		auto newFont = addFont(filename, size);
 		fonts[key] = newFont;
 		return newFont;
+	}
+}
+
+std::weak_ptr<Mix_Chunk> AssetLoader::GetChunk(const std::string filename)
+{
+	auto addChunk = [](const std::string filename) -> std::shared_ptr<Mix_Chunk> {
+		Mix_Chunk* rawChunk = Mix_LoadWAV(filename.c_str());  // TODO: 例外の発生。
+		if (rawChunk == nullptr) {
+			std::cerr << "Failed to load " << filename << " sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
+		}
+		std::shared_ptr<Mix_Chunk> chunk(rawChunk, Mix_FreeChunk);
+		return chunk;
+	};
+
+	auto iter = chunks.find(filename);
+	if (iter != chunks.end()) {
+		return iter->second;
+	} else {
+		auto newChunk = addChunk(filename);
+		chunks[filename] = newChunk;
+		return newChunk;
+	}
+}
+
+std::weak_ptr<Mix_Music> AssetLoader::GetMusic(const std::string filename)
+{
+	auto addMusic = [](const std::string filename) -> std::shared_ptr<Mix_Music> {
+		Mix_Music* rawMusic = Mix_LoadMUS(filename.c_str());  // TODO: 例外の発生。
+		if (rawMusic == nullptr) {
+			std::cerr << "Failed to load " << filename << " music! SDL_mixer Error: " << Mix_GetError() << std::endl;
+		}
+		std::shared_ptr<Mix_Music> music(rawMusic, Mix_FreeMusic);
+		return music;
+	};
+
+	auto iter = musics.find(filename);
+	if (iter != musics.end()) {
+		return iter->second;
+	} else {
+		auto newMusic = addMusic(filename);
+		musics[filename] = newMusic;
+		return newMusic;
 	}
 }

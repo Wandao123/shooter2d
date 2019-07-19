@@ -9,10 +9,36 @@ class NoneEffect : public Effect
 {
 public:
 	NoneEffect(const Vector2& position)
-		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png"))
+		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png"), std::make_unique<Sound>("se/enemy_vanish_effect-A.wav", Sound::Mode::Chunk))
 	{}
 
 	void Played() override {}
+};
+
+class DefetedPlayerEffect : public Effect
+{
+public:
+	DefetedPlayerEffect(const Vector2& position)
+		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png"), std::make_unique<Sound>("se/nc899.wav", Sound::Mode::Chunk))
+	{
+		clips[0] = { 0, 128, 128, 128 };
+		clips[1] = { 0, 128, 128, 128 };
+		clips[2] = { 0, 256, 128, 128 };
+		this->sound->SetVolume(Sound::MaxVolume / 4);
+	}
+
+	void Update() override
+	{
+		if (counter < AnimationFrames) {
+			alpha = 255 - 255 * counter / AnimationFrames;
+			scalingRate = 0.5f + counter * 0.1f;
+			++counter;
+		}
+		else {
+			enabled = false;
+		}
+		Effect::Update();
+	}
 };
 
 /// <summary>円形に広がるエフェクト</summary>
@@ -20,8 +46,10 @@ class CircleEffect : public Effect
 {
 public:
 	CircleEffect(const Vector2& position, std::unique_ptr<Sprite>&& sprite)
-		: Effect(position, std::move(sprite))
-	{}
+		: Effect(position, std::move(sprite), std::make_unique<Sound>("se/enemy_vanish_effect-A.wav", Sound::Mode::Chunk))
+	{
+		this->sound->SetVolume(Sound::MaxVolume / 2);
+	}
 
 	void Update() override
 	{
@@ -63,9 +91,10 @@ public:
 
 /******************************** Effect *********************************/
 
-Effect::Effect(const Vector2& position, std::unique_ptr<Sprite>&& sprite)
+Effect::Effect(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Sound>&& sound)
 	: GameObject(false, position)
 	, sprite(std::move(sprite))
+	, sound(std::move(sound))
 {}
 
 void Effect::Draw() const
@@ -79,6 +108,7 @@ void Effect::Played()
 	counter = 0;
 	alpha = 255;
 	scalingRate = 0.0f;
+	sound->Played();
 }
 
 void Effect::Update()
@@ -102,6 +132,9 @@ std::weak_ptr<Effect> EffectManager::GenerateObject(const EffectID id, const Vec
 	switch (id) {
 	case EffectID::None:
 		newObject = assignObject<NoneEffect>(position);
+		break;
+	case EffectID::DefetedPlayer:
+		newObject = assignObject<DefetedPlayerEffect>(position);
 		break;
 	case EffectID::RedCircle:
 		newObject = assignObject<RedCircleEffect>(position);
