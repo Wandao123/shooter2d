@@ -9,7 +9,7 @@ class EnemyBullet : public Bullet
 public:
 	EnemyBullet(const Vector2& position, std::unique_ptr<Collider>&& collider)
 		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::move(collider), EffectManager::EffectID::None, 1)
-		, sound(std::make_unique<Sound>("se/shot1.wav", Sound::Mode::Chunk))
+		, sound(std::make_unique<Sound>("se/shot1.wav"))
 	{
 		sound->SetVolume(Sound::MaxVolume / 8);
 	}

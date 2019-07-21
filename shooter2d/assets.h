@@ -6,7 +6,6 @@
 #include <memory>
 #include <string>
 #include <sstream>
-#include <variant>
 
 /*
 SDL.hを読み込む際にSDL_MAIN_HANDLEDを定義して、なおかつ初期化の際にSDL_SetMainReady()を呼ばないと
@@ -21,6 +20,8 @@ SDL2main.libを追加の依存ファイルに指定するという方法でも�
 #include <SDL2/SDL_mixer.h>
 
 namespace Shooter {
+	/// <summary>スプライトの表示を担うクラス。SDLのラッパーとして機能する。</summary>
+	/// <remarks>指定した画像ファイルのテクスチャを所有する。どこを描画するかはSetClipから指定する。</remarks>
 	class Sprite
 	{
 	public:
@@ -70,6 +71,8 @@ namespace Shooter {
 		Uint8 alpha = 0xFF;
 	};
 
+	/// <summary>テキスト表示を担うクラス。SDLのラッパーとして機能する。</summary>
+	/// <remarks>現在の設計では描画する度にテクスチャを生成する。</remarks>
 	class Label
 	{
 	public:
@@ -92,31 +95,42 @@ namespace Shooter {
 		SDL_Color textColor = { 0xFF, 0xFF, 0xFF, 0xFF };
 	};
 
+	/// <summary>効果音 (SE) を扱うクラス。SDLのラッパーとして機能する。</summary>
+	/// <remarks>短い間隔で鳴る音源のみを扱う。他の音に重ねて再生することができる。</remarks>
 	class Sound
 	{
 	public:
 		static const int MaxVolume = MIX_MAX_VOLUME;
-		enum class Mode {
-			Chunk,
-			Music
-		};
-
-		Sound(const std::string filename, const Mode mode);
+		Sound(const std::string filename);
 		void Played() const;
 		
 		void SetVolume(const int volume)
 		{
 			this->volume = volume;
-			std::visit([this](auto a) { changeVolume(a); }, audio);
+			Mix_VolumeChunk(audio.lock().get(), volume);
 		}
 	private:
-		Mode mode;
 		int volume;
-		std::variant<std::weak_ptr<Mix_Chunk>, std::weak_ptr<Mix_Music>> audio;
-		void playSound(std::weak_ptr<Mix_Chunk> audio) const;
-		void playSound(std::weak_ptr<Mix_Music> audio) const;
-		void changeVolume(std::weak_ptr<Mix_Chunk> audio);
-		void changeVolume(std::weak_ptr<Mix_Music> audio);
+		std::weak_ptr<Mix_Chunk> audio;
+	};
+
+	/// <summary>音楽を扱うクラス。SDLのラッパーとして機能する。</summary>
+	/// <remarks>BGMの音源のみを扱う。他の音に重ねて再生することはできない。</remarks>
+	class Music
+	{
+	public:
+		static const int MaxVolume = MIX_MAX_VOLUME;
+		Music(const std::string filename);
+		void Played() const;
+
+		void SetVolume(const int volume)
+		{
+			this->volume = volume;
+			Mix_VolumeMusic(volume);
+		}
+	private:
+		int volume;
+		std::weak_ptr<Mix_Music> audio;
 	};
 
 	/// <summary>画像・フォント・音楽の資源 (asset) を管理する。</summary>

@@ -1,7 +1,7 @@
 #CXX = g++
 CPPFLAGS += -Wall -Wextra -I/usr/include/lua5.3 -I../packages/sol2 #-DLUA_32BITS
 CXXFLAGS += -std=c++17
-LDFLAGS += -lm -lSDL2 -lSDL2_image -lSDL2_ttf -llua5.3
+LDFLAGS += -lm -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -llua5.3
 
 TARGET = main
 OBJS_DIR = lib

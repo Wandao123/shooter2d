@@ -35,7 +35,7 @@ class ReimuNormalShot : public Bullet
 public:
 	ReimuNormalShot(const Vector2& position)
 		: Bullet(position, std::make_unique<Sprite>("images/Shot1.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
-		, sound(std::make_unique<Sound>("se/sha04.wav", Sound::Mode::Chunk))
+		, sound(std::make_unique<Sound>("se/sha04.wav"))
 	{
 		clip = { 2, 3, 13, 63 };
 		sound->SetVolume(Sound::MaxVolume / 36);

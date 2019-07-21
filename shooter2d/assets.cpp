@@ -86,42 +86,26 @@ void Label::Write(const Vector2& position) const
 
 /******************************** Sound *********************************/
 
-Sound::Sound(const std::string filename, const Mode mode)
-	: mode(mode)
-{
-	switch (this->mode) {
-	case Mode::Chunk:
-		audio = AssetLoader::Create().GetChunk(filename);
-		break;
-	case Mode::Music:
-		audio = AssetLoader::Create().GetMusic(filename);
-		break;
-	}
-}
+Sound::Sound(const std::string filename)
+	: audio(AssetLoader::Create().GetChunk(filename))
+	, volume(0)
+{}
 
 void Sound::Played() const
-{
-	std::visit([this](auto a) { playSound(a); }, audio);
-}
-
-void Sound::playSound(std::weak_ptr<Mix_Chunk> audio) const
 {
 	Mix_PlayChannel(-1, audio.lock().get(), 0);  // エラーコードを受け取った方が良い？
 }
 
-void Sound::playSound(std::weak_ptr<Mix_Music> audio) const
+/******************************** Music *********************************/
+
+Music::Music(const std::string filename)
+	: audio(AssetLoader::Create().GetMusic(filename))
+	, volume(0)
+{}
+
+void Music::Played() const
 {
 	Mix_PlayMusic(audio.lock().get(), 0);  // エラーコードを受け取った方が良い？
-}
-
-void Sound::changeVolume(std::weak_ptr<Mix_Chunk> audio)
-{
-	Mix_VolumeChunk(audio.lock().get(), volume);
-}
-
-void Sound::changeVolume(std::weak_ptr<Mix_Music> audio)
-{
-	Mix_VolumeMusic(volume);
 }
 
 /******************************** AssetLoader *********************************/
