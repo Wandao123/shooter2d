@@ -4,20 +4,6 @@
 
 using namespace Shooter;
 
-Timer* Timer::instance = nullptr;
-
-Timer& Timer::Create()
-{
-	if (!instance)
-		instance = new Timer();
-	return *instance;
-}
-
-void Timer::Destroy()
-{
-	delete instance;
-}
-
 /// <summary>垂直同期をしない場合に必要な時間だけ待機する。小数点以下が桁落ちする分、誤差が生じる。</summary>
 void Timer::Delay()
 {

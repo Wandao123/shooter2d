@@ -110,8 +110,6 @@ void Music::Played() const
 
 /******************************** AssetLoader *********************************/
 
-AssetLoader* AssetLoader::instance = nullptr;
-
 AssetLoader::AssetLoader()
 {
 	int imgFlags = IMG_INIT_PNG;
@@ -139,19 +137,6 @@ AssetLoader::~AssetLoader()
 	Mix_Quit();
 	TTF_Quit();
 	IMG_Quit();
-}
-
-AssetLoader& AssetLoader::Create()
-{
-	if (!instance)
-		instance = new AssetLoader();
-	return *instance;
-}
-
-void AssetLoader::Destroy()
-{
-	delete instance;
-	instance = nullptr;
 }
 
 std::weak_ptr<SDL_Surface> AssetLoader::GetImage(const std::string filename)

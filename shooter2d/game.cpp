@@ -1,6 +1,7 @@
+#include "game.h"
 #include <iostream>
 #include <cstdlib>
-#include "game.h"
+#include "input.h"
 
 namespace Shooter {
 	SDL_Window *Window;
@@ -28,6 +29,7 @@ namespace Shooter {
 		}
 
 		// グローバル変数（シングルトン）の初期化
+		Input::Create();
 		Timer::Create();
 		AssetLoader::Create();
 
@@ -42,6 +44,7 @@ namespace Shooter {
 			scenes.pop();
 		AssetLoader::Destroy();
 		Timer::Destroy();
+		Input::Destroy();
 		SDL_DestroyRenderer(Shooter::Renderer);
 		SDL_DestroyWindow(Shooter::Window);
 		SDL_Quit();
@@ -50,23 +53,10 @@ namespace Shooter {
 	void Game::Run()
 	{
 		SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
-
-		SDL_Event e;
 		Timer::Create().Start();
 		while (!quitFlag) {
-			while (SDL_PollEvent(&e) != 0) {
-				switch (e.type) {
-				case SDL_QUIT:
-					quitFlag = true;
-					break;
-				case SDL_KEYDOWN:
-					if (e.key.keysym.sym == SDLK_ESCAPE)
-						quitFlag = true;
-					break;
-				}
-			}
-
 			// 更新
+			quitFlag = Input::Create().Update();
 			Timer::Create().Update();
 			scenes.top()->Update();
 

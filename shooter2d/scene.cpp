@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include "game.h"
+#include "input.h"
 
 using namespace Shooter;
 
@@ -72,22 +73,12 @@ void TitleScene::Draw()
 
 void TitleScene::Update()
 {
-	// TODO: 入力処理を別クラスへ分離。
-	static const int DelayFrames = 10;
-	static Uint32 keyDownFrame = 0;  // 多重入力禁止用のフラグ
-	const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
-	if (Timer::Create().GetCountedFrames() - keyDownFrame > DelayFrames) {
-		if (currentKeyStates[SDL_SCANCODE_UP]) {
-			menu.lock()->Up();
-			keyDownFrame = Timer::Create().GetCountedFrames();
-		}
-		else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
-			menu.lock()->Down();
-			keyDownFrame = Timer::Create().GetCountedFrames();
-		}
-	}
+	if (Input::Create().GetKeyDown(Input::Commands::Forward))
+		menu.lock()->Up();
+	else if (Input::Create().GetKeyDown(Input::Commands::Backward))
+		menu.lock()->Down();
 	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
-	if (currentKeyStates[SDL_SCANCODE_Z]) {
+	if (Input::Create().GetKeyDown(Input::Commands::Shot)) {
 		switch (menu.lock()->GetCurrentItemIndex()) {
 		case 0:
 			listener.ClearAndChangeScene(std::make_unique<GameScene>(listener));
@@ -198,28 +189,20 @@ void GameScene::Update()
 		}
 		
 		// 自機の入力処理。
-		// TODO: 別クラスへ分離。
-		float speed;
-		const SDL_Keymod modStates = SDL_GetModState();
-
-		if (modStates & KMOD_SHIFT)
-			speed = player.GetLowSpeed();
-		else
-			speed = player.GetHighSpeed();
+		float speed = Input::Create().GetKey(Input::Commands::Slow) ? player.GetLowSpeed() : player.GetHighSpeed();
 		Vector2 velocity = { 0.0f, 0.0f };
-		const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
-		if (currentKeyStates[SDL_SCANCODE_LEFT])
+		if (Input::Create().GetKey(Input::Commands::Leftward))
 			velocity.x = -speed;
-		if (currentKeyStates[SDL_SCANCODE_RIGHT])
+		if (Input::Create().GetKey(Input::Commands::Rightward))
 			velocity.x = +speed;
-		if (currentKeyStates[SDL_SCANCODE_UP])
+		if (Input::Create().GetKey(Input::Commands::Forward))
 			velocity.y = -speed;
-		if (currentKeyStates[SDL_SCANCODE_DOWN])
+		if (Input::Create().GetKey(Input::Commands::Backward))
 			velocity.y = +speed;
 		velocity = velocity.Normalize() * speed;
 		player.SetVelocity(velocity);
 
-		if (currentKeyStates[SDL_SCANCODE_Z])
+		if (Input::Create().GetKey(Input::Commands::Shot))
 			player.Shoot();
 	};
 
