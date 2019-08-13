@@ -10,7 +10,7 @@ namespace Shooter {
 	Game::Game()
 	{
 		//SDL_SetMainReady();
-		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0) {
 			std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
 		}

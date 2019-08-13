@@ -110,18 +110,11 @@ void Player::Spawned()
 
 void Player::Shoot()
 {
-	const int shotDelayFrames = 6;
 	const float bulletSpeed = 30.0f;
-
-	static int previousShootingFrame = 0;
-	int currentFrame = Timer::Create().GetCountedFrames();
-	if (currentFrame - previousShootingFrame > shotDelayFrames) {
-		auto newLeftBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position - Vector2{ 12.0f, 0.0f });
-		newLeftBullet.lock()->Shot(bulletSpeed, -M_PI_2);
-		auto newRightBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position + Vector2{ 12.0f, 0.0f });
-		newRightBullet.lock()->Shot(bulletSpeed, -M_PI_2);
-		previousShootingFrame = currentFrame;
-	}
+	auto newLeftBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position - Vector2{ 12.0f, 0.0f });
+	newLeftBullet.lock()->Shot(bulletSpeed, -M_PI_2);
+	auto newRightBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position + Vector2{ 12.0f, 0.0f });
+	newRightBullet.lock()->Shot(bulletSpeed, -M_PI_2);
 }
 
 SDL_Rect& Player::clipFromImage(unsigned int countedFrames)

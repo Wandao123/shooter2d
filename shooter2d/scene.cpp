@@ -1,5 +1,4 @@
-﻿#include <iostream>
-#include "game.h"
+﻿#include "game.h"
 #include "input.h"
 
 using namespace Shooter;
@@ -188,7 +187,7 @@ void GameScene::Update()
 			playerDefeatedFrame = Timer::Create().GetCountedFrames();
 		}
 		
-		// 自機の入力処理。
+		// 自機の移動。
 		float speed = Input::Create().GetKey(Input::Commands::Slow) ? player.GetLowSpeed() : player.GetHighSpeed();
 		Vector2 velocity = { 0.0f, 0.0f };
 		if (Input::Create().GetKey(Input::Commands::Leftward))
@@ -202,8 +201,15 @@ void GameScene::Update()
 		velocity = velocity.Normalize() * speed;
 		player.SetVelocity(velocity);
 
-		if (Input::Create().GetKey(Input::Commands::Shot))
-			player.Shoot();
+		// 自機のショット。
+		if (Input::Create().GetKey(Input::Commands::Shot)) {
+			const unsigned int ShotDelayFrames = 6;
+			static unsigned int playerShootingFrame = Timer::Create().GetCountedFrames();
+			if (Timer::Create().GetCountedFrames() - playerShootingFrame >= ShotDelayFrames) {
+				player.Shoot();
+				playerShootingFrame = Timer::Create().GetCountedFrames();
+			}
+		}
 	};
 
 	auto player = playerManager->GetPlayer().lock();
