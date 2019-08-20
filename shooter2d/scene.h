@@ -14,7 +14,7 @@ namespace Shooter {
 	public:
 		Scene(IChangingSceneListener& listener) : listener(listener) {}
 		virtual ~Scene() = default;
-		virtual void Draw() = 0;
+		virtual void Draw() const = 0;
 		virtual void Update() = 0;
 	protected:
 		IChangingSceneListener& listener;
@@ -24,11 +24,14 @@ namespace Shooter {
 	{
 	public:
 		TitleScene(IChangingSceneListener& listener);
-		void Draw() override;
+		void Draw() const override;
 		void Update() override;
 	private:
+		static const int MaxItems = 3;
+		const int ItemHeight = 35;  // フォントサイズを考慮。
 		std::unique_ptr<UserInterfaceManager> userInterfaceManager;
-		std::weak_ptr<IMenu> menu;
+		int currentIndex;
+		std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
 	};
 }
 

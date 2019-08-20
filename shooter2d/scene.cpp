@@ -1,5 +1,4 @@
 ﻿#include "game.h"
-#include "input.h"
 
 using namespace Shooter;
 
@@ -9,7 +8,7 @@ class GameOverScene : public Scene
 {
 public:
 	GameOverScene(IChangingSceneListener& listener);
-	void Draw() override;
+	void Draw() const override;
 	void Update() override;
 private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
@@ -20,7 +19,7 @@ class GameClearScene : public Scene
 {
 public:
 	GameClearScene(IChangingSceneListener& listener);
-	void Draw() override;
+	void Draw() const override;
 	void Update() override;
 private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
@@ -31,7 +30,7 @@ class GameAllClearScene : public Scene
 {
 public:
 	GameAllClearScene(IChangingSceneListener& listener);
-	void Draw() override;
+	void Draw() const override;
 	void Update() override;
 private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
@@ -42,7 +41,7 @@ class GameScene : public Scene
 {
 public:
 	GameScene(IChangingSceneListener& listener);
-	void Draw() override;
+	void Draw() const override;
 	void Update() override;
 private:
 	std::shared_ptr<BulletManager> bulletManager;
@@ -54,35 +53,60 @@ private:
 	std::unique_ptr<Script> script;
 };
 
+class KeyConfigScene : public Scene
+{
+public:
+	KeyConfigScene(IChangingSceneListener& listener);
+	void Draw() const override;
+	void Update() override;
+private:
+	static const int MaxItems = 10;
+	const int ItemHeight = 35;  // フォントサイズを考慮。
+	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+	int currentIndex;
+	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
+};
+
 /******************************** TitleScene *********************************/
 
 TitleScene::TitleScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, currentIndex(0)
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 5.0f });
-	menu = userInterfaceManager->GenerateObject(UserInterfaceManager::MenuID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 5.0f }).lock()->SetCaption(u8"Bullet Hell 2D Shmup");
+	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f });
+	menu[0].lock()->SetCaption(u8"Start");
+	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f + ItemHeight });
+	menu[1].lock()->SetCaption(u8"Key config");
+	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f + ItemHeight * 2 });
+	menu[2].lock()->SetCaption(u8"Quit");
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
 }
 
-void TitleScene::Draw()
+void TitleScene::Draw() const
 {
 	userInterfaceManager->Draw();
 }
 
 void TitleScene::Update()
 {
-	if (Input::Create().GetKeyDown(Input::Commands::Forward))
-		menu.lock()->Up();
-	else if (Input::Create().GetKeyDown(Input::Commands::Backward))
-		menu.lock()->Down();
+	if (Input::Create().GetKeyDown(Input::Commands::Up))
+		currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
+	if (Input::Create().GetKeyDown(Input::Commands::Down))
+		currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
+	for (int i = 0; i < MaxItems; i++)
+		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
 	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
-	if (Input::Create().GetKeyDown(Input::Commands::Shot)) {
-		switch (menu.lock()->GetCurrentItemIndex()) {
+	if (Input::Create().GetKeyDown(Input::Commands::OK)) {
+		switch (currentIndex) {
 		case 0:
 			listener.ClearAndChangeScene(std::make_unique<GameScene>(listener));
 			break;
 		case 1:
+			listener.PushScene(std::make_unique<KeyConfigScene>(listener));
+			break;
+		case 2:
 			listener.Quit();
 			break;
 		}
@@ -96,10 +120,10 @@ GameOverScene::GameOverScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetCountedFrames())
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameOver, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("GAME OVER");
 }
 
-void GameOverScene::Draw()
+void GameOverScene::Draw() const
 {
 	userInterfaceManager->Draw();
 }
@@ -118,10 +142,10 @@ GameClearScene::GameClearScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetCountedFrames())
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("STAGE CLEAR");
 }
 
-void GameClearScene::Draw()
+void GameClearScene::Draw() const
 {
 	userInterfaceManager->Draw();
 }
@@ -140,10 +164,10 @@ GameAllClearScene::GameAllClearScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetCountedFrames())
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameAllClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("ALL CLEAR");
 }
 
-void GameAllClearScene::Draw()
+void GameAllClearScene::Draw() const
 {
 	userInterfaceManager->Draw();
 }
@@ -246,11 +270,85 @@ void GameScene::Update()
 }
 
 // SDLにはZ-orderの概念が無いため、描画のタイミングで順番に注意する必要がある。
-void GameScene::Draw()
+void GameScene::Draw() const
 {
 	userInterfaceManager->Draw();
 	effectManager->Draw();
 	playerManager->Draw();
 	enemyManager->Draw();
 	bulletManager->Draw();
+}
+
+/******************************** KeyConfigScene *********************************/
+
+KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener)
+	: Scene(listener)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+{
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 10.0f }).lock()->SetCaption(u8"Key config");
+	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 10.0f + ItemHeight * index }; };
+	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::ShotKeyConfig, makePos(0));
+	menu[0].lock()->SetCaption(u8"Shot");
+	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::BombKeyConfig, makePos(1));
+	menu[1].lock()->SetCaption(u8"Bomb");
+	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::SlowKeyConfig, makePos(2));
+	menu[2].lock()->SetCaption(u8"Slow");
+	menu[3] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::SkipKeyConfig, makePos(3));
+	menu[3].lock()->SetCaption(u8"Skip");
+	menu[4] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::LeftwardKeyConfig, makePos(4));
+	menu[4].lock()->SetCaption(u8"Leftward");
+	menu[5] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::RightwardKeyConfig, makePos(5));
+	menu[5].lock()->SetCaption(u8"Rightward");
+	menu[6] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::ForwardKeyConfig, makePos(6));
+	menu[6].lock()->SetCaption(u8"Forward");
+	menu[7] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::BackwardKeyConfig, makePos(7));
+	menu[7].lock()->SetCaption(u8"Backward");
+	menu[8] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::PauseKeyConfig, makePos(8));
+	menu[8].lock()->SetCaption(u8"Pause");
+	menu[9] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(9));
+	menu[9].lock()->SetCaption(u8"Quit");
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+}
+
+namespace Shooter {
+	extern SDL_Renderer* Renderer;
+}
+
+void KeyConfigScene::Draw() const
+{
+	userInterfaceManager->Draw();
+
+	int posX = static_cast<int>(Game::Width * 0.5f), posY = static_cast<int>(Game::Height * 2.0f / 10.0f + ItemHeight * currentIndex);
+	int width = 14 * 3 * 12, height = ItemHeight;
+	SDL_Rect rect = { posX - width / 2, posY - height / 2, width, height };
+	SDL_SetRenderDrawColor(Renderer, 0xFF, 0xFF, 0x00, 63);
+	SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+	SDL_RenderFillRect(Renderer, &rect);
+}
+
+void KeyConfigScene::Update()
+{
+	static bool configMode = false;
+	if (configMode) {
+		if (Input::Create().IsAnyKeyPressed() || Input::Create().IsAnyButtonPressed()) {
+			menu[currentIndex].lock()->OnKeyPressed();
+			for (int i = 0; i < MaxItems; i++)
+				menu[i].lock()->SetActive(true);
+			configMode = false;
+		}
+	} else {
+		if (Input::Create().GetKeyDown(Input::Commands::Up))
+			currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
+		if (Input::Create().GetKeyDown(Input::Commands::Down))
+			currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
+		if (currentIndex < MaxItems && Input::Create().GetKeyDown(Input::Commands::OK)) {
+			for (int i = 0; i < MaxItems; i++)
+				menu[i].lock()->SetActive(false);
+			menu[currentIndex].lock()->SetActive(true);
+			configMode = true;
+		}
+	}
+	userInterfaceManager->Update();
+	if (currentIndex == MaxItems - 1 && Input::Create().GetKeyDown(Input::Commands::OK))
+		listener.PopScene();
 }

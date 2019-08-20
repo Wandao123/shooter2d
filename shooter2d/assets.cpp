@@ -52,16 +52,15 @@ void Sprite::Draw(const Vector2& position, const float angle, const float scale)
 
 Label::Label(const std::string filename, const int size)
 	: font(AssetLoader::Create().GetFont(filename, size))
-{
-	Text.str(" ");  // Textが空のままだと、いきなりWriteが呼ばれてエラー。
-}
+	, Text(" ")  // Textが空のままだと、いきなりWriteが呼ばれてエラー。
+{}
 
 /// <param name="x">描画する位置のx座標</param>
 /// <param name="y">描画する位置のy座標</param>
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。</remarks>
 void Label::Write(const Vector2& position) const
 {
-	SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font.lock().get(), Text.str().c_str(), textColor);
+	SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font.lock().get(), Text.c_str(), textColor);
 	if (textSurface == nullptr) {
 		std::cerr << TTF_GetError() << std::endl;
 		return;

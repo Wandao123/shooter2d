@@ -3,9 +3,9 @@
 
 #include "singleton.h"
 #include <array>
-//#include <set>
 #include <list>
 #include <map>
+#include <string>
 #include <tuple>
 #include <SDL2/SDL.h>
 
@@ -17,7 +17,15 @@ namespace Shooter {
 		~Input();
 		friend class Singleton<Input>;
 	public:
-		enum class Commands : int {  // ゲームで使用するコマンド。
+		enum class Commands : int {
+			// メニューで使用。キーの割り当てを変更不可。
+			OK,
+			Cancel,
+			Left,
+			Right,
+			Up,
+			Down,
+			// ゲーム中で使用。
 			Shot,
 			Bomb,
 			Slow,
@@ -39,6 +47,16 @@ namespace Shooter {
 		bool IsAnyKeyPressed() const;
 		bool IsAnyKeyDown() const;
 		bool IsAnyButtonPressed() const;
+
+		std::string GetCurrentKeyNameFor(Commands command)
+		{
+			return { SDL_GetKeyName(std::get<0>(commandsMapping[command])) };
+		}
+
+		std::string GetCurrentButtonNameFor(Commands command)
+		{
+			return { SDL_GameControllerGetStringForButton(std::get<1>(commandsMapping[command])) };
+		}
 	private:
 		std::map<Commands, std::tuple<SDL_Keycode, SDL_GameControllerButton>> commandsMapping;
 		// enum classからintへの暗黙的な型変換が無いため、明示的にキャストする必要がある。

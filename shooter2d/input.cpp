@@ -1,20 +1,10 @@
 ﻿#include "input.h"
 #include <algorithm>
 #include <iostream>
+#include <set>
+#include <utility>
 
 using namespace Shooter;
-
-/*// setを使うための順序の定義。
-bool operator<(const SDL_KeyboardEvent& lhs, const SDL_KeyboardEvent& rhs)
-{
-	return lhs.keysym.sym < rhs.keysym.sym;
-}
-
-// setを使うための順序の定義。
-bool operator<(const SDL_ControllerButtonEvent& lhs, const SDL_ControllerButtonEvent& rhs)
-{
-	return lhs.button < rhs.button;
-}*/
 
 Input::Input()
 {
@@ -28,6 +18,12 @@ Input::Input()
 	SDL_GameControllerEventState(SDL_ENABLE);
 
 	// デフォルトの値を設定。
+	commandsMapping[Commands::OK] = std::make_tuple(SDLK_z, SDL_CONTROLLER_BUTTON_A);
+	commandsMapping[Commands::Cancel] = std::make_tuple(SDLK_x, SDL_CONTROLLER_BUTTON_B);
+	commandsMapping[Commands::Left] = std::make_tuple(SDLK_LEFT, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+	commandsMapping[Commands::Right] = std::make_tuple(SDLK_RIGHT, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+	commandsMapping[Commands::Up] = std::make_tuple(SDLK_UP, SDL_CONTROLLER_BUTTON_DPAD_UP);
+	commandsMapping[Commands::Down] = std::make_tuple(SDLK_DOWN, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
 	commandsMapping[Commands::Shot] = std::make_tuple(SDLK_z, SDL_CONTROLLER_BUTTON_A);
 	commandsMapping[Commands::Bomb] = std::make_tuple(SDLK_x, SDL_CONTROLLER_BUTTON_B);
 	commandsMapping[Commands::Slow] = std::make_tuple(SDLK_LSHIFT, SDL_CONTROLLER_BUTTON_X);
@@ -75,32 +71,64 @@ bool Input::Update()
 		case SDL_CONTROLLERBUTTONUP:
 			uppedButtons.push_back(event.cbutton);
 			break;
+		// TODO: ゲーム中に新たなゲームパッドを認識。
 		}
 	}
 
 	// キーが押されているか離されているかに応じて、コマンドボタンの状態を更新する。
 	for (auto key : downedKeys) {
-		auto mapping = std::find_if(commandsMapping.begin(), commandsMapping.end(), [key](const auto& mapObject) -> bool { return std::get<0>(mapObject.second) == key.keysym.sym; });
-		if (mapping != commandsMapping.end())
+		/*auto mapping = commandsMapping.begin();
+		for (;;) {
+			mapping = std::find_if(mapping, commandsMapping.end(), [key](const auto& mapObject) -> bool { return std::get<0>(mapObject.second) == key.keysym.sym; });
+			if (mapping == commandsMapping.end())
+				break;
 			currentStates[static_cast<int>(mapping->first)] = true;
+			++mapping;
+		}*/
+		for (auto mapping : commandsMapping)
+			if (std::get<0>(mapping.second) == key.keysym.sym)
+				currentStates[static_cast<int>(mapping.first)] = true;
 	}
 	for (auto key : uppedKeys) {
-		auto mapping = std::find_if(commandsMapping.begin(), commandsMapping.end(), [key](const auto& mapObject) -> bool { return std::get<0>(mapObject.second) == key.keysym.sym; });
-		if (mapping != commandsMapping.end())
+		/*auto mapping = commandsMapping.begin();
+		for (;;) {
+			mapping = std::find_if(mapping, commandsMapping.end(), [key](const auto& mapObject) -> bool { return std::get<0>(mapObject.second) == key.keysym.sym; });
+			if (mapping == commandsMapping.end())
+				break;
 			currentStates[static_cast<int>(mapping->first)] = false;
+			++mapping;
+		}*/
+		for (auto mapping : commandsMapping)
+			if (std::get<0>(mapping.second) == key.keysym.sym)
+				currentStates[static_cast<int>(mapping.first)] = false;
 	}
 
 	// コントローラボタンが押されているか離されているかに応じて、コマンドボタンの状態を更新する。
 	for (auto button : downedButtons) {
-		//std::cout << SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button)) << std::endl;
-		auto mapping = std::find_if(commandsMapping.begin(), commandsMapping.end(), [button](const auto& mapObject) -> bool { return std::get<1>(mapObject.second) == static_cast<SDL_GameControllerButton>(button.button); });
-		if (mapping != commandsMapping.end())
+		/*auto mapping = commandsMapping.begin();
+		for (;;) {
+			mapping = std::find_if(mapping, commandsMapping.end(), [button](const auto& mapObject) -> bool { return std::get<1>(mapObject.second) == static_cast<SDL_GameControllerButton>(button.button); });
+			if (mapping == commandsMapping.end())
+				break;
 			currentStates[static_cast<int>(mapping->first)] = true;
+			++mapping;
+		}*/
+		for (auto mapping : commandsMapping)
+			if (std::get<1>(mapping.second) == static_cast<SDL_GameControllerButton>(button.button))
+				currentStates[static_cast<int>(mapping.first)] = true;
 	}
 	for (auto button : uppedButtons) {
-		auto mapping = std::find_if(commandsMapping.begin(), commandsMapping.end(), [button](const auto& mapObject) -> bool { return std::get<1>(mapObject.second) == static_cast<SDL_GameControllerButton>(button.button); });
-		if (mapping != commandsMapping.end())
+		/*auto mapping = commandsMapping.begin();
+		for (;;) {
+			mapping = std::find_if(mapping, commandsMapping.end(), [button](const auto& mapObject) -> bool { return std::get<1>(mapObject.second) == static_cast<SDL_GameControllerButton>(button.button); });
+			if (mapping == commandsMapping.end())
+				break;
 			currentStates[static_cast<int>(mapping->first)] = false;
+			++mapping;
+		}*/
+		for (auto mapping : commandsMapping)
+			if (std::get<1>(mapping.second) == static_cast<SDL_GameControllerButton>(button.button))
+				currentStates[static_cast<int>(mapping.first)] = false;
 	}
 
 	return false;
@@ -109,15 +137,33 @@ bool Input::Update()
 /// <summary>現在押されたキーとcommandを対応させる。</summary>
 void Input::TranslateKeyInto(const Commands command)
 {
-	if (!downedKeys.empty())
-		std::get<0>(commandsMapping[command]) = downedKeys.begin()->keysym.sym;
+	const std::set<Commands> menuCommands = { Commands::OK, Commands::Cancel, Commands::Left, Commands::Right, Commands::Up, Commands::Down };
+	if (menuCommands.count(command) == 0 && !downedKeys.empty()) {
+		auto pred = [this](const auto& mapObject) -> bool { return std::get<0>(mapObject.second) == downedKeys.begin()->keysym.sym; };
+		auto mapping = std::find_if(commandsMapping.begin(), commandsMapping.end(), pred);
+		if (mapping != commandsMapping.end() && menuCommands.count(mapping->first) > 0)
+			mapping = std::find_if(++mapping, commandsMapping.end(), pred);
+		if (mapping == commandsMapping.end())
+			std::get<0>(commandsMapping[command]) = downedKeys.begin()->keysym.sym;
+		else
+			std::swap(std::get<0>(commandsMapping[command]), std::get<0>(mapping->second));
+	}
 }
 
 /// <summary>現在押されたボタンとcommandを対応させる。</summary>
 void Input::TranslateButtonInto(const Commands command)
 {
-	if (!downedButtons.empty())
-		std::get<1>(commandsMapping[command]) = static_cast<SDL_GameControllerButton>(downedButtons.begin()->button);
+	const std::set<Commands> menuCommands = { Commands::OK, Commands::Cancel, Commands::Left, Commands::Right, Commands::Up, Commands::Down };
+	if (menuCommands.count(command) == 0 && !downedButtons.empty()) {
+		auto pred = [this](const auto& mapObject) -> bool { return std::get<1>(mapObject.second) == static_cast<SDL_GameControllerButton>(downedButtons.begin()->button); };
+		auto mapping = std::find_if(commandsMapping.begin(), commandsMapping.end(), pred);
+		if (mapping != commandsMapping.end() && menuCommands.count(mapping->first) > 0)
+			mapping = std::find_if(++mapping, commandsMapping.end(), pred);
+		if (mapping == commandsMapping.end())
+			std::get<1>(commandsMapping[command]) = static_cast<SDL_GameControllerButton>(downedButtons.begin()->button);
+		else
+			std::swap(std::get<1>(commandsMapping[command]), std::get<1>(mapping->second));
+	}
 }
 
 /// <summary>commandに対応するキー・ボタンが押されているか否か。</summary>

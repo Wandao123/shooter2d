@@ -1,7 +1,6 @@
 #include "game.h"
 #include <iostream>
 #include <cstdlib>
-#include "input.h"
 
 namespace Shooter {
 	SDL_Window *Window;
@@ -52,7 +51,6 @@ namespace Shooter {
 
 	void Game::Run()
 	{
-		SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
 		Timer::Create().Start();
 		while (!quitFlag) {
 			// 更新
@@ -61,6 +59,7 @@ namespace Shooter {
 			scenes.top()->Update();
 
 			// 実際の描画
+			SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
 			SDL_RenderClear(Renderer);
 			scenes.top()->Draw();
 			SDL_RenderPresent(Renderer);

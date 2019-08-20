@@ -6,7 +6,6 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <sstream>
 
 /*
 SDL.hを読み込む際にSDL_MAIN_HANDLEDを定義して、なおかつ初期化の際にSDL_SetMainReady()を呼ばないと
@@ -78,7 +77,7 @@ namespace Shooter {
 	{
 	public:
 		Label(const std::string filename, const int size);
-		std::stringstream Text;
+		std::string Text;
 		void Write(const Vector2& position) const;
 
 		void SetTextColor(const unsigned char red, const unsigned char green, const unsigned char blue)
