@@ -91,10 +91,18 @@ void TitleScene::Draw() const
 
 void TitleScene::Update()
 {
-	if (Input::Create().GetKeyDown(Input::Commands::Up))
-		currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
-	if (Input::Create().GetKeyDown(Input::Commands::Down))
-		currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
+	// 項目の選択。
+	const unsigned int DelayFrames = 12;
+	static unsigned int previousPressedFrame = Timer::Create().GetCountedFrames();
+	if (Timer::Create().GetCountedFrames() - previousPressedFrame >= DelayFrames) {
+		if (Input::Create().GetKey(Input::Commands::Up))
+			currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
+		if (Input::Create().GetKey(Input::Commands::Down))
+			currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
+		previousPressedFrame = Timer::Create().GetCountedFrames();
+	}
+
+	// 現在の選択肢に対する処理。
 	for (int i = 0; i < MaxItems; i++)
 		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
 	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
@@ -284,6 +292,7 @@ void GameScene::Draw() const
 KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, currentIndex(0)
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 10.0f }).lock()->SetCaption(u8"Key config");
 	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 10.0f + ItemHeight * index }; };
@@ -319,7 +328,7 @@ void KeyConfigScene::Draw() const
 	userInterfaceManager->Draw();
 
 	int posX = static_cast<int>(Game::Width * 0.5f), posY = static_cast<int>(Game::Height * 2.0f / 10.0f + ItemHeight * currentIndex);
-	int width = 14 * 3 * 12, height = ItemHeight;
+	int width = 14 * 3 * 14, height = ItemHeight;
 	SDL_Rect rect = { posX - width / 2, posY - height / 2, width, height };
 	SDL_SetRenderDrawColor(Renderer, 0xFF, 0xFF, 0x00, 63);
 	SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
@@ -328,7 +337,7 @@ void KeyConfigScene::Draw() const
 
 void KeyConfigScene::Update()
 {
-	static bool configMode = false;
+	static bool configMode = false;  // 方向キーを含めた全てのキーに対応するため、「選択モード」と「キー入力モード」とを切り替える。
 	if (configMode) {
 		if (Input::Create().IsAnyKeyPressed() || Input::Create().IsAnyButtonPressed()) {
 			menu[currentIndex].lock()->OnKeyPressed();
@@ -337,11 +346,19 @@ void KeyConfigScene::Update()
 			configMode = false;
 		}
 	} else {
-		if (Input::Create().GetKeyDown(Input::Commands::Up))
-			currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
-		if (Input::Create().GetKeyDown(Input::Commands::Down))
-			currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
-		if (currentIndex < MaxItems && Input::Create().GetKeyDown(Input::Commands::OK)) {
+		// 項目の選択。
+		const unsigned int DelayFrames = 12;
+		static unsigned int previousPressedFrame = Timer::Create().GetCountedFrames();
+		if (Timer::Create().GetCountedFrames() - previousPressedFrame >= DelayFrames) {
+			if (Input::Create().GetKey(Input::Commands::Up))
+				currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
+			if (Input::Create().GetKey(Input::Commands::Down))
+				currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+
+		// 現在の選択肢に対する処理。
+		if (currentIndex < MaxItems - 1 && Input::Create().GetKeyDown(Input::Commands::OK)) {
 			for (int i = 0; i < MaxItems; i++)
 				menu[i].lock()->SetActive(false);
 			menu[currentIndex].lock()->SetActive(true);

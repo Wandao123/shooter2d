@@ -77,27 +77,11 @@ bool Input::Update()
 
 	// キーが押されているか離されているかに応じて、コマンドボタンの状態を更新する。
 	for (auto key : downedKeys) {
-		/*auto mapping = commandsMapping.begin();
-		for (;;) {
-			mapping = std::find_if(mapping, commandsMapping.end(), [key](const auto& mapObject) -> bool { return std::get<0>(mapObject.second) == key.keysym.sym; });
-			if (mapping == commandsMapping.end())
-				break;
-			currentStates[static_cast<int>(mapping->first)] = true;
-			++mapping;
-		}*/
 		for (auto mapping : commandsMapping)
 			if (std::get<0>(mapping.second) == key.keysym.sym)
 				currentStates[static_cast<int>(mapping.first)] = true;
 	}
 	for (auto key : uppedKeys) {
-		/*auto mapping = commandsMapping.begin();
-		for (;;) {
-			mapping = std::find_if(mapping, commandsMapping.end(), [key](const auto& mapObject) -> bool { return std::get<0>(mapObject.second) == key.keysym.sym; });
-			if (mapping == commandsMapping.end())
-				break;
-			currentStates[static_cast<int>(mapping->first)] = false;
-			++mapping;
-		}*/
 		for (auto mapping : commandsMapping)
 			if (std::get<0>(mapping.second) == key.keysym.sym)
 				currentStates[static_cast<int>(mapping.first)] = false;
@@ -105,27 +89,11 @@ bool Input::Update()
 
 	// コントローラボタンが押されているか離されているかに応じて、コマンドボタンの状態を更新する。
 	for (auto button : downedButtons) {
-		/*auto mapping = commandsMapping.begin();
-		for (;;) {
-			mapping = std::find_if(mapping, commandsMapping.end(), [button](const auto& mapObject) -> bool { return std::get<1>(mapObject.second) == static_cast<SDL_GameControllerButton>(button.button); });
-			if (mapping == commandsMapping.end())
-				break;
-			currentStates[static_cast<int>(mapping->first)] = true;
-			++mapping;
-		}*/
 		for (auto mapping : commandsMapping)
 			if (std::get<1>(mapping.second) == static_cast<SDL_GameControllerButton>(button.button))
 				currentStates[static_cast<int>(mapping.first)] = true;
 	}
 	for (auto button : uppedButtons) {
-		/*auto mapping = commandsMapping.begin();
-		for (;;) {
-			mapping = std::find_if(mapping, commandsMapping.end(), [button](const auto& mapObject) -> bool { return std::get<1>(mapObject.second) == static_cast<SDL_GameControllerButton>(button.button); });
-			if (mapping == commandsMapping.end())
-				break;
-			currentStates[static_cast<int>(mapping->first)] = false;
-			++mapping;
-		}*/
 		for (auto mapping : commandsMapping)
 			if (std::get<1>(mapping.second) == static_cast<SDL_GameControllerButton>(button.button))
 				currentStates[static_cast<int>(mapping.first)] = false;
@@ -143,10 +111,12 @@ void Input::TranslateKeyInto(const Commands command)
 		auto mapping = std::find_if(commandsMapping.begin(), commandsMapping.end(), pred);
 		if (mapping != commandsMapping.end() && menuCommands.count(mapping->first) > 0)
 			mapping = std::find_if(++mapping, commandsMapping.end(), pred);
-		if (mapping == commandsMapping.end())
+		if (mapping == commandsMapping.end()) {
 			std::get<0>(commandsMapping[command]) = downedKeys.begin()->keysym.sym;
-		else
+		} else {
 			std::swap(std::get<0>(commandsMapping[command]), std::get<0>(mapping->second));
+			currentStates[static_cast<int>(mapping->first)] = false;  // trueになったままになるのを防ぐ。
+		}
 	}
 }
 
@@ -159,10 +129,12 @@ void Input::TranslateButtonInto(const Commands command)
 		auto mapping = std::find_if(commandsMapping.begin(), commandsMapping.end(), pred);
 		if (mapping != commandsMapping.end() && menuCommands.count(mapping->first) > 0)
 			mapping = std::find_if(++mapping, commandsMapping.end(), pred);
-		if (mapping == commandsMapping.end())
+		if (mapping == commandsMapping.end()) {
 			std::get<1>(commandsMapping[command]) = static_cast<SDL_GameControllerButton>(downedButtons.begin()->button);
-		else
+		} else {
 			std::swap(std::get<1>(commandsMapping[command]), std::get<1>(mapping->second));
+			currentStates[static_cast<int>(mapping->first)] = false;  // trueになったままになるのを防ぐ。
+		}
 	}
 }
 
