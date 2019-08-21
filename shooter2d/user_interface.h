@@ -1,4 +1,4 @@
-﻿#ifndef USER_INTERFACE_H
+#ifndef USER_INTERFACE_H
 #define USER_INTERFACE_H
 
 #include "game_object.h"

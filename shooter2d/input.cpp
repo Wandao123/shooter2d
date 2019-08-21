@@ -1,4 +1,4 @@
-﻿#include "input.h"
+#include "input.h"
 #include <algorithm>
 #include <iostream>
 #include <set>

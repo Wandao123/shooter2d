@@ -1,4 +1,4 @@
-﻿#include "bullet.h"
+#include "bullet.h"
 #include "game.h"
 #include "player.h"
 

@@ -1,4 +1,4 @@
-﻿#include <algorithm>
+#include <algorithm>
 #include "game.h"
 #include "mover.h"
 

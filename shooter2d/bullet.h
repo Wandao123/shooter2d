@@ -1,4 +1,4 @@
-﻿#ifndef BULLET_H
+#ifndef BULLET_H
 #define BULLET_H
 
 #include "mover.h"

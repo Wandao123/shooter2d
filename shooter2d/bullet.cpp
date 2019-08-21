@@ -1,4 +1,4 @@
-﻿#include "bullet.h"
+#include "bullet.h"
 
 using namespace Shooter;
 

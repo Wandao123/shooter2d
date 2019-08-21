@@ -1,4 +1,4 @@
-﻿#include "collider.h"
+#include "collider.h"
 #include <array>
 
 using namespace Shooter;

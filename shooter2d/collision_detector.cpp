@@ -1,4 +1,4 @@
-﻿#include "collision_detector.h"
+#include "collision_detector.h"
 
 using namespace Shooter;
 

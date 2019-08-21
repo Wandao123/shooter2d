@@ -1,4 +1,4 @@
-﻿#ifndef ASSETS_H
+#ifndef ASSETS_H
 #define ASSETS_H
 
 #include "vector2.h"

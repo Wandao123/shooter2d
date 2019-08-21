@@ -1,4 +1,4 @@
-﻿#include "user_interface.h"
+#include "user_interface.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
