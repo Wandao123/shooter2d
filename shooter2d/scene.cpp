@@ -61,11 +61,52 @@ public:
 	void Update() override;
 private:
 	static const int MaxItems = 10;
-	const int ItemHeight = 35;  // フォントサイズを考慮。
+	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	int currentIndex;
 	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
 };
+
+class OptionsScene : public Scene
+{
+public:
+	OptionsScene(IChangingSceneListener& listener);
+	void Draw() const override;
+	void Update() override;
+private:
+	static const int MaxItems = 5;
+	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
+	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+	int currentIndex;
+	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
+};
+
+/******************************** Scene *********************************/
+
+void Scene::adjustWithKeys(Input::Commands decrement, std::function<void(void)> decrease, Input::Commands increment, std::function<void(void)> increase)
+{
+	const unsigned int DelayFrames = 12;
+	if (Timer::Create().GetCountedFrames() - previousPressedFrame >= DelayFrames) {
+		if (Input::Create().GetKey(decrement)) {
+			decrease();
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+		if (Input::Create().GetKey(increment)) {
+			increase();
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+	} else {
+		if (Input::Create().GetKeyDown(decrement)) {
+			decrease();
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+		if (Input::Create().GetKeyDown(increment)) {
+			increase();
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+	}
+}
+
 
 /******************************** TitleScene *********************************/
 
@@ -75,11 +116,12 @@ TitleScene::TitleScene(IChangingSceneListener& listener)
 	, currentIndex(0)
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 5.0f }).lock()->SetCaption(u8"Bullet Hell 2D Shmup");
-	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f });
+	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 5.0f + ItemHeight * index }; };
+	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(0));
 	menu[0].lock()->SetCaption(u8"Start");
-	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f + ItemHeight });
-	menu[1].lock()->SetCaption(u8"Key config");
-	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f + ItemHeight * 2 });
+	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(1));
+	menu[1].lock()->SetCaption(u8"Options");
+	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(2));
 	menu[2].lock()->SetCaption(u8"Quit");
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
 }
@@ -91,30 +133,9 @@ void TitleScene::Draw() const
 
 void TitleScene::Update()
 {
-	// 項目の選択。
-	const unsigned int DelayFrames = 12;
-	static unsigned int previousPressedFrame = Timer::Create().GetCountedFrames();
-	if (Timer::Create().GetCountedFrames() - previousPressedFrame >= DelayFrames) {
-		if (Input::Create().GetKey(Input::Commands::Up)) {
-			currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
-			previousPressedFrame = Timer::Create().GetCountedFrames();
-		}
-		if (Input::Create().GetKey(Input::Commands::Down)) {
-			currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
-			previousPressedFrame = Timer::Create().GetCountedFrames();
-		}
-	} else {
-		if (Input::Create().GetKeyDown(Input::Commands::Up)) {
-			currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
-			previousPressedFrame = Timer::Create().GetCountedFrames();
-		}
-		if (Input::Create().GetKeyDown(Input::Commands::Down)) {
-			currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
-			previousPressedFrame = Timer::Create().GetCountedFrames();
-		}
-	}
-
-	// 現在の選択肢に対する処理。
+	adjustWithKeys(
+		Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
+		Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
 	for (int i = 0; i < MaxItems; i++)
 		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
 	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
@@ -124,7 +145,7 @@ void TitleScene::Update()
 			listener.ClearAndChangeScene(std::make_unique<GameScene>(listener));
 			break;
 		case 1:
-			listener.PushScene(std::make_unique<KeyConfigScene>(listener));
+			listener.PushScene(std::make_unique<OptionsScene>(listener));
 			break;
 		case 2:
 			listener.Quit();
@@ -339,6 +360,7 @@ void KeyConfigScene::Draw() const
 {
 	userInterfaceManager->Draw();
 
+	// TODO: 選択中のUIを実装して、Rendererを隠蔽。
 	int posX = static_cast<int>(Game::Width * 0.5f), posY = static_cast<int>(Game::Height * 2.0f / 10.0f + ItemHeight * currentIndex);
 	int width = 14 * 3 * 14, height = ItemHeight;
 	SDL_Rect rect = { posX - width / 2, posY - height / 2, width, height };
@@ -358,30 +380,9 @@ void KeyConfigScene::Update()
 			configMode = false;
 		}
 	} else {
-		// 項目の選択。
-		const unsigned int DelayFrames = 12;
-		static unsigned int previousPressedFrame = Timer::Create().GetCountedFrames();
-		if (Timer::Create().GetCountedFrames() - previousPressedFrame >= DelayFrames) {
-			if (Input::Create().GetKey(Input::Commands::Up)) {
-				currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
-				previousPressedFrame = Timer::Create().GetCountedFrames();
-			}
-			if (Input::Create().GetKey(Input::Commands::Down)) {
-				currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
-				previousPressedFrame = Timer::Create().GetCountedFrames();
-			}
-		} else {
-			if (Input::Create().GetKeyDown(Input::Commands::Up)) {
-				currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
-				previousPressedFrame = Timer::Create().GetCountedFrames();
-			}
-			if (Input::Create().GetKeyDown(Input::Commands::Down)) {
-				currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
-				previousPressedFrame = Timer::Create().GetCountedFrames();
-			}
-		}
-
-		// 現在の選択肢に対する処理。
+		adjustWithKeys(
+			Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
+			Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
 		if (currentIndex < MaxItems - 1 && Input::Create().GetKeyDown(Input::Commands::OK)) {
 			for (int i = 0; i < MaxItems; i++)
 				menu[i].lock()->SetActive(false);
@@ -392,4 +393,71 @@ void KeyConfigScene::Update()
 	userInterfaceManager->Update();
 	if (currentIndex == MaxItems - 1 && Input::Create().GetKeyDown(Input::Commands::OK))
 		listener.PopScene();
+}
+
+/******************************** OptionsScene *********************************/
+
+OptionsScene::OptionsScene(IChangingSceneListener& listener)
+	: Scene(listener)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, currentIndex(0)
+{
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 4.0f }).lock()->SetCaption(u8"Options");
+	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 4.0f + ItemHeight * index }; };
+	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::MusicVolume, makePos(0));
+	menu[0].lock()->SetCaption(u8"Music Volume");
+	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::SoundVolume, makePos(1));
+	menu[1].lock()->SetCaption(u8"SE Volume");
+	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FullscreenSwitcher, makePos(2));
+	menu[2].lock()->SetCaption(u8"Fullscreen");
+	menu[3] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(3));
+	menu[3].lock()->SetCaption(u8"Key config");
+	menu[4] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(4));
+	menu[4].lock()->SetCaption(u8"Quit");
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+}
+
+void OptionsScene::Draw() const
+{
+	userInterfaceManager->Draw();
+}
+
+void OptionsScene::Update()
+{
+	adjustWithKeys(
+		Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
+		Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
+	for (int i = 0; i < MaxItems; i++)
+		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
+	adjustWithKeys(
+		Input::Commands::Right, [this](void) {
+			menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Right);
+			if (currentIndex == 2) {  // フルスクリーン化に伴う遅延補正。
+				Timer::Create().Start();
+				previousPressedFrame = 0;
+			}
+		},
+		Input::Commands::Left, [this](void) {
+			menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Left);
+			if (currentIndex == 2) {
+				Timer::Create().Start();
+				previousPressedFrame = 0;
+			}
+		});
+	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
+	if (Input::Create().GetKeyDown(Input::Commands::OK)) {
+		switch (currentIndex) {
+		case 0:
+		case 1:
+		case 2:
+			// 何もしない。
+			break;
+		case 3:
+			listener.PushScene(std::make_unique<KeyConfigScene>(listener));
+			break;
+		case 4:
+			listener.PopScene();
+			break;
+		}
+	}
 }

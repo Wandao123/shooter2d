@@ -95,6 +95,12 @@ void Sound::Played() const
 	Mix_PlayChannel(-1, audio.lock().get(), 0);  // エラーコードを受け取った方が良い？
 }
 
+void Sound::SetVolume(const int volume)
+{
+	this->volume = volume;
+	Mix_VolumeChunk(audio.lock().get(), std::round(static_cast<float>(AssetLoader::Create().GetSoundVolume()) / 100 * volume));
+}
+
 /******************************** Music *********************************/
 
 Music::Music(const std::string filename)
@@ -107,9 +113,17 @@ void Music::Played() const
 	Mix_PlayMusic(audio.lock().get(), 0);  // エラーコードを受け取った方が良い？
 }
 
+void Music::SetVolume(const int volume)
+{
+	this->volume = volume;
+	Mix_VolumeMusic(std::round(static_cast<float>(AssetLoader::Create().GetMusicVolume()) / 100 * volume));
+}
+
 /******************************** AssetLoader *********************************/
 
 AssetLoader::AssetLoader()
+	: soundVolume(80)
+	, musicVolume(100)
 {
 	int imgFlags = IMG_INIT_PNG;
 	if (!(IMG_Init(imgFlags) & imgFlags)) {

@@ -38,7 +38,7 @@ public:
 		, sound(std::make_unique<Sound>("se/sha04.wav"))
 	{
 		clip = { 2, 3, 13, 63 };
-		sound->SetVolume(Sound::MaxVolume / 36);
+		sound->SetVolume(Sound::MaxVolume / 32);
 	}
 
 	void Shot(const float speed, const float angle) override

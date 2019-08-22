@@ -103,12 +103,7 @@ namespace Shooter {
 		static const int MaxVolume = MIX_MAX_VOLUME;
 		Sound(const std::string filename);
 		void Played() const;
-		
-		void SetVolume(const int volume)
-		{
-			this->volume = volume;
-			Mix_VolumeChunk(audio.lock().get(), volume);
-		}
+		void SetVolume(const int volume);
 	private:
 		int volume;
 		std::weak_ptr<Mix_Chunk> audio;
@@ -122,12 +117,7 @@ namespace Shooter {
 		static const int MaxVolume = MIX_MAX_VOLUME;
 		Music(const std::string filename);
 		void Played() const;
-
-		void SetVolume(const int volume)
-		{
-			this->volume = volume;
-			Mix_VolumeMusic(volume);
-		}
+		void SetVolume(const int volume);
 	private:
 		int volume;
 		std::weak_ptr<Mix_Music> audio;
@@ -138,7 +128,6 @@ namespace Shooter {
 	// HACK: 外部からファイルを指定するのではなく、必要なファイルをすべてこのクラスのコンストラクタで開くべき？　その方がプレイ中に余計な処理が入らない。
 	class AssetLoader : public Singleton<AssetLoader>
 	{
-	private:
 		AssetLoader();
 		~AssetLoader();
 		friend class Singleton<AssetLoader>;
@@ -147,11 +136,37 @@ namespace Shooter {
 		std::weak_ptr<TTF_Font> GetFont(const std::string filename, const int size);
 		std::weak_ptr<Mix_Chunk> GetChunk(const std::string filename);
 		std::weak_ptr<Mix_Music> GetMusic(const std::string filename);
+
+		unsigned short int GetSoundVolume()
+		{
+			return soundVolume;
+		}
+
+		/// <summary>Soundの音量を調節する。</summary>
+		/// <param name="parcentage">Sound::SetVolumeの音量の割合（百分率）</param>
+		void SetSoundVolume(const unsigned short int percentage)
+		{
+			soundVolume = percentage;
+		}
+		
+		unsigned short int GetMusicVolume()
+		{
+			return musicVolume;
+		}
+
+		/// <summary>Musicの音量を調節する。</summary>
+		/// <param name="parcentage">Music::SetVolumeの音量の割合（百分率）</param>
+		void SetMusicVolume(const unsigned short int percentage)
+		{
+			musicVolume = percentage;
+		}
 	private:
 		std::map<std::string, std::shared_ptr<SDL_Surface>> images;  // Textureを共有すると、透過などの時に他の所有クラスにも影響が出る。
 		std::map<std::tuple<std::string, int>, std::shared_ptr<TTF_Font>> fonts;
 		std::map<std::string, std::shared_ptr<Mix_Chunk>> chunks;
 		std::map<std::string, std::shared_ptr<Mix_Music>> musics;
+		unsigned short int soundVolume;
+		unsigned short int musicVolume;
 	};
 }
 

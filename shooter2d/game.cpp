@@ -65,7 +65,7 @@ namespace Shooter {
 			SDL_RenderPresent(Renderer);
 
 			// FPS制御
-			Timer::Create().Delay();
+			Timer::Create().Delay();  // TODO: 処理落ち対策。現在の状態ではコマが（許容できないほど）大きく飛んだりする。
 		}
 	}
 

@@ -70,10 +70,14 @@ namespace Shooter {
 	class UserInterfaceManager : public ObjectManager
 	{
 	public:
+		static const int FontSize = 28;
 		enum class UserInterfaceID {
 			FrameRate,
 			Title,
 			Button,
+			SoundVolume,
+			MusicVolume,
+			FullscreenSwitcher,
 			ShotKeyConfig,
 			BombKeyConfig,
 			SlowKeyConfig,

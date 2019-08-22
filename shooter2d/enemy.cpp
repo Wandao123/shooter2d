@@ -42,7 +42,7 @@ Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::uni
 	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
 	, sound(std::make_unique<Sound>("se/enemy_damage.wav"))
 {
-	this->sound->SetVolume(Sound::MaxVolume / 8);
+	this->sound->SetVolume(Sound::MaxVolume / 4);
 }
 
 void Enemy::Update()
