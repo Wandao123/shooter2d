@@ -95,11 +95,23 @@ void TitleScene::Update()
 	const unsigned int DelayFrames = 12;
 	static unsigned int previousPressedFrame = Timer::Create().GetCountedFrames();
 	if (Timer::Create().GetCountedFrames() - previousPressedFrame >= DelayFrames) {
-		if (Input::Create().GetKey(Input::Commands::Up))
+		if (Input::Create().GetKey(Input::Commands::Up)) {
 			currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
-		if (Input::Create().GetKey(Input::Commands::Down))
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+		if (Input::Create().GetKey(Input::Commands::Down)) {
 			currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
-		previousPressedFrame = Timer::Create().GetCountedFrames();
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+	} else {
+		if (Input::Create().GetKeyDown(Input::Commands::Up)) {
+			currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+		if (Input::Create().GetKeyDown(Input::Commands::Down)) {
+			currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
 	}
 
 	// 現在の選択肢に対する処理。
@@ -350,11 +362,23 @@ void KeyConfigScene::Update()
 		const unsigned int DelayFrames = 12;
 		static unsigned int previousPressedFrame = Timer::Create().GetCountedFrames();
 		if (Timer::Create().GetCountedFrames() - previousPressedFrame >= DelayFrames) {
-			if (Input::Create().GetKey(Input::Commands::Up))
+			if (Input::Create().GetKey(Input::Commands::Up)) {
 				currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
-			if (Input::Create().GetKey(Input::Commands::Down))
+				previousPressedFrame = Timer::Create().GetCountedFrames();
+			}
+			if (Input::Create().GetKey(Input::Commands::Down)) {
 				currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
-			previousPressedFrame = Timer::Create().GetCountedFrames();
+				previousPressedFrame = Timer::Create().GetCountedFrames();
+			}
+		} else {
+			if (Input::Create().GetKeyDown(Input::Commands::Up)) {
+				currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems);
+				previousPressedFrame = Timer::Create().GetCountedFrames();
+			}
+			if (Input::Create().GetKeyDown(Input::Commands::Down)) {
+				currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems);
+				previousPressedFrame = Timer::Create().GetCountedFrames();
+			}
 		}
 
 		// 現在の選択肢に対する処理。
