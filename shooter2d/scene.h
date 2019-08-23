@@ -1,4 +1,4 @@
-﻿#ifndef SCENE_H
+#ifndef SCENE_H
 #define SCENE_H
 
 #include <utility>
@@ -12,23 +12,31 @@ namespace Shooter {
 	class Scene
 	{
 	public:
-		Scene(IChangingSceneListener& listener) : listener(listener) {}
+		Scene(IChangingSceneListener& listener)
+			: listener(listener)
+			, previousPressedFrame(Timer::Create().GetCountedFrames())
+		{}
 		virtual ~Scene() = default;
-		virtual void Draw() = 0;
+		virtual void Draw() const = 0;
 		virtual void Update() = 0;
 	protected:
 		IChangingSceneListener& listener;
+		unsigned int previousPressedFrame;
+		void adjustWithKeys(Input::Commands decrement, std::function<void(void)> decrease, Input::Commands increment, std::function<void(void)> increase);
 	};
 
 	class TitleScene : public Scene
 	{
 	public:
 		TitleScene(IChangingSceneListener& listener);
-		void Draw() override;
+		void Draw() const override;
 		void Update() override;
 	private:
+		static const int MaxItems = 3;
+		const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
 		std::unique_ptr<UserInterfaceManager> userInterfaceManager;
-		std::weak_ptr<IMenu> menu;
+		int currentIndex;
+		std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
 	};
 }
 

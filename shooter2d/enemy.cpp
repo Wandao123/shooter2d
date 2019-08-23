@@ -1,4 +1,4 @@
-﻿#include "enemy.h"
+#include "enemy.h"
 
 using namespace Shooter;
 
@@ -8,7 +8,7 @@ class SmallRedEnemy : public Enemy
 {
 public:
 	SmallRedEnemy(const Vector2& position)
-		: Enemy(position, std::make_unique<Sprite>("images/Enemy.png"), std::make_unique<CircleCollider>(Enemy::Width * 0.5f), EffectManager::EffectID::RedCircle)
+		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Enemy::Width * 0.5f), EffectManager::EffectID::RedCircle)
 	{
 		for (int j = 0; j < static_cast<int>(clips[0].size()); j++) {
 			clips[0][j] = { j * Width, Height, Width, Height };            // 停止時
@@ -22,7 +22,7 @@ class SmallBlueEnemy : public Enemy
 {
 public:
 	SmallBlueEnemy(const Vector2& position)
-		: Enemy(position, std::make_unique<Sprite>("images/Enemy.png"), std::make_unique<CircleCollider>(Enemy::Width * 0.5f), EffectManager::EffectID::BlueCircle)
+		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Enemy::Width * 0.5f), EffectManager::EffectID::BlueCircle)
 	{
 		for (int j = 0; j < static_cast<int>(clips[0].size()); j++) {
 			clips[0][j] = { j * Width, 0, Width, Height };                 // 停止時
@@ -40,9 +40,9 @@ public:
 /// <param name="effectID">消滅エフェクトのID</param>
 Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
 	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
-	, sound(std::make_unique<Sound>("se/enemy_damage.wav"))
+	, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/enemy_damage.wav")))
 {
-	this->sound->SetVolume(Sound::MaxVolume / 8);
+	this->sound->SetVolume(Sound::MaxVolume / 4);
 }
 
 void Enemy::Update()

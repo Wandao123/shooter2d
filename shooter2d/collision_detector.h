@@ -1,4 +1,4 @@
-﻿#ifndef COLLISION_DETECTOR_H
+#ifndef COLLISION_DETECTOR_H
 #define COLLISION_DETECTOR_H
 
 #include "bullet.h"

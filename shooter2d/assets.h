@@ -1,11 +1,11 @@
-﻿#ifndef ASSETS_H
+#ifndef ASSETS_H
 #define ASSETS_H
 
 #include "vector2.h"
+#include "singleton.h"
 #include <map>
 #include <memory>
 #include <string>
-#include <sstream>
 
 /*
 SDL.hを読み込む際にSDL_MAIN_HANDLEDを定義して、なおかつ初期化の際にSDL_SetMainReady()を呼ばないと
@@ -25,7 +25,7 @@ namespace Shooter {
 	class Sprite
 	{
 	public:
-		Sprite(const std::string filename);
+		Sprite(const std::weak_ptr<SDL_Texture> texture);
 		void Draw(const Vector2& position) const;
 		void Draw(const Vector2& position, const float angle, const float scale) const;
 
@@ -41,7 +41,7 @@ namespace Shooter {
 
 		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue)
 		{
-			SDL_SetTextureColorMod(texture.get(), red, green, blue);
+			SDL_SetTextureColorMod(texture.lock().get(), red, green, blue);
 		}
 
 		Uint8 GetAlpha() const
@@ -51,22 +51,22 @@ namespace Shooter {
 
 		void SetAlpha(const unsigned char alpha)
 		{
-			SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
-			SDL_SetTextureAlphaMod(texture.get(), alpha);
+			SDL_SetTextureBlendMode(texture.lock().get(), SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture.lock().get(), alpha);
 			this->alpha = alpha;
 		}
 
 		void SetBlendModeAdd()
 		{
-			SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_ADD);
+			SDL_SetTextureBlendMode(texture.lock().get(), SDL_BLENDMODE_ADD);
 		}
 
 		void SetBlendModeMod()
 		{
-			SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_MOD);
+			SDL_SetTextureBlendMode(texture.lock().get(), SDL_BLENDMODE_MOD);
 		}
 	private:
-		std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture;
+		std::weak_ptr<SDL_Texture> texture;
 		std::unique_ptr<SDL_Rect> clip;
 		Uint8 alpha = 0xFF;
 	};
@@ -76,9 +76,10 @@ namespace Shooter {
 	class Label
 	{
 	public:
-		Label(const std::string filename, const int size);
-		std::stringstream Text;
+		std::string Text;
+		Label(const std::weak_ptr<TTF_Font> font);
 		void Write(const Vector2& position) const;
+		//void SetText(const std::string text);
 
 		void SetTextColor(const unsigned char red, const unsigned char green, const unsigned char blue)
 		{
@@ -91,6 +92,8 @@ namespace Shooter {
 		}
 	private:
 		std::weak_ptr<TTF_Font> font;
+		//std::string text;
+		//std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture;
 		Uint8 alpha = 0xFF;
 		SDL_Color textColor = { 0xFF, 0xFF, 0xFF, 0xFF };
 	};
@@ -101,14 +104,9 @@ namespace Shooter {
 	{
 	public:
 		static const int MaxVolume = MIX_MAX_VOLUME;
-		Sound(const std::string filename);
+		Sound(const std::weak_ptr<Mix_Chunk> audio);
 		void Played() const;
-		
-		void SetVolume(const int volume)
-		{
-			this->volume = volume;
-			Mix_VolumeChunk(audio.lock().get(), volume);
-		}
+		void SetVolume(const int volume);
 	private:
 		int volume;
 		std::weak_ptr<Mix_Chunk> audio;
@@ -120,14 +118,9 @@ namespace Shooter {
 	{
 	public:
 		static const int MaxVolume = MIX_MAX_VOLUME;
-		Music(const std::string filename);
+		Music(const std::weak_ptr<Mix_Music> audio);
 		void Played() const;
-
-		void SetVolume(const int volume)
-		{
-			this->volume = volume;
-			Mix_VolumeMusic(volume);
-		}
+		void SetVolume(const int volume);
 	private:
 		int volume;
 		std::weak_ptr<Mix_Music> audio;
@@ -136,29 +129,49 @@ namespace Shooter {
 	/// <summary>画像・フォント・音楽の資源 (asset) を管理する。</summary>
 	/// <remarks>ファイルを開いたり、そのポインタの管理はこのクラスに一任する。外から資源を使う際にはSpriteクラスなどを用いる。</remarks>
 	// HACK: 外部からファイルを指定するのではなく、必要なファイルをすべてこのクラスのコンストラクタで開くべき？　その方がプレイ中に余計な処理が入らない。
-	class AssetLoader
+	class AssetLoader : public Singleton<AssetLoader>
 	{
-	private:
 		AssetLoader();
 		~AssetLoader();
-		static AssetLoader* instance;  // unique_ptr側からコンストラクタ・デストラクタにアクセスできないので、生ポインタを使う。
+		friend class Singleton<AssetLoader>;
 	public:
-		AssetLoader(const AssetLoader&) = delete;
-		AssetLoader& operator=(const AssetLoader&) = delete;
-		AssetLoader(AssetLoader&&) = delete;
-		AssetLoader& operator=(const AssetLoader&&) = delete;
-		static AssetLoader& Create();
-		static void Destroy();
-
-		std::weak_ptr<SDL_Surface> GetImage(const std::string filename);
+		std::weak_ptr<SDL_Surface> GetSurface(const std::string filename);
+		std::weak_ptr<SDL_Texture> GetTexture(const std::string filename);
 		std::weak_ptr<TTF_Font> GetFont(const std::string filename, const int size);
 		std::weak_ptr<Mix_Chunk> GetChunk(const std::string filename);
 		std::weak_ptr<Mix_Music> GetMusic(const std::string filename);
+
+		unsigned short int GetSoundVolume()
+		{
+			return soundVolume;
+		}
+
+		/// <summary>Soundの音量を調節する。</summary>
+		/// <param name="parcentage">Sound::SetVolumeの音量の割合（百分率）</param>
+		void SetSoundVolume(const unsigned short int percentage)
+		{
+			soundVolume = percentage;
+		}
+		
+		unsigned short int GetMusicVolume()
+		{
+			return musicVolume;
+		}
+
+		/// <summary>Musicの音量を調節する。</summary>
+		/// <param name="parcentage">Music::SetVolumeの音量の割合（百分率）</param>
+		void SetMusicVolume(const unsigned short int percentage)
+		{
+			musicVolume = percentage;
+		}
 	private:
-		std::map<std::string, std::shared_ptr<SDL_Surface>> images;  // Textureを共有すると、透過などの時に他の所有クラスにも影響が出る。
+		std::map<std::string, std::shared_ptr<SDL_Surface>> surfaces;
+		std::multimap<std::string, std::shared_ptr<SDL_Texture>> textures;  // Textureを共有すると、透過などの際に他のクラスにも影響が出ることに注意。
 		std::map<std::tuple<std::string, int>, std::shared_ptr<TTF_Font>> fonts;
 		std::map<std::string, std::shared_ptr<Mix_Chunk>> chunks;
 		std::map<std::string, std::shared_ptr<Mix_Music>> musics;
+		unsigned short int soundVolume;
+		unsigned short int musicVolume;
 	};
 }
 

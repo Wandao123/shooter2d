@@ -1,4 +1,4 @@
-﻿#ifndef MOVER_H
+#ifndef MOVER_H
 #define MOVER_H
 
 #include "collider.h"

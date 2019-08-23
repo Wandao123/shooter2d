@@ -1,26 +1,28 @@
-﻿#include <iostream>
-#include <iomanip>
-#include <array>
 #include "user_interface.h"
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 
 using namespace Shooter;
 
 #ifdef _WIN64
-const std::string Filename = "C:/Windows/Fonts/arial.ttf";
+const std::string Filename = "C:/Windows/Fonts/consola.ttf";
 #elif __linux__
-const std::string Filename = "/usr/share/fonts/TTF/LiberationSans-Regular.ttf";
+const std::string Filename = "/usr/share/fonts/TTF/LiberationMono-Regular.ttf";
 #elif __unix__
 #else
 // TODO: 確実に存在するパス？
 #endif
-const int FontSize = 28;
 
 /******************************** 個別設定用クラス *********************************/
 
 class FrameRate : public UserInterface
 {
 public:
-	FrameRate(const Vector2& position) : UserInterface(position), label(std::make_unique<Label>(Filename, FontSize / 2)) {}
+	FrameRate(const Vector2& position)
+		: UserInterface(position)
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize / 2)))
+	{}
 
 	void Draw() const override
 	{
@@ -30,12 +32,14 @@ public:
 	void Update() override
 	{
 		if (Timer::Create().GetCountedFrames() % (Timer::FPS / 2) == 0) {
-			label->Text.str("");
-			label->Text << "FPS " << std::fixed << std::setprecision(3) << Timer::Create().GetAverageOfFPS();
+			text.str("");
+			text << "FPS " << std::fixed << std::setprecision(3) << Timer::Create().GetAverageOfFPS();
+			label->Text = text.str();
 		}
 	}
 private:
 	std::unique_ptr<Label> label;
+	std::stringstream text;
 };
 
 class Title : public UserInterface
@@ -43,10 +47,9 @@ class Title : public UserInterface
 public:
 	Title(const Vector2& position)
 		: UserInterface(position)
-		, label(std::make_unique<Label>(Filename, FontSize + FontSize / 2))
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 2)))
 	{
-		label->Text.str(u8"Bullet Hell 2D Shmup");
-		label->SetTextColor(0, 0xFF, 0);
+		label->SetTextColor(0xFF, 0xFF, 0xFF);
 	}
 
 	void Draw() const override
@@ -56,98 +59,195 @@ public:
 
 	void Update() override
 	{
-
+		UserInterface::Update();
+		label->Text = caption;
 	}
-
 private:
 	std::unique_ptr<Label> label;
 };
 
-class TitleMenu : public UserInterface, public IMenu
+class Button : public UserInterface
 {
 public:
-	TitleMenu(const Vector2& position)
+	Button(const Vector2& position)
 		: UserInterface(position)
-		, currentItemIndex(0)
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
 	{
-		for (int i = 0; i < MaxItems; i++)
-			items[i] = std::make_unique<Label>(Filename, FontSize);
-		items[0]->Text.str("Start");
-		items[1]->Text.str("Quit");
+		label->SetTextColor(0xFF, 0xFF, 0xFF);
 	}
 
 	void Draw() const override
 	{
-		constexpr float startingPointY = (MaxItems % 2 == 0) ? (MaxItems / 2 - 0.5f) * LineHeight : MaxItems / 2 * LineHeight;
-		for (int i = 0; i < MaxItems; i++)
-			items[i]->Write(position + Vector2{ 0.0f, startingPointY + i * LineHeight });
+		label->Write(position);
 	}
 
 	void Update() override
 	{
-		for (int i = 0; i < MaxItems; i++) {
-			if (i != currentItemIndex) {
-				//items[i]->SetTextColor(127, 127, 127);
-				items[i]->SetAlpha(127);
-			} else {
-				items[i]->SetTextColor(255, 255, 255);
-				items[i]->SetAlpha(255);
-			}
+		if (activated) {
+			label->SetTextColor(255, 255, 255);
+			label->SetAlpha(255);
+		} else {
+			//label->SetTextColor(127, 127, 127);
+			label->SetAlpha(127);
+		}
+		label->Text = caption;
+	}
+private:
+	std::unique_ptr<Label> label;
+};
+
+class Potentiometer : public UserInterface
+{
+public:
+	Potentiometer(const Vector2& position)
+		: UserInterface(position)
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
+	{
+		label->SetTextColor(0xFF, 0xFF, 0xFF);
+	}
+
+	void Draw() const override
+	{
+		label->Write(position);
+	}
+
+	void Update() override
+	{
+		if (activated) {
+			label->SetTextColor(255, 255, 255);
+			label->SetAlpha(255);
+		} else {
+			//label->SetTextColor(127, 127, 127);
+			label->SetAlpha(127);
+		}
+		text.str("");
+		text << std::setw(ItemWidth) << std::left << caption;
+		printValue();
+		label->Text = text.str();
+	}
+
+	void OnKeyPressed(Input::Commands command) override
+	{
+		switch (command) {
+		case Input::Commands::Left:
+			decrease();
+			break;
+		case Input::Commands::Right:
+			increase();
+			break;
+		}
+	}
+protected:
+	const unsigned int ItemWidth = 14;
+	std::unique_ptr<Label> label;
+	std::stringstream text;
+	virtual void printValue() = 0;
+	virtual void decrease() = 0;
+	virtual void increase() = 0;
+};
+
+class SoundVolume : public Potentiometer
+{
+public:
+	SoundVolume(const Vector2& position)
+		: Potentiometer(position)
+		, value(AssetLoader::Create().GetSoundVolume())
+	{}
+protected:
+	void printValue() override
+	{
+		text << std::setw(ItemWidth) << std::left << "<= " + std::to_string(value) + " =>";
+	}
+
+	void decrease() override
+	{
+		value = std::max(AssetLoader::Create().GetSoundVolume() - 5, 0);
+		AssetLoader::Create().SetSoundVolume(value);
+	}
+
+	void increase() override
+	{
+		value = std::min(AssetLoader::Create().GetSoundVolume() + 5, 100);
+		AssetLoader::Create().SetSoundVolume(value);
+	}
+private:
+	int value;
+};
+
+class MusicVolume : public Potentiometer
+{
+public:
+	MusicVolume(const Vector2& position)
+		: Potentiometer(position)
+		, value(AssetLoader::Create().GetMusicVolume())
+	{}
+protected:
+	void printValue() override
+	{
+		text << std::setw(ItemWidth) << std::left << "<= " + std::to_string(value) + " =>";
+	}
+
+	void decrease() override
+	{
+		value = std::max(AssetLoader::Create().GetMusicVolume() - 5, 0);
+		AssetLoader::Create().SetMusicVolume(value);
+	}
+
+	void increase() override
+	{
+		value = std::min(AssetLoader::Create().GetMusicVolume() + 5, 100);
+		AssetLoader::Create().SetMusicVolume(value);
+	}
+private:
+	int value;
+};
+
+namespace Shooter {
+	extern SDL_Window* Window;
+}
+
+class FullscreenSwitcher : public Potentiometer
+{
+public:
+	FullscreenSwitcher(const Vector2& position)
+		: Potentiometer(position)
+		, isFullscreen((SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN) != 0)
+	{}
+protected:
+	void printValue() override
+	{
+		text << std::setw(ItemWidth) << std::left << (isFullscreen ? "ON" : "OFF");
+	}
+
+	void decrease() override
+	{
+		// HACK: Window変数の依存性をGameクラスに押しつけられないか？
+		if (isFullscreen) {
+			isFullscreen = false;
+			SDL_SetWindowFullscreen(Window, 0);
+		} else {
+			isFullscreen = true;
+			SDL_SetWindowFullscreen(Window, SDL_WINDOW_FULLSCREEN);
 		}
 	}
 
-	int GetCurrentItemIndex() override
+	void increase() override
 	{
-		return currentItemIndex;
-	}
-
-	void Up() override
-	{
-		currentItemIndex = MathUtils::Modulo(currentItemIndex + 1, MaxItems);
-	}
-
-	void Down() override
-	{
-		currentItemIndex = MathUtils::Modulo(currentItemIndex - 1, MaxItems);
+		decrease();
 	}
 private:
-	static constexpr int LineHeight = FontSize + FontSize / 4;
-	static constexpr int MaxItems = 2;
-	int currentItemIndex;
-	std::array<std::unique_ptr<Label>, MaxItems> items;
+	bool isFullscreen;
 };
 
-class GameOver : public UserInterface
+template<Input::Commands Command>
+class KeyConfig : public UserInterface
 {
 public:
-	GameOver(const Vector2& position)
+	KeyConfig(const Vector2& position)
 		: UserInterface(position)
-		, label(std::make_unique<Label>(Filename, FontSize))
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 4)))
 	{
-		label->Text.str("GAME OVER");
-	}
-	
-	void Draw() const override
-	{
-		label->Write(position);
-	}
-	
-	void Update() override
-	{
-
-	}
-private:
-	std::unique_ptr<Label> label;
-};
-
-class GameClear : public UserInterface
-{
-public:
-	GameClear(const Vector2& position)
-		: UserInterface(position)
-		, label(std::make_unique<Label>(Filename, FontSize))
-	{
-		label->Text.str("Stage Clear");
+		label->SetTextColor(0xFF, 0xFF, 0xFF);
 	}
 
 	void Draw() const override
@@ -157,40 +257,44 @@ public:
 
 	void Update() override
 	{
-		
+		if (activated) {
+			label->SetTextColor(255, 255, 255);
+			label->SetAlpha(255);
+		} else {
+			//label->SetTextColor(127, 127, 127);
+			label->SetAlpha(127);
+		}
+		text.str("");
+		text << std::setw(ItemWidth) << std::left << caption;
+		text << std::setw(ItemWidth) << std::left << Input::Create().GetCurrentKeyNameFor(Command);
+		text << std::setw(ItemWidth) << std::left << Input::Create().GetCurrentButtonNameFor(Command);
+		label->Text = text.str();
+	}
+
+	void OnKeyPressed() override
+	{
+		Input::Create().TranslateKeyInto(Command);
+		Input::Create().TranslateButtonInto(Command);
 	}
 private:
+	const unsigned int ItemWidth = 14;
 	std::unique_ptr<Label> label;
-};
-
-class GameAllClear : public UserInterface
-{
-public:
-	GameAllClear(const Vector2& position)
-		: UserInterface(position)
-		, label(std::make_unique<Label>(Filename, FontSize))
-	{
-		label->Text.str("All Clear");
-	}
-
-	void Draw() const override
-	{
-		label->Write(position);
-	}
-
-	void Update() override
-	{
-
-	}
-private:
-	std::unique_ptr<Label> label;
+	std::stringstream text;
 };
 
 /******************************** UserInterface *********************************/
 
 UserInterface::UserInterface(const Vector2& position)
 	: GameObject(true, position)
+	, caption(" ")
+	, activated(true)
 {}
+
+void UserInterface::Update()
+{
+	if (!activated)
+		return;
+}
 
 /******************************** UserInterfaceManager *********************************/
 
@@ -204,26 +308,44 @@ std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInte
 	case UserInterfaceID::Title:
 		newObject = assignObject<Title>(position);
 		break;
-	case UserInterfaceID::GameOver:
-		newObject = assignObject<GameOver>(position);
+	case UserInterfaceID::Button:
+		newObject = assignObject<Button>(position);
 		break;
-	case UserInterfaceID::GameClear:
-		newObject = assignObject<GameClear>(position);
+	case UserInterfaceID::SoundVolume:
+		newObject = assignObject<SoundVolume>(position);
 		break;
-	case UserInterfaceID::GameAllClear:
-		newObject = assignObject<GameAllClear>(position);
+	case UserInterfaceID::MusicVolume:
+		newObject = assignObject<MusicVolume>(position);
 		break;
-	}
-	return newObject;
-}
-
-
-std::weak_ptr<IMenu> UserInterfaceManager::GenerateObject(const MenuID id, const Vector2& position)
-{
-	std::weak_ptr<IMenu> newObject;
-	switch (id) {
-	case MenuID::Title:
-		newObject = assignObject<TitleMenu>(position);
+	case UserInterfaceID::FullscreenSwitcher:
+		newObject = assignObject<FullscreenSwitcher>(position);
+		break;
+	case UserInterfaceID::ShotKeyConfig:
+		newObject = assignObject<KeyConfig<Input::Commands::Shot>>(position);
+		break;
+	case UserInterfaceID::BombKeyConfig:
+		newObject = assignObject<KeyConfig<Input::Commands::Bomb>>(position);
+		break;
+	case UserInterfaceID::SlowKeyConfig:
+		newObject = assignObject<KeyConfig<Input::Commands::Slow>>(position);
+		break;
+	case UserInterfaceID::SkipKeyConfig:
+		newObject = assignObject<KeyConfig<Input::Commands::Skip>>(position);
+		break;
+	case UserInterfaceID::LeftwardKeyConfig:
+		newObject = assignObject<KeyConfig<Input::Commands::Leftward>>(position);
+		break;
+	case UserInterfaceID::RightwardKeyConfig:
+		newObject = assignObject<KeyConfig<Input::Commands::Rightward>>(position);
+		break;
+	case UserInterfaceID::ForwardKeyConfig:
+		newObject = assignObject<KeyConfig<Input::Commands::Forward>>(position);
+		break;
+	case UserInterfaceID::BackwardKeyConfig:
+		newObject = assignObject<KeyConfig<Input::Commands::Backward>>(position);
+		break;
+	case UserInterfaceID::PauseKeyConfig:
+		newObject = assignObject<KeyConfig<Input::Commands::Pause>>(position);
 		break;
 	}
 	return newObject;

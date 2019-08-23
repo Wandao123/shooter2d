@@ -1,4 +1,4 @@
-﻿#include "bullet.h"
+#include "bullet.h"
 #include "game.h"
 #include "player.h"
 
@@ -10,7 +10,7 @@ class Reimu : public Player
 {
 public:
 	Reimu(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Reimudot.png"), std::make_unique<CircleCollider>(1.0f), EffectManager::EffectID::DefetedPlayer)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(1.0f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
@@ -18,7 +18,7 @@ class Marisa : public Player
 {
 public:
 	Marisa(const Vector2& position)
-		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>("images/Marisadot.png"), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
+		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
@@ -26,7 +26,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Sanaedot.png"), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
@@ -34,11 +34,11 @@ class ReimuNormalShot : public Bullet
 {
 public:
 	ReimuNormalShot(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/Shot1.png"), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
-		, sound(std::make_unique<Sound>("se/sha04.wav"))
+		: Bullet(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot1.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
+		, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/sha04.wav")))
 	{
 		clip = { 2, 3, 13, 63 };
-		sound->SetVolume(Sound::MaxVolume / 36);
+		sound->SetVolume(Sound::MaxVolume / 32);
 	}
 
 	void Shot(const float speed, const float angle) override
@@ -110,18 +110,11 @@ void Player::Spawned()
 
 void Player::Shoot()
 {
-	const int shotDelayFrames = 6;
 	const float bulletSpeed = 30.0f;
-
-	static int previousShootingFrame = 0;
-	int currentFrame = Timer::Create().GetCountedFrames();
-	if (currentFrame - previousShootingFrame > shotDelayFrames) {
-		auto newLeftBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position - Vector2{ 12.0f, 0.0f });
-		newLeftBullet.lock()->Shot(bulletSpeed, -M_PI_2);
-		auto newRightBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position + Vector2{ 12.0f, 0.0f });
-		newRightBullet.lock()->Shot(bulletSpeed, -M_PI_2);
-		previousShootingFrame = currentFrame;
-	}
+	auto newLeftBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position - Vector2{ 12.0f, 0.0f });
+	newLeftBullet.lock()->Shot(bulletSpeed, -M_PI_2);
+	auto newRightBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position + Vector2{ 12.0f, 0.0f });
+	newRightBullet.lock()->Shot(bulletSpeed, -M_PI_2);
 }
 
 SDL_Rect& Player::clipFromImage(unsigned int countedFrames)

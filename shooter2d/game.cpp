@@ -1,6 +1,6 @@
+#include "game.h"
 #include <iostream>
 #include <cstdlib>
-#include "game.h"
 
 namespace Shooter {
 	SDL_Window *Window;
@@ -9,7 +9,7 @@ namespace Shooter {
 	Game::Game()
 	{
 		//SDL_SetMainReady();
-		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0) {
 			std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
 		}
@@ -28,6 +28,7 @@ namespace Shooter {
 		}
 
 		// グローバル変数（シングルトン）の初期化
+		Input::Create();
 		Timer::Create();
 		AssetLoader::Create();
 
@@ -42,6 +43,7 @@ namespace Shooter {
 			scenes.pop();
 		AssetLoader::Destroy();
 		Timer::Destroy();
+		Input::Destroy();
 		SDL_DestroyRenderer(Shooter::Renderer);
 		SDL_DestroyWindow(Shooter::Window);
 		SDL_Quit();
@@ -49,34 +51,19 @@ namespace Shooter {
 
 	void Game::Run()
 	{
-		SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
-
-		SDL_Event e;
 		Timer::Create().Start();
 		while (!quitFlag) {
-			while (SDL_PollEvent(&e) != 0) {
-				switch (e.type) {
-				case SDL_QUIT:
-					quitFlag = true;
-					break;
-				case SDL_KEYDOWN:
-					if (e.key.keysym.sym == SDLK_ESCAPE)
-						quitFlag = true;
-					break;
-				}
-			}
-
 			// 更新
+			quitFlag = Input::Create().Update();
 			Timer::Create().Update();
 			scenes.top()->Update();
-
-			// 実際の描画
-			SDL_RenderClear(Renderer);
-			scenes.top()->Draw();
-			SDL_RenderPresent(Renderer);
-
-			// FPS制御
-			Timer::Create().Delay();
+			Timer::Create().AdjustFPS([this]() {
+				// 実際の描画
+				SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
+				SDL_RenderClear(Renderer);
+				scenes.top()->Draw();
+				SDL_RenderPresent(Renderer);
+			});
 		}
 	}
 

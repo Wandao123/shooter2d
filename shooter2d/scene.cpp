@@ -1,4 +1,3 @@
-﻿#include <iostream>
 #include "game.h"
 
 using namespace Shooter;
@@ -9,7 +8,7 @@ class GameOverScene : public Scene
 {
 public:
 	GameOverScene(IChangingSceneListener& listener);
-	void Draw() override;
+	void Draw() const override;
 	void Update() override;
 private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
@@ -20,7 +19,7 @@ class GameClearScene : public Scene
 {
 public:
 	GameClearScene(IChangingSceneListener& listener);
-	void Draw() override;
+	void Draw() const override;
 	void Update() override;
 private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
@@ -31,7 +30,7 @@ class GameAllClearScene : public Scene
 {
 public:
 	GameAllClearScene(IChangingSceneListener& listener);
-	void Draw() override;
+	void Draw() const override;
 	void Update() override;
 private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
@@ -42,7 +41,7 @@ class GameScene : public Scene
 {
 public:
 	GameScene(IChangingSceneListener& listener);
-	void Draw() override;
+	void Draw() const override;
 	void Update() override;
 private:
 	std::shared_ptr<BulletManager> bulletManager;
@@ -54,45 +53,101 @@ private:
 	std::unique_ptr<Script> script;
 };
 
+class KeyConfigScene : public Scene
+{
+public:
+	KeyConfigScene(IChangingSceneListener& listener);
+	void Draw() const override;
+	void Update() override;
+private:
+	static const int MaxItems = 10;
+	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
+	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+	int currentIndex;
+	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
+};
+
+class OptionsScene : public Scene
+{
+public:
+	OptionsScene(IChangingSceneListener& listener);
+	void Draw() const override;
+	void Update() override;
+private:
+	static const int MaxItems = 5;
+	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
+	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+	int currentIndex;
+	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
+};
+
+/******************************** Scene *********************************/
+
+void Scene::adjustWithKeys(Input::Commands decrement, std::function<void(void)> decrease, Input::Commands increment, std::function<void(void)> increase)
+{
+	const unsigned int DelayFrames = 12;
+	if (Timer::Create().GetCountedFrames() - previousPressedFrame >= DelayFrames) {
+		if (Input::Create().GetKey(decrement)) {
+			decrease();
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+		if (Input::Create().GetKey(increment)) {
+			increase();
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+	} else {
+		if (Input::Create().GetKeyDown(decrement)) {
+			decrease();
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+		if (Input::Create().GetKeyDown(increment)) {
+			increase();
+			previousPressedFrame = Timer::Create().GetCountedFrames();
+		}
+	}
+}
+
+
 /******************************** TitleScene *********************************/
 
 TitleScene::TitleScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, currentIndex(0)
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 5.0f });
-	menu = userInterfaceManager->GenerateObject(UserInterfaceManager::MenuID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 2.0f / 5.0f });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 5.0f }).lock()->SetCaption(u8"Bullet Hell 2D Shmup");
+	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 5.0f + ItemHeight * index }; };
+	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(0));
+	menu[0].lock()->SetCaption(u8"Start");
+	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(1));
+	menu[1].lock()->SetCaption(u8"Options");
+	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(2));
+	menu[2].lock()->SetCaption(u8"Quit");
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
 }
 
-void TitleScene::Draw()
+void TitleScene::Draw() const
 {
 	userInterfaceManager->Draw();
 }
 
 void TitleScene::Update()
 {
-	// TODO: 入力処理を別クラスへ分離。
-	static const int DelayFrames = 10;
-	static Uint32 keyDownFrame = 0;  // 多重入力禁止用のフラグ
-	const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
-	if (Timer::Create().GetCountedFrames() - keyDownFrame > DelayFrames) {
-		if (currentKeyStates[SDL_SCANCODE_UP]) {
-			menu.lock()->Up();
-			keyDownFrame = Timer::Create().GetCountedFrames();
-		}
-		else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
-			menu.lock()->Down();
-			keyDownFrame = Timer::Create().GetCountedFrames();
-		}
-	}
+	adjustWithKeys(
+		Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
+		Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
+	for (int i = 0; i < MaxItems; i++)
+		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
 	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
-	if (currentKeyStates[SDL_SCANCODE_Z]) {
-		switch (menu.lock()->GetCurrentItemIndex()) {
+	if (Input::Create().GetKeyDown(Input::Commands::OK)) {
+		switch (currentIndex) {
 		case 0:
 			listener.ClearAndChangeScene(std::make_unique<GameScene>(listener));
 			break;
 		case 1:
+			listener.PushScene(std::make_unique<OptionsScene>(listener));
+			break;
+		case 2:
 			listener.Quit();
 			break;
 		}
@@ -106,10 +161,10 @@ GameOverScene::GameOverScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetCountedFrames())
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameOver, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("GAME OVER");
 }
 
-void GameOverScene::Draw()
+void GameOverScene::Draw() const
 {
 	userInterfaceManager->Draw();
 }
@@ -128,10 +183,10 @@ GameClearScene::GameClearScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetCountedFrames())
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("STAGE CLEAR");
 }
 
-void GameClearScene::Draw()
+void GameClearScene::Draw() const
 {
 	userInterfaceManager->Draw();
 }
@@ -150,10 +205,10 @@ GameAllClearScene::GameAllClearScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetCountedFrames())
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::GameAllClear, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("ALL CLEAR");
 }
 
-void GameAllClearScene::Draw()
+void GameAllClearScene::Draw() const
 {
 	userInterfaceManager->Draw();
 }
@@ -180,9 +235,6 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	// 更新対象オブジェクトを生成。
 	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }).lock()->Spawned();
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
-
-	// 生成に時間が掛かるため、タイマーも初期化。
-	Timer::Create().Start();
 }
 
 void GameScene::Update()
@@ -197,30 +249,29 @@ void GameScene::Update()
 			playerDefeatedFrame = Timer::Create().GetCountedFrames();
 		}
 		
-		// 自機の入力処理。
-		// TODO: 別クラスへ分離。
-		float speed;
-		const SDL_Keymod modStates = SDL_GetModState();
-
-		if (modStates & KMOD_SHIFT)
-			speed = player.GetLowSpeed();
-		else
-			speed = player.GetHighSpeed();
+		// 自機の移動。
+		float speed = Input::Create().GetKey(Input::Commands::Slow) ? player.GetLowSpeed() : player.GetHighSpeed();
 		Vector2 velocity = { 0.0f, 0.0f };
-		const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
-		if (currentKeyStates[SDL_SCANCODE_LEFT])
+		if (Input::Create().GetKey(Input::Commands::Leftward))
 			velocity.x = -speed;
-		if (currentKeyStates[SDL_SCANCODE_RIGHT])
+		if (Input::Create().GetKey(Input::Commands::Rightward))
 			velocity.x = +speed;
-		if (currentKeyStates[SDL_SCANCODE_UP])
+		if (Input::Create().GetKey(Input::Commands::Forward))
 			velocity.y = -speed;
-		if (currentKeyStates[SDL_SCANCODE_DOWN])
+		if (Input::Create().GetKey(Input::Commands::Backward))
 			velocity.y = +speed;
 		velocity = velocity.Normalize() * speed;
 		player.SetVelocity(velocity);
 
-		if (currentKeyStates[SDL_SCANCODE_Z])
-			player.Shoot();
+		// 自機のショット。
+		if (Input::Create().GetKey(Input::Commands::Shot)) {
+			const unsigned int ShotDelayFrames = 6;
+			static unsigned int playerShootingFrame = Timer::Create().GetCountedFrames();
+			if (Timer::Create().GetCountedFrames() - playerShootingFrame >= ShotDelayFrames) {
+				player.Shoot();
+				playerShootingFrame = Timer::Create().GetCountedFrames();
+			}
+		}
 	};
 
 	auto player = playerManager->GetPlayer().lock();
@@ -257,11 +308,141 @@ void GameScene::Update()
 }
 
 // SDLにはZ-orderの概念が無いため、描画のタイミングで順番に注意する必要がある。
-void GameScene::Draw()
+void GameScene::Draw() const
 {
 	userInterfaceManager->Draw();
 	effectManager->Draw();
 	playerManager->Draw();
 	enemyManager->Draw();
 	bulletManager->Draw();
+}
+
+/******************************** KeyConfigScene *********************************/
+
+KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener)
+	: Scene(listener)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, currentIndex(0)
+{
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 10.0f }).lock()->SetCaption(u8"Key config");
+	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 10.0f + ItemHeight * index }; };
+	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::ShotKeyConfig, makePos(0));
+	menu[0].lock()->SetCaption(u8"Shot");
+	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::BombKeyConfig, makePos(1));
+	menu[1].lock()->SetCaption(u8"Bomb");
+	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::SlowKeyConfig, makePos(2));
+	menu[2].lock()->SetCaption(u8"Slow");
+	menu[3] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::SkipKeyConfig, makePos(3));
+	menu[3].lock()->SetCaption(u8"Skip");
+	menu[4] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::LeftwardKeyConfig, makePos(4));
+	menu[4].lock()->SetCaption(u8"Leftward");
+	menu[5] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::RightwardKeyConfig, makePos(5));
+	menu[5].lock()->SetCaption(u8"Rightward");
+	menu[6] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::ForwardKeyConfig, makePos(6));
+	menu[6].lock()->SetCaption(u8"Forward");
+	menu[7] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::BackwardKeyConfig, makePos(7));
+	menu[7].lock()->SetCaption(u8"Backward");
+	menu[8] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::PauseKeyConfig, makePos(8));
+	menu[8].lock()->SetCaption(u8"Pause");
+	menu[9] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(9));
+	menu[9].lock()->SetCaption(u8"Quit");
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+}
+
+namespace Shooter {
+	extern SDL_Renderer* Renderer;
+}
+
+void KeyConfigScene::Draw() const
+{
+	userInterfaceManager->Draw();
+
+	// TODO: 選択中のUIを実装して、Rendererを隠蔽。
+	int posX = static_cast<int>(Game::Width * 0.5f), posY = static_cast<int>(Game::Height * 2.0f / 10.0f + ItemHeight * currentIndex);
+	int width = 14 * 3 * 14, height = ItemHeight;
+	SDL_Rect rect = { posX - width / 2, posY - height / 2, width, height };
+	SDL_SetRenderDrawColor(Renderer, 0xFF, 0xFF, 0x00, 63);
+	SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+	SDL_RenderFillRect(Renderer, &rect);
+}
+
+void KeyConfigScene::Update()
+{
+	static bool configMode = false;  // 方向キーを含めた全てのキーに対応するため、「選択モード」と「キー入力モード」とを切り替える。
+	if (configMode) {
+		if (Input::Create().IsAnyKeyPressed() || Input::Create().IsAnyButtonPressed()) {
+			menu[currentIndex].lock()->OnKeyPressed();
+			for (int i = 0; i < MaxItems; i++)
+				menu[i].lock()->SetActive(true);
+			configMode = false;
+		}
+	} else {
+		adjustWithKeys(
+			Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
+			Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
+		if (currentIndex < MaxItems - 1 && Input::Create().GetKeyDown(Input::Commands::OK)) {
+			for (int i = 0; i < MaxItems; i++)
+				menu[i].lock()->SetActive(false);
+			menu[currentIndex].lock()->SetActive(true);
+			configMode = true;
+		}
+	}
+	userInterfaceManager->Update();
+	if (currentIndex == MaxItems - 1 && Input::Create().GetKeyDown(Input::Commands::OK))
+		listener.PopScene();
+}
+
+/******************************** OptionsScene *********************************/
+
+OptionsScene::OptionsScene(IChangingSceneListener& listener)
+	: Scene(listener)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, currentIndex(0)
+{
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 4.0f }).lock()->SetCaption(u8"Options");
+	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 4.0f + ItemHeight * index }; };
+	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::MusicVolume, makePos(0));
+	menu[0].lock()->SetCaption(u8"Music Volume");
+	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::SoundVolume, makePos(1));
+	menu[1].lock()->SetCaption(u8"SE Volume");
+	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FullscreenSwitcher, makePos(2));
+	menu[2].lock()->SetCaption(u8"Fullscreen");
+	menu[3] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(3));
+	menu[3].lock()->SetCaption(u8"Key config");
+	menu[4] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(4));
+	menu[4].lock()->SetCaption(u8"Quit");
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+}
+
+void OptionsScene::Draw() const
+{
+	userInterfaceManager->Draw();
+}
+
+void OptionsScene::Update()
+{
+	adjustWithKeys(
+		Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
+		Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
+	for (int i = 0; i < MaxItems; i++)
+		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
+	adjustWithKeys(
+		Input::Commands::Right, [this](void) { menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Right); },
+		Input::Commands::Left, [this](void) { menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Left); });
+	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
+	if (Input::Create().GetKeyDown(Input::Commands::OK)) {
+		switch (currentIndex) {
+		case 0:
+		case 1:
+		case 2:
+			// 何もしない。
+			break;
+		case 3:
+			listener.PushScene(std::make_unique<KeyConfigScene>(listener));
+			break;
+		case 4:
+			listener.PopScene();
+			break;
+		}
+	}
 }

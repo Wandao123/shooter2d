@@ -1,4 +1,4 @@
-﻿#include "game.h"
+#include "game.h"
 #include "scene.h"  // ここで script.h は読み込み済み。
 
 using namespace Shooter;
