@@ -430,20 +430,8 @@ void OptionsScene::Update()
 	for (int i = 0; i < MaxItems; i++)
 		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
 	adjustWithKeys(
-		Input::Commands::Right, [this](void) {
-			menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Right);
-			if (currentIndex == 2) {  // フルスクリーン化に伴う遅延補正。
-				Timer::Create().Start();
-				previousPressedFrame = 0;
-			}
-		},
-		Input::Commands::Left, [this](void) {
-			menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Left);
-			if (currentIndex == 2) {
-				Timer::Create().Start();
-				previousPressedFrame = 0;
-			}
-		});
+		Input::Commands::Right, [this](void) { menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Right); },
+		Input::Commands::Left, [this](void) { menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Left); });
 	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
 	if (Input::Create().GetKeyDown(Input::Commands::OK)) {
 		switch (currentIndex) {

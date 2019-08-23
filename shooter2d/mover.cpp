@@ -23,18 +23,22 @@ void Mover::Update()
 
 /// <summary>オブジェクトが画面内に存在するか？</summary>
 /// <returns>存在すれば真、しなければ偽</returns>
-/// <remarks>生成されてから最初の1秒（60フレーム）は判定せずに真を返す。</remarks>
+/// <remarks>生成されてから最初の1秒（60フレーム）は判定せずに真を返す。また、画面外でも0.1秒（6フレーム）以内に画面内に戻れば真を返す。</remarks>
 bool Mover::isInside()
 {
 	if (counter < 60) {
 		++counter;
 		return true;
 	}
-	if (position.x < -sprite->GetClip().w / 2 || position.x > Game::Width + sprite->GetClip().w / 2
-		|| position.y < -sprite->GetClip().h / 2 || position.y > Game::Height + sprite->GetClip().h / 2)
-		return false;
-	else
+	if (position.x + sprite->GetClip().w * 0.5f < 0 || position.x - sprite->GetClip().w * 0.5f > Game::Width
+		|| position.y + sprite->GetClip().h * 0.5f < 0 || position.y - sprite->GetClip().h * 0.5f > Game::Height) {
+		++counter;
+		if (counter > 66)
+			return false;
+	} else {
+		counter = 60;
 		return true;
+	}
 }
 
 void Mover::spawned()

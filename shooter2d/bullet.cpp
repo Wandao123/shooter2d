@@ -8,7 +8,14 @@ class EnemyBullet : public Bullet
 {
 public:
 	EnemyBullet(const Vector2& position, std::unique_ptr<Collider>&& collider)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png"), std::move(collider), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png", Sprite::BlendMode::None), std::move(collider), EffectManager::EffectID::None, 1)
+		, sound(std::make_unique<Sound>("se/shot1.wav"))
+	{
+		sound->SetVolume(Sound::MaxVolume / 4);
+	}
+
+	EnemyBullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
+		: Bullet(position, std::move(sprite), std::move(collider), EffectManager::EffectID::None, 1)
 		, sound(std::make_unique<Sound>("se/shot1.wav"))
 	{
 		sound->SetVolume(Sound::MaxVolume / 4);
@@ -27,10 +34,9 @@ class LargeRedBullet : public EnemyBullet
 {
 public:
 	LargeRedBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(21.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>("images/shot_all.png", Sprite::BlendMode::Add), std::make_unique<CircleCollider>(21.0f))
 	{
 		clip = { 320, 0, 64, 64 };
-		sprite->SetBlendModeAdd();
 	}
 };
 
@@ -38,10 +44,9 @@ class LargeBlueBullet : public EnemyBullet
 {
 public:
 	LargeBlueBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(21.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>("images/shot_all.png", Sprite::BlendMode::Add), std::make_unique<CircleCollider>(21.0f))
 	{
 		clip = { 448, 0, 64, 64 };
-		sprite->SetBlendModeAdd();
 	}
 };
 
@@ -187,7 +192,7 @@ BulletManager::BulletManager()
 	// HACK: enum class の定数を全て指定する、もっと簡単な方法？　テンプレートなどを駆使すれば可能だが……。
 	// 注意：IDの最初と最後に依存する。
 	for (int i = static_cast<int>(BulletID::LargeRed); i < static_cast<int>(BulletID::RiceBlue); i++) {
-		for (int j = 0; j < 40; j++) {
+		for (int j = 0; j < 50; j++) {
 			bullets.push_back(GenerateObject(static_cast<BulletID>(i), Vector2{ 0.0f, 0.0f }).lock());  // 予め生成する。
 		}
 	}

@@ -9,17 +9,22 @@ using namespace Shooter;
 
 /******************************** Sprite *********************************/
 
-Sprite::Sprite(const std::string filename)
-	: texture(nullptr, nullptr)  // ここでも初期化しないとエラー。
+Sprite::Sprite(const std::string filename, const BlendMode mode)
+	: mode(mode)
 {
-	// Textureの生成。
-	std::weak_ptr<SDL_Surface> surface = AssetLoader::Create().GetImage(filename);
-	SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, surface.lock().get());
-	if (rawTexture == nullptr) {
-		std::cerr << "Unable to create texture from " << filename << "! SDL Error: " << SDL_GetError();
-	}
-	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
-	this->texture = std::move(texture);
+	/*auto createTexture = [this](std::weak_ptr<SDL_Surface> surface) {
+		SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, surface.lock().get());
+		if (rawTexture == nullptr) {
+			std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError();
+		}
+		std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
+		this->texture = std::move(texture);
+	};*/
+
+	// modeに応じてSurfaceを共有するかTextureを共有するか分ける。
+	surface = AssetLoader::Create().GetSurface(filename);
+	if (mode == BlendMode::None)
+		texture = AssetLoader::Create().GetTexture(filename);
 
 	// clipメンバ変数の初期値を画像全体にする。
 	SDL_Rect temp = { 0, 0, surface.lock()->w, surface.lock()->h };
@@ -31,6 +36,23 @@ Sprite::Sprite(const std::string filename)
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。</remarks>
 void Sprite::Draw(const Vector2& position) const
 {
+	auto createTexture = [this](std::weak_ptr<SDL_Surface> surface) -> std::shared_ptr<SDL_Texture> {
+		SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, surface.lock().get());
+		if (rawTexture == nullptr) {
+			std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError();
+		}
+		std::shared_ptr<SDL_Texture> texture(rawTexture, SDL_DestroyTexture);
+		return std::move(texture);
+	};
+	std::shared_ptr<SDL_Texture> texture;
+	if (mode != BlendMode::None) {
+		texture = createTexture(surface);
+		SDL_SetTextureBlendMode(texture.get(), static_cast<SDL_BlendMode>(mode));
+	} else
+		texture = this->texture.lock();
+	SDL_SetTextureAlphaMod(texture.get(), alpha);
+	SDL_SetTextureColorMod(texture.get(), color.r, color.g, color.b);
+
 	SDL_Rect renderClip = { static_cast<int>(position.x - clip->w * 0.5f), static_cast<int>(position.y - clip->h * 0.5f), clip->w, clip->h };
 	SDL_RenderCopy(Renderer, texture.get(), clip.get(), &renderClip);  // エラーコードを受け取った方が良い？
 }
@@ -42,6 +64,23 @@ void Sprite::Draw(const Vector2& position) const
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。回転の中心は (clip->w / 2, clip->h / 2)。</remarks>
 void Sprite::Draw(const Vector2& position, const float angle, const float scale) const
 {
+	auto createTexture = [this](std::weak_ptr<SDL_Surface> surface) -> std::shared_ptr<SDL_Texture> {
+		SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, surface.lock().get());
+		if (rawTexture == nullptr) {
+			std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError();
+		}
+		std::shared_ptr<SDL_Texture> texture(rawTexture, SDL_DestroyTexture);
+		return std::move(texture);
+	};
+	std::shared_ptr<SDL_Texture> texture;
+	if (mode != BlendMode::None) {
+		texture = createTexture(surface);
+		SDL_SetTextureBlendMode(texture.get(), static_cast<SDL_BlendMode>(mode));
+	} else
+		texture = this->texture.lock();
+	SDL_SetTextureAlphaMod(texture.get(), alpha);
+	SDL_SetTextureColorMod(texture.get(), color.r, color.g, color.b);
+
 	int scaledWidth = static_cast<int>(clip->w * scale);
 	int scaledHeight = static_cast<int>(clip->h * scale);
 	SDL_Rect renderClip = { static_cast<int>(position.x - scaledWidth * 0.5f), static_cast<int>(position.y - scaledHeight * 0.5f), scaledWidth, scaledHeight };
@@ -143,7 +182,8 @@ AssetLoader::AssetLoader()
 
 AssetLoader::~AssetLoader()
 {
-	images.clear();
+	surfaces.clear();
+	textures.clear();
 	fonts.clear();
 	chunks.clear();
 	musics.clear();
@@ -152,7 +192,7 @@ AssetLoader::~AssetLoader()
 	IMG_Quit();
 }
 
-std::weak_ptr<SDL_Surface> AssetLoader::GetImage(const std::string filename)
+std::weak_ptr<SDL_Surface> AssetLoader::GetSurface(const std::string filename)
 {
 	auto addImage = [](const std::string filename) -> std::shared_ptr<SDL_Surface> {
 		SDL_Surface* rawSurface = IMG_Load(filename.c_str());  // TODO: 例外の発生。
@@ -163,14 +203,39 @@ std::weak_ptr<SDL_Surface> AssetLoader::GetImage(const std::string filename)
 		return surface;
 	};
 
-	auto iter = images.find(filename);
-	if (iter != images.end()) {
+	auto iter = surfaces.find(filename);
+	if (iter != surfaces.end()) {
 		return iter->second;
 	} else {
 		auto newImage = addImage(filename);
-		images[filename] = newImage;
+		surfaces[filename] = newImage;
 		return newImage;
 	}
+}
+
+std::weak_ptr<SDL_Texture> AssetLoader::AddTexture(const std::string filename)
+{
+	auto addImage = [this](const std::string filename) -> std::shared_ptr<SDL_Texture> {
+		SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, GetSurface(filename).lock().get());
+		if (rawTexture == nullptr) {
+			std::cerr << "Unable to create texture from " << filename << "! SDL Error: " << SDL_GetError();
+		}
+		std::shared_ptr<SDL_Texture> texture(rawTexture, SDL_DestroyTexture);
+		return texture;
+	};
+
+	auto newImage = addImage(filename);
+	textures.insert(std::make_pair(filename, newImage));
+	return newImage;
+}
+
+std::weak_ptr<SDL_Texture> AssetLoader::GetTexture(const std::string filename)
+{
+	auto iter = textures.find(filename);
+	if (iter != textures.end())
+		return iter->second;
+	else
+		return AddTexture(filename);
 }
 
 std::weak_ptr<TTF_Font> AssetLoader::GetFont(const std::string filename, const int size)

@@ -10,13 +10,22 @@ end
 
 -- フレーム数frames毎にenemyオブジェクトから自機狙い弾を生成する。
 local function ShootPer(id, frames, enemy)
-	local MaxFrames = 120
+	--[[local MaxFrames = 120
 	for i = 0, MaxFrames do
 		if i % frames == 0 then
 			GenerateBullet(id, enemy, 4,
 				math.pi / 2 - math.atan(GetPlayer().PosX - enemy.PosX, GetPlayer().PosY - enemy.PosY))
 		end
 		coroutine.yield()
+	end]]
+	for i = 1, 10 do
+		local ways = 35
+		local diffAngle = 2 * math.pi / ways
+		local startingAngle = math.pi / 2 - math.atan(GetPlayer().PosX - enemy.PosX, GetPlayer().PosY - enemy.PosY)
+		for i = 0, ways - 1 do
+			GenerateBullet(BulletID.SmallBlue, enemy, 3, startingAngle + i * diffAngle)
+		end
+		Wait(10)
 	end
 end
 

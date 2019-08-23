@@ -9,7 +9,7 @@ class NoneEffect : public Effect
 {
 public:
 	NoneEffect(const Vector2& position)
-		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png"), std::make_unique<Sound>("se/enemy_vanish_effect-A.wav"))
+		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png", Sprite::BlendMode::None), std::make_unique<Sound>("se/enemy_vanish_effect-A.wav"))
 	{}
 
 	void Played() override {}
@@ -19,7 +19,7 @@ class DefetedPlayerEffect : public Effect
 {
 public:
 	DefetedPlayerEffect(const Vector2& position)
-		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png"), std::make_unique<Sound>("se/nc899.wav"))
+		: Effect(position, std::make_unique<Sprite>("images/effect_circle.png", Sprite::BlendMode::Blend), std::make_unique<Sound>("se/nc899.wav"))
 	{
 		clips[0] = { 0, 128, 128, 128 };
 		clips[1] = { 0, 128, 128, 128 };
@@ -69,7 +69,7 @@ class RedCircleEffect : public CircleEffect
 {
 public:
 	RedCircleEffect(const Vector2& position)
-		: CircleEffect(position, std::make_unique<Sprite>("images/effect_circle.png"))
+		: CircleEffect(position, std::make_unique<Sprite>("images/effect_circle.png", Sprite::BlendMode::Blend))
 	{
 		clips[0] = { 0, 128, 128, 128 };
 		clips[1] = { 0, 128, 128, 128 };
@@ -81,7 +81,7 @@ class BlueCircleEffect : public CircleEffect
 {
 public:
 	BlueCircleEffect(const Vector2& position)
-		: CircleEffect(position, std::make_unique<Sprite>("images/effect_circle.png"))
+		: CircleEffect(position, std::make_unique<Sprite>("images/effect_circle.png", Sprite::BlendMode::Blend))
 	{
 		clips[0] = { 128, 128, 128, 128 };
 		clips[1] = { 128, 128, 128, 128 };

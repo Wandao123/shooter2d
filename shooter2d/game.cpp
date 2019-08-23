@@ -20,8 +20,8 @@ namespace Shooter {
 			std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		//Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED);
+		Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		//Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED);
 		if (Shooter::Renderer == nullptr) {
 			std::cerr << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
 			exit(EXIT_FAILURE);
@@ -51,21 +51,33 @@ namespace Shooter {
 
 	void Game::Run()
 	{
+		float interval = 1000.0f / 60.0f;
+		float nextFrameTime = SDL_GetTicks() + interval;
 		Timer::Create().Start();
 		while (!quitFlag) {
+			Uint32 currentTime = SDL_GetTicks();
+			
 			// 更新
 			quitFlag = Input::Create().Update();
 			Timer::Create().Update();
 			scenes.top()->Update();
+			if (currentTime < nextFrameTime) {
+				// 実際の描画
+				SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
+				SDL_RenderClear(Renderer);
+				scenes.top()->Draw();
+				SDL_RenderPresent(Renderer);
 
-			// 実際の描画
-			SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
-			SDL_RenderClear(Renderer);
-			scenes.top()->Draw();
-			SDL_RenderPresent(Renderer);
-
-			// FPS制御
-			Timer::Create().Delay();  // TODO: 処理落ち対策。現在の状態ではコマが（許容できないほど）大きく飛んだりする。
+				if (currentTime < nextFrameTime) {
+					// FPS制御
+					//Timer::Create().Delay();  // TODO: 処理落ち対策。現在の状態ではコマが（許容できないほど）大きく飛んだりする。
+					SDL_Delay(static_cast<float>(nextFrameTime - currentTime));
+					interval = 1000.0f / 60.0f;
+				}
+			} else {
+				interval *= 2;
+			}
+			nextFrameTime += interval;
 		}
 	}
 
