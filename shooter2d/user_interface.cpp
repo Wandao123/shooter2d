@@ -21,7 +21,7 @@ class FrameRate : public UserInterface
 public:
 	FrameRate(const Vector2& position)
 		: UserInterface(position)
-		, label(std::make_unique<Label>(Filename, UserInterfaceManager::FontSize / 2))
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize / 2)))
 	{}
 
 	void Draw() const override
@@ -47,7 +47,7 @@ class Title : public UserInterface
 public:
 	Title(const Vector2& position)
 		: UserInterface(position)
-		, label(std::make_unique<Label>(Filename, UserInterfaceManager::FontSize + UserInterfaceManager::FontSize / 2))
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 2)))
 	{
 		label->SetTextColor(0xFF, 0xFF, 0xFF);
 	}
@@ -71,7 +71,7 @@ class Button : public UserInterface
 public:
 	Button(const Vector2& position)
 		: UserInterface(position)
-		, label(std::make_unique<Label>(Filename, UserInterfaceManager::FontSize))
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
 	{
 		label->SetTextColor(0xFF, 0xFF, 0xFF);
 	}
@@ -101,7 +101,7 @@ class Potentiometer : public UserInterface
 public:
 	Potentiometer(const Vector2& position)
 		: UserInterface(position)
-		, label(std::make_unique<Label>(Filename, UserInterfaceManager::FontSize))
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
 	{
 		label->SetTextColor(0xFF, 0xFF, 0xFF);
 	}
@@ -245,7 +245,7 @@ class KeyConfig : public UserInterface
 public:
 	KeyConfig(const Vector2& position)
 		: UserInterface(position)
-		, label(std::make_unique<Label>(Filename, UserInterfaceManager::FontSize * 3 / 4))
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 4)))
 	{
 		label->SetTextColor(0xFF, 0xFF, 0xFF);
 	}

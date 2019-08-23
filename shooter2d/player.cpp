@@ -10,7 +10,7 @@ class Reimu : public Player
 {
 public:
 	Reimu(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Reimudot.png", Sprite::BlendMode::Blend), std::make_unique<CircleCollider>(1.0f), EffectManager::EffectID::DefetedPlayer)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(1.0f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
@@ -18,7 +18,7 @@ class Marisa : public Player
 {
 public:
 	Marisa(const Vector2& position)
-		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>("images/Marisadot.png", Sprite::BlendMode::Blend), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
+		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
@@ -26,7 +26,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>("images/Sanaedot.png", Sprite::BlendMode::Blend), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
+		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
@@ -34,8 +34,8 @@ class ReimuNormalShot : public Bullet
 {
 public:
 	ReimuNormalShot(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>("images/Shot1.png", Sprite::BlendMode::None), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
-		, sound(std::make_unique<Sound>("se/sha04.wav"))
+		: Bullet(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot1.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
+		, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/sha04.wav")))
 	{
 		clip = { 2, 3, 13, 63 };
 		sound->SetVolume(Sound::MaxVolume / 32);

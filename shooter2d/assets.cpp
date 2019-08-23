@@ -9,25 +9,12 @@ using namespace Shooter;
 
 /******************************** Sprite *********************************/
 
-Sprite::Sprite(const std::string filename, const BlendMode mode)
-	: mode(mode)
+Sprite::Sprite(const std::weak_ptr<SDL_Texture> texture)
+	: texture(texture)
 {
-	/*auto createTexture = [this](std::weak_ptr<SDL_Surface> surface) {
-		SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, surface.lock().get());
-		if (rawTexture == nullptr) {
-			std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError();
-		}
-		std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
-		this->texture = std::move(texture);
-	};*/
-
-	// modeに応じてSurfaceを共有するかTextureを共有するか分ける。
-	surface = AssetLoader::Create().GetSurface(filename);
-	if (mode == BlendMode::None)
-		texture = AssetLoader::Create().GetTexture(filename);
-
-	// clipメンバ変数の初期値を画像全体にする。
-	SDL_Rect temp = { 0, 0, surface.lock()->w, surface.lock()->h };
+	int width, height;
+	SDL_QueryTexture(this->texture.lock().get(), nullptr, nullptr, &width, &height);
+	SDL_Rect temp = { 0, 0, width, height };
 	SetClip(temp);
 }
 
@@ -36,25 +23,8 @@ Sprite::Sprite(const std::string filename, const BlendMode mode)
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。</remarks>
 void Sprite::Draw(const Vector2& position) const
 {
-	auto createTexture = [this](std::weak_ptr<SDL_Surface> surface) -> std::shared_ptr<SDL_Texture> {
-		SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, surface.lock().get());
-		if (rawTexture == nullptr) {
-			std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError();
-		}
-		std::shared_ptr<SDL_Texture> texture(rawTexture, SDL_DestroyTexture);
-		return std::move(texture);
-	};
-	std::shared_ptr<SDL_Texture> texture;
-	if (mode != BlendMode::None) {
-		texture = createTexture(surface);
-		SDL_SetTextureBlendMode(texture.get(), static_cast<SDL_BlendMode>(mode));
-	} else
-		texture = this->texture.lock();
-	SDL_SetTextureAlphaMod(texture.get(), alpha);
-	SDL_SetTextureColorMod(texture.get(), color.r, color.g, color.b);
-
 	SDL_Rect renderClip = { static_cast<int>(position.x - clip->w * 0.5f), static_cast<int>(position.y - clip->h * 0.5f), clip->w, clip->h };
-	SDL_RenderCopy(Renderer, texture.get(), clip.get(), &renderClip);  // エラーコードを受け取った方が良い？
+	SDL_RenderCopy(Renderer, texture.lock().get(), clip.get(), &renderClip);  // エラーコードを受け取った方が良い？
 }
 
 /// <param name="x">描画する位置のx座標</param>
@@ -64,34 +34,18 @@ void Sprite::Draw(const Vector2& position) const
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。回転の中心は (clip->w / 2, clip->h / 2)。</remarks>
 void Sprite::Draw(const Vector2& position, const float angle, const float scale) const
 {
-	auto createTexture = [this](std::weak_ptr<SDL_Surface> surface) -> std::shared_ptr<SDL_Texture> {
-		SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, surface.lock().get());
-		if (rawTexture == nullptr) {
-			std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError();
-		}
-		std::shared_ptr<SDL_Texture> texture(rawTexture, SDL_DestroyTexture);
-		return std::move(texture);
-	};
-	std::shared_ptr<SDL_Texture> texture;
-	if (mode != BlendMode::None) {
-		texture = createTexture(surface);
-		SDL_SetTextureBlendMode(texture.get(), static_cast<SDL_BlendMode>(mode));
-	} else
-		texture = this->texture.lock();
-	SDL_SetTextureAlphaMod(texture.get(), alpha);
-	SDL_SetTextureColorMod(texture.get(), color.r, color.g, color.b);
-
 	int scaledWidth = static_cast<int>(clip->w * scale);
 	int scaledHeight = static_cast<int>(clip->h * scale);
 	SDL_Rect renderClip = { static_cast<int>(position.x - scaledWidth * 0.5f), static_cast<int>(position.y - scaledHeight * 0.5f), scaledWidth, scaledHeight };
-	SDL_RenderCopyEx(Renderer, texture.get(), clip.get(), &renderClip, angle * 180.0 / M_PI, nullptr, SDL_FLIP_NONE);  // エラーコードを受け取った方が良い？
+	SDL_RenderCopyEx(Renderer, texture.lock().get(), clip.get(), &renderClip, angle * 180.0 / M_PI, nullptr, SDL_FLIP_NONE);  // エラーコードを受け取った方が良い？
 }
 
 /******************************** Label *********************************/
 
-Label::Label(const std::string filename, const int size)
-	: font(AssetLoader::Create().GetFont(filename, size))
+Label::Label(const std::weak_ptr<TTF_Font> font)
+	: font(font)
 	, Text(" ")  // Textが空のままだと、いきなりWriteが呼ばれてエラー。
+	//, texture(nullptr, nullptr)
 {}
 
 /// <param name="x">描画する位置のx座標</param>
@@ -122,10 +76,28 @@ void Label::Write(const Vector2& position) const
 	SDL_FreeSurface(textSurface);
 }
 
+/* 色を変える場合も同じような処理を書かなければならないため、結局無駄？
+void Label::SetText(const std::string text)
+{
+	this->text = text;
+
+	SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font.lock().get(), text.c_str(), textColor);
+	if (textSurface == nullptr) {
+		std::cerr << TTF_GetError() << std::endl;
+		return;
+	}
+	SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, textSurface);
+	if (rawTexture == nullptr) {
+		std::cerr << SDL_GetError() << std::endl;
+	}
+	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
+	this->texture = std::move(texture);
+}*/
+
 /******************************** Sound *********************************/
 
-Sound::Sound(const std::string filename)
-	: audio(AssetLoader::Create().GetChunk(filename))
+Sound::Sound(const std::weak_ptr<Mix_Chunk> audio)
+	: audio(audio)
 	, volume(0)
 {}
 
@@ -142,8 +114,8 @@ void Sound::SetVolume(const int volume)
 
 /******************************** Music *********************************/
 
-Music::Music(const std::string filename)
-	: audio(AssetLoader::Create().GetMusic(filename))
+Music::Music(const std::weak_ptr<Mix_Music> audio)
+	: audio(audio)
 	, volume(0)
 {}
 
@@ -213,7 +185,8 @@ std::weak_ptr<SDL_Surface> AssetLoader::GetSurface(const std::string filename)
 	}
 }
 
-std::weak_ptr<SDL_Texture> AssetLoader::AddTexture(const std::string filename)
+// このメンバ関数のみはプーリング処理をしない（使う側に任せる）。
+std::weak_ptr<SDL_Texture> AssetLoader::GetTexture(const std::string filename)
 {
 	auto addImage = [this](const std::string filename) -> std::shared_ptr<SDL_Texture> {
 		SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, GetSurface(filename).lock().get());
@@ -227,15 +200,6 @@ std::weak_ptr<SDL_Texture> AssetLoader::AddTexture(const std::string filename)
 	auto newImage = addImage(filename);
 	textures.insert(std::make_pair(filename, newImage));
 	return newImage;
-}
-
-std::weak_ptr<SDL_Texture> AssetLoader::GetTexture(const std::string filename)
-{
-	auto iter = textures.find(filename);
-	if (iter != textures.end())
-		return iter->second;
-	else
-		return AddTexture(filename);
 }
 
 std::weak_ptr<TTF_Font> AssetLoader::GetFont(const std::string filename, const int size)

@@ -235,9 +235,6 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	// 更新対象オブジェクトを生成。
 	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }).lock()->Spawned();
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
-
-	// 生成に時間が掛かるため、タイマーも初期化。
-	Timer::Create().Start();
 }
 
 void GameScene::Update()

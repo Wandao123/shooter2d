@@ -25,14 +25,7 @@ namespace Shooter {
 	class Sprite
 	{
 	public:
-		enum class BlendMode {
-			None,
-			Blend = SDL_BLENDMODE_BLEND,
-			Add = SDL_BLENDMODE_ADD,
-			Mod = SDL_BLENDMODE_MOD
-		};
-
-		Sprite(const std::string filename, const BlendMode mode);
+		Sprite(const std::weak_ptr<SDL_Texture> texture);
 		void Draw(const Vector2& position) const;
 		void Draw(const Vector2& position, const float angle, const float scale) const;
 
@@ -48,8 +41,7 @@ namespace Shooter {
 
 		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue)
 		{
-			//SDL_SetTextureColorMod(texture.lock().get(), red, green, blue);
-			this->color = { red, green, blue, 0xFF };
+			SDL_SetTextureColorMod(texture.lock().get(), red, green, blue);
 		}
 
 		Uint8 GetAlpha() const
@@ -59,26 +51,24 @@ namespace Shooter {
 
 		void SetAlpha(const unsigned char alpha)
 		{
-			//SDL_SetTextureAlphaMod(texture.lock().get(), alpha);
+			SDL_SetTextureBlendMode(texture.lock().get(), SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture.lock().get(), alpha);
 			this->alpha = alpha;
 		}
 
-		/*void SetBlendModeAdd()
+		void SetBlendModeAdd()
 		{
-			//SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_ADD);
+			SDL_SetTextureBlendMode(texture.lock().get(), SDL_BLENDMODE_ADD);
 		}
 
 		void SetBlendModeMod()
 		{
-			//SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_MOD);
-		}*/
+			SDL_SetTextureBlendMode(texture.lock().get(), SDL_BLENDMODE_MOD);
+		}
 	private:
-		const BlendMode mode;
-		std::weak_ptr<SDL_Surface> surface;
-		std::weak_ptr<SDL_Texture> texture;  // modeがNone以外では使わない。
+		std::weak_ptr<SDL_Texture> texture;
 		std::unique_ptr<SDL_Rect> clip;
 		Uint8 alpha = 0xFF;
-		SDL_Color color = { 0xFF, 0xFF, 0xFF, 0xFF };
 	};
 
 	/// <summary>テキスト表示を担うクラス。SDLのラッパーとして機能する。</summary>
@@ -86,9 +76,10 @@ namespace Shooter {
 	class Label
 	{
 	public:
-		Label(const std::string filename, const int size);
 		std::string Text;
+		Label(const std::weak_ptr<TTF_Font> font);
 		void Write(const Vector2& position) const;
+		//void SetText(const std::string text);
 
 		void SetTextColor(const unsigned char red, const unsigned char green, const unsigned char blue)
 		{
@@ -101,6 +92,8 @@ namespace Shooter {
 		}
 	private:
 		std::weak_ptr<TTF_Font> font;
+		//std::string text;
+		//std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture;
 		Uint8 alpha = 0xFF;
 		SDL_Color textColor = { 0xFF, 0xFF, 0xFF, 0xFF };
 	};
@@ -111,7 +104,7 @@ namespace Shooter {
 	{
 	public:
 		static const int MaxVolume = MIX_MAX_VOLUME;
-		Sound(const std::string filename);
+		Sound(const std::weak_ptr<Mix_Chunk> audio);
 		void Played() const;
 		void SetVolume(const int volume);
 	private:
@@ -125,7 +118,7 @@ namespace Shooter {
 	{
 	public:
 		static const int MaxVolume = MIX_MAX_VOLUME;
-		Music(const std::string filename);
+		Music(const std::weak_ptr<Mix_Music> audio);
 		void Played() const;
 		void SetVolume(const int volume);
 	private:
@@ -143,7 +136,6 @@ namespace Shooter {
 		friend class Singleton<AssetLoader>;
 	public:
 		std::weak_ptr<SDL_Surface> GetSurface(const std::string filename);
-		std::weak_ptr<SDL_Texture> AddTexture(const std::string filename);
 		std::weak_ptr<SDL_Texture> GetTexture(const std::string filename);
 		std::weak_ptr<TTF_Font> GetFont(const std::string filename, const int size);
 		std::weak_ptr<Mix_Chunk> GetChunk(const std::string filename);

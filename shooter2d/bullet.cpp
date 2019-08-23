@@ -2,21 +2,18 @@
 
 using namespace Shooter;
 
+// 共有テクスチャ。BulletManagerで初期化する。
+static std::weak_ptr<SDL_Texture> BulletImageBlend;
+static std::weak_ptr<SDL_Texture> BulletImageAdd;
+
 /******************************** 個別設定用クラス *********************************/
 
 class EnemyBullet : public Bullet
 {
 public:
-	EnemyBullet(const Vector2& position, std::unique_ptr<Collider>&& collider)
-		: Bullet(position, std::make_unique<Sprite>("images/shot_all.png", Sprite::BlendMode::None), std::move(collider), EffectManager::EffectID::None, 1)
-		, sound(std::make_unique<Sound>("se/shot1.wav"))
-	{
-		sound->SetVolume(Sound::MaxVolume / 4);
-	}
-
 	EnemyBullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
 		: Bullet(position, std::move(sprite), std::move(collider), EffectManager::EffectID::None, 1)
-		, sound(std::make_unique<Sound>("se/shot1.wav"))
+		, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/shot1.wav")))
 	{
 		sound->SetVolume(Sound::MaxVolume / 4);
 	}
@@ -34,9 +31,10 @@ class LargeRedBullet : public EnemyBullet
 {
 public:
 	LargeRedBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<Sprite>("images/shot_all.png", Sprite::BlendMode::Add), std::make_unique<CircleCollider>(21.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageAdd), std::make_unique<CircleCollider>(21.0f))
 	{
 		clip = { 320, 0, 64, 64 };
+		sprite->SetBlendModeAdd();
 	}
 };
 
@@ -44,9 +42,10 @@ class LargeBlueBullet : public EnemyBullet
 {
 public:
 	LargeBlueBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<Sprite>("images/shot_all.png", Sprite::BlendMode::Add), std::make_unique<CircleCollider>(21.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageAdd), std::make_unique<CircleCollider>(21.0f))
 	{
 		clip = { 448, 0, 64, 64 };
+		sprite->SetBlendModeAdd();
 	}
 };
 
@@ -54,7 +53,7 @@ class MiddleRedBullet : public EnemyBullet
 {
 public:
 	MiddleRedBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(9.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(9.0f))
 	{
 		clip = { 0, 50, 30, 30 };
 	}
@@ -64,7 +63,7 @@ class MiddleBlueBullet : public EnemyBullet
 {
 public:
 	MiddleBlueBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(9.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(9.0f))
 	{
 		clip = { 150, 50, 30, 30 };
 	}
@@ -74,7 +73,7 @@ class SmallRedBullet : public EnemyBullet
 {
 public:
 	SmallRedBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(4.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(4.0f))
 	{
 		clip = { 1, 13, 16, 16 };
 	}
@@ -84,7 +83,7 @@ class SmallBlueBullet : public EnemyBullet
 {
 public:
 	SmallBlueBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(4.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(4.0f))
 	{
 		clip = { 91, 13, 16, 16 };
 	}
@@ -94,7 +93,7 @@ class TinyRedBullet : public EnemyBullet
 {
 public:
 	TinyRedBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 1, 2, 9, 9 };
 	}
@@ -104,7 +103,7 @@ class TinyBlueBullet : public EnemyBullet
 {
 public:
 	TinyBlueBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 61, 2, 9, 9 };
 	}
@@ -114,7 +113,7 @@ class ScaleRedBullet : public EnemyBullet
 {
 public:
 	ScaleRedBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 1, 209, 15, 15 };
 	}
@@ -124,7 +123,7 @@ class ScaleBlueBullet : public EnemyBullet
 {
 public:
 	ScaleBlueBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 91, 209, 15, 15 };
 	}
@@ -134,7 +133,7 @@ class RiceRedBullet : public EnemyBullet
 {
 public:
 	RiceRedBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 1, 101, 9, 16 };
 	}
@@ -144,7 +143,7 @@ class RiceBlueBullet : public EnemyBullet
 {
 public:
 	RiceBlueBullet(const Vector2& position)
-		: EnemyBullet(position, std::make_unique<CircleCollider>(3.0f))
+		: EnemyBullet(position, std::make_unique<Sprite>(BulletImageBlend), std::make_unique<CircleCollider>(3.0f))
 	{
 		clip = { 61, 101, 9, 16 };
 	}
@@ -188,6 +187,9 @@ SDL_Rect& Bullet::clipFromImage(unsigned int countedFrames)
 
 BulletManager::BulletManager()
 {
+	BulletImageBlend = AssetLoader::Create().GetTexture("images/shot_all.png");
+	BulletImageAdd = AssetLoader::Create().GetTexture("images/shot_all.png");
+
 	std::list<std::shared_ptr<Bullet>> bullets;
 	// HACK: enum class の定数を全て指定する、もっと簡単な方法？　テンプレートなどを駆使すれば可能だが……。
 	// 注意：IDの最初と最後に依存する。

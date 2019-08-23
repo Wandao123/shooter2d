@@ -91,7 +91,10 @@ namespace Shooter {
 		std::function<void(SceneID)> changeScene =
 		[this](SceneID id) {
 			tasksList.clear();
-			// HACK: 各種Managerの停止（全てのオブジェクトのenabledをfalseにする）もした方が良い？
+			for (auto&& enemy : enemyManager.GetList())
+				enemy.lock()->Erase();
+			for (auto&& bullet : bulletManager.GetList())
+				bullet.lock()->Erase();
 			switch (id) {
 			case SceneID::Title:
 				status = Status::Dead;
