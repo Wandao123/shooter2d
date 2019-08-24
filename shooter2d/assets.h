@@ -108,8 +108,8 @@ namespace Shooter {
 		void Played() const;
 		void SetVolume(const int volume);
 	private:
-		int volume;
 		std::weak_ptr<Mix_Chunk> audio;
+		int volume;
 	};
 
 	/// <summary>音楽を扱うクラス。SDLのラッパーとして機能する。</summary>
@@ -122,8 +122,8 @@ namespace Shooter {
 		void Played() const;
 		void SetVolume(const int volume);
 	private:
-		int volume;
 		std::weak_ptr<Mix_Music> audio;
+		int volume;
 	};
 
 	/// <summary>画像・フォント・音楽の資源 (asset) を管理する。</summary>

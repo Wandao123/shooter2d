@@ -14,8 +14,8 @@ namespace Shooter {
 		UserInterface(const Vector2& positin);
 		virtual ~UserInterface() {}
 		virtual void Update() override;
-		virtual void OnKeyPressed(Input::Commands command) {}  // commandボタンが押された時のイベントハンドラ。
-		virtual void OnKeyPressed() {}                         // 何れかのキー・ボタンが押された時のイベントハンドラ。
+		virtual void OnKeyPressed(Input::Commands) {}  // commandボタンが押された時のイベントハンドラ。
+		virtual void OnKeyPressed() {}                 // 何れかのキー・ボタンが押された時のイベントハンドラ。
 
 		void SetCaption(std::string caption)
 		{

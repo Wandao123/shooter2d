@@ -1,6 +1,7 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
+#include <list>
 #include <memory>
 #include "vector2.h"
 #include "timer.h"
@@ -12,7 +13,7 @@ namespace Shooter {
 	{
 	public:
 		GameObject(const bool enabled, const Vector2 position) : enabled(enabled), position(position) {}
-		~GameObject() = default;
+		virtual ~GameObject() = default;
 		virtual void Draw() const = 0;
 		virtual void Update() = 0;
 

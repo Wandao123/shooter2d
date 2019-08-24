@@ -35,6 +35,8 @@ bool Mover::isInside()
 		++counter;
 		if (counter > 66)
 			return false;
+		else
+			return true;
 	} else {
 		counter = 60;
 		return true;

@@ -135,6 +135,9 @@ public:
 		case Input::Commands::Right:
 			increase();
 			break;
+		default:
+			// 何もしない。
+			break;
 		}
 	}
 protected:

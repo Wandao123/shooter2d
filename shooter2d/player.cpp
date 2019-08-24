@@ -90,7 +90,7 @@ void Player::Update()
 	}
 }
 
-void Player::OnCollide(Mover& mover)
+void Player::OnCollide(Mover&)
 {
 	if (Timer::Create().GetCountedFrames() - beginningFrame < InvincibleFrames)
 		return;
@@ -140,7 +140,7 @@ SDL_Rect& Player::clipFromImage(unsigned int countedFrames)
 		return clips[1][-level / DelayFrames];
 	else
 		return clips[2][level / DelayFrames];
-};
+}
 
 /******************************** PlayerManager *********************************/
 

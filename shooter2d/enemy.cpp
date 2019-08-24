@@ -101,7 +101,7 @@ SDL_Rect& Enemy::clipFromImage(unsigned int countedFrames)
 	else {
 		return clips[0][(countedFrames / DelayFrames) % NumSlice];
 	}
-};
+}
 
 /******************************** EnemyManager *********************************/
 

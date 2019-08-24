@@ -165,7 +165,7 @@ void Bullet::Draw() const
 	sprite->Draw(position, angle + M_PI_2, 1.0f);  // 元の画像は -PI/2 の向きが正位置。よって、画像の回転角は +PI/2 される。
 }
 
-void Bullet::OnCollide(Mover& mover)
+void Bullet::OnCollide(Mover&)
 {
 	enabled = false;
 	hitPoint = 0;
@@ -178,7 +178,7 @@ void Bullet::Shot(const float speed, const float angle)
 	SetAngle(angle);
 }
 
-SDL_Rect& Bullet::clipFromImage(unsigned int countedFrames)
+SDL_Rect& Bullet::clipFromImage(unsigned int)
 {
 	return clip;
 }
