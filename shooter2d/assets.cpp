@@ -43,8 +43,8 @@ void Sprite::Draw(const Vector2& position, const float angle, const float scale)
 /******************************** Label *********************************/
 
 Label::Label(const std::weak_ptr<TTF_Font> font)
-	: font(font)
-	, Text(" ")  // Textが空のままだと、いきなりWriteが呼ばれてエラー。
+	: Text(" ")  // Textが空のままだと、いきなりWriteが呼ばれてエラー。
+	, font(font)
 	//, texture(nullptr, nullptr)
 {}
 

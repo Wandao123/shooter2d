@@ -58,9 +58,11 @@ namespace Shooter {
 			return { SDL_GameControllerGetStringForButton(std::get<1>(commandsMapping[command])) };
 		}
 	private:
+		const unsigned int KeyPlay = 10;   // キーの遊び（検出しないフレーム数）。
 		std::map<Commands, std::tuple<SDL_Keycode, SDL_GameControllerButton>> commandsMapping;
 		// enum classからintへの暗黙的な型変換が無いため、明示的にキャストする必要がある。
-		std::array<bool, static_cast<int>(Commands::SIZE)> previousStates, currentStates;  // 1フレーム前と現在のコマンドボタンの状態。
+		std::array<bool, static_cast<int>(Commands::SIZE)> currentStates;  // 現在のコマンドボタンの状態。
+		std::array<unsigned int, static_cast<int>(Commands::SIZE)> releasedKeysCounter;  // キーが離されているフレーム数。
 		std::list<SDL_KeyboardEvent> downedKeys, uppedKeys;  // 1フレームで押された・離されたキーの種類。
 		SDL_GameController* gameController = nullptr;
 		std::list<SDL_ControllerButtonEvent> downedButtons, uppedButtons;  // 1フレームで押された・離されたコントローラボタンの種類。

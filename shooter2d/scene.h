@@ -14,15 +14,19 @@ namespace Shooter {
 	public:
 		Scene(IChangingSceneListener& listener)
 			: listener(listener)
-			, previousPressedFrame(Timer::Create().GetCountedFrames())
+			, previousPressedFrame(Timer::Create().GetPlayingFrames())
+			, counter(0)
 		{}
 		virtual ~Scene() = default;
 		virtual void Draw() const = 0;
 		virtual void Update() = 0;
 	protected:
 		IChangingSceneListener& listener;
-		unsigned int previousPressedFrame;
 		void adjustWithKeys(Input::Commands decrement, std::function<void(void)> decrease, Input::Commands increment, std::function<void(void)> increase);
+		void waitAndDo(const unsigned int delayFrames, std::function<void(void)> func);
+	private:
+		unsigned int previousPressedFrame;  // 直前のキーが押されたフレーム。
+		unsigned int counter;               // 
 	};
 
 	class TitleScene : public Scene

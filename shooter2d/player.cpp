@@ -81,18 +81,18 @@ void Player::Update()
 
 	// 描画の前処理。
 	if (sprite->GetAlpha() < 255) {
-		if (Timer::Create().GetCountedFrames() - beginningFrame >= InvincibleFrames)
+		if (Timer::Create().GetPlayingFrames() - beginningFrame >= InvincibleFrames)
 			sprite->SetAlpha(255);
-		else if ((Timer::Create().GetCountedFrames() - beginningFrame) / 3 % 2 == 0)  // 3フレーム毎に点滅する。
+		else if ((Timer::Create().GetPlayingFrames() - beginningFrame) / 3 % 2 == 0)  // 3フレーム毎に点滅する。
 			sprite->SetAlpha(0);
 		else
 			sprite->SetAlpha(191);
 	}
 }
 
-void Player::OnCollide(Mover& mover)
+void Player::OnCollide(Mover&)
 {
-	if (Timer::Create().GetCountedFrames() - beginningFrame < InvincibleFrames)
+	if (Timer::Create().GetPlayingFrames() - beginningFrame < InvincibleFrames)
 		return;
 	enabled = false;
 	hitPoint = 0;
@@ -104,7 +104,7 @@ void Player::Spawned()
 	if (life <= 0)
 		return;
 	Mover::spawned();
-	beginningFrame = Timer::Create().GetCountedFrames();
+	beginningFrame = Timer::Create().GetPlayingFrames();
 	sprite->SetAlpha(191);
 }
 
@@ -140,7 +140,7 @@ SDL_Rect& Player::clipFromImage(unsigned int countedFrames)
 		return clips[1][-level / DelayFrames];
 	else
 		return clips[2][level / DelayFrames];
-};
+}
 
 /******************************** PlayerManager *********************************/
 
