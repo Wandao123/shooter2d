@@ -101,7 +101,6 @@ private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	int currentIndex;
 	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
-	bool isTerminated = false;
 };
 
 /******************************** Scene *********************************/
@@ -317,7 +316,7 @@ void GameScene::Update()
 	userInterfaceManager->Update();
 	collisionDetector->CheckAll();
 
-	if (Input::Create().GetKey(Input::Commands::Pause))
+	if (Input::Create().GetKeyDown(Input::Commands::Pause))
 		listener.PushScene(std::make_unique<PauseScene>(listener));
 	else if (player->GetLife() <= 0)
 		waitAndDo(30, [this]() { listener.PushScene(std::make_unique<GameOverScene>(listener)); });
@@ -486,7 +485,7 @@ PauseScene::PauseScene(IChangingSceneListener& listener)
 	auto surface = SDL_CreateRGBSurface(0, Game::Width, Game::Height, 32, 0, 0, 0, 0);
 	SDL_RenderReadPixels(Renderer, nullptr, surface->format->format, surface->pixels, surface->pitch);
 	auto rawTexture = SDL_CreateTextureFromSurface(Renderer, surface);
-	SDL_SetTextureColorMod(rawTexture, 0x6B, 0x4A, 0x2B);
+	SDL_SetTextureColorMod(rawTexture, 0x86, 0x5D, 0x36);
 	// TODO: Blurring effect.
 	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
 	this->screenshot = std::move(texture);
@@ -520,22 +519,19 @@ void PauseScene::Update()
 	for (int i = 0; i < MaxItems; i++)
 		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
 	userInterfaceManager->Update();
-	if (isTerminated)
-			waitAndDo(10, [this]() { listener.PopScene(); });
+	if (Input::Create().GetKeyDown(Input::Commands::OK))
+		switch (currentIndex) {
+		case 0:
+			listener.PopScene();
+			break;
+		case 1:
+			listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
+			break;
+		}
+	else if (Input::Create().GetKeyDown(Input::Commands::Pause))
+		listener.PopScene();
 	else
-		if (Input::Create().GetKeyDown(Input::Commands::OK))
-			switch (currentIndex) {
-			case 0:
-				isTerminated = true;
-				break;
-			case 1:
-				listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
-				break;
-			}
-		else if (Input::Create().GetKeyDown(Input::Commands::Pause))
-			isTerminated = true;
-		else
-			adjustWithKeys(
-				Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
-				Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
+		adjustWithKeys(
+			Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
+			Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
 }

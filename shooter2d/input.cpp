@@ -7,6 +7,8 @@
 using namespace Shooter;
 
 Input::Input()
+	: currentStates({ false })
+	, releasedKeysCounter({ 0 })
 {
 	// ゲームパッドの初期化。
 	if (SDL_NumJoysticks() > 0) {
@@ -33,8 +35,6 @@ Input::Input()
 	commandsMapping[Commands::Forward] = std::make_tuple(SDLK_UP, SDL_CONTROLLER_BUTTON_DPAD_UP);
 	commandsMapping[Commands::Backward] = std::make_tuple(SDLK_DOWN, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
 	commandsMapping[Commands::Pause] = std::make_tuple(SDLK_ESCAPE, SDL_CONTROLLER_BUTTON_START);
-	for (int i = 0; i < static_cast<int>(Commands::SIZE); i++)
-		currentStates[i] = false;
 }
 
 Input::~Input()
@@ -47,7 +47,8 @@ Input::~Input()
 /// <returns>プログラムを終了するならばtrueを返す。</returns>
 bool Input::Update()
 {
-	previousStates = currentStates;
+	for (int i = 0; i <= static_cast<int>(Commands::SIZE); i++)
+		releasedKeysCounter[i] = currentStates[i] ? 0 : releasedKeysCounter[i] + 1;
 	SDL_Event event;
 	downedKeys.clear();
 	uppedKeys.clear();
@@ -148,10 +149,10 @@ bool Input::GetKey(const Commands command) const
 
 /// <summary>commandに対応するキー・ボタンが押されたか否か。</summary>
 /// <returns>押されていればtrueを返す。</returns>
-/// <remarks>押した瞬間かを判定。</remarks>
+/// <remarks>押した瞬間かを判定。遊びを持たせている。</remarks>
 bool Input::GetKeyDown(const Commands command) const
 {
-	return (!previousStates.at(static_cast<int>(command)) && currentStates.at(static_cast<int>(command))) ? true : false;
+	return (releasedKeysCounter.at(static_cast<int>(command)) > KeyPlay && currentStates.at(static_cast<int>(command))) ? true : false;
 }
 
 /// <summary>commandに対応するキー・ボタンが離されたか否か。</summary>
@@ -159,7 +160,7 @@ bool Input::GetKeyDown(const Commands command) const
 /// <remarks>離した瞬間かを判定。</remarks>
 bool Input::GetKeyUp(const Commands command) const
 {
-	return (previousStates.at(static_cast<int>(command)) && !currentStates.at(static_cast<int>(command))) ? true : false;
+	return (releasedKeysCounter.at(static_cast<int>(command)) == 0 && !currentStates.at(static_cast<int>(command))) ? true : false;
 }
 
 /// <summary>少なくとも一つのキーが押されているか否か。</summary>
