@@ -7,46 +7,47 @@
 #include "singleton.h"
 
 namespace Shooter {
-	/// <summary>FPS管理やフレーム数を共通化するクラス。他のゲーム用のオブジェクトとは独立に扱う。</summary>
+	/// <summary>FPS管理やフレーム数の数え上げを司るクラス。</summary>
 	class Timer : public Singleton<Timer>
 	{
-		Timer()
-			: countedFrames(0)
-			, deltaTime(0)
-			, averageOfFPS(60)
-			, intervalPerFrame(1000.0f / FPS)
-			, currentTime(SDL_GetTicks())
-			, nextFrameTime(SDL_GetTicks() + intervalPerFrame)
-		{}
+		Timer();
 		~Timer() = default;
 		friend class Singleton<Timer>;
 	public:
 		static const unsigned int FPS = 60;
 		void AdjustFPS(std::function<void(void)> drawingProcess);
 		void Start();
+		void Stop();
+		void Restart();
 		void Update();
 
+		/// <summary>直前のフレームからの経過時間を取得する。</summary>
 		float GetDeltaTime()
 		{
 			return deltaTime;
 		}
 
-		unsigned int GetCountedFrames()
+		/// <summary>プレイしたフレーム数を取得する。</summary>
+		/// <remarks>停止しているフレーム数だけ補正する。</remarks>
+		unsigned int GetPlayingFrames()
 		{
-			return countedFrames;
+			return countedFrames - stoppingFrames;
 		}
 
+		/// <summary>FPS定数のフレーム数だけ計測した、FPSの平均値を取得する。</summary>
 		float GetAverageOfFPS()
 		{
 			return averageOfFPS;
 		}
 	private:
-		unsigned int countedFrames;
-		float deltaTime;  // 前のフレームからの経過時間（秒）
+		Uint32 countedFrames;
+		float deltaTime;        // 前のフレームからの経過時間（秒）。
 		float averageOfFPS;
 		float intervalPerFrame;
-		Uint32 currentTime;
+		Uint32 currentTime;     // Startメンバ関数が呼ばれてからの経過フレーム数。
 		float nextFrameTime;
+		bool isStopping;        // 停止するためのフラグ。
+		Uint32 stoppingFrames;  // 停止したフレーム数。
 	};
 }
 

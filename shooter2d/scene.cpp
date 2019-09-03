@@ -1,5 +1,11 @@
 #include "game.h"
 
+// TODO: assetsに押し付ける方法？
+namespace Shooter {
+	extern SDL_Renderer* Renderer;
+}
+
+
 using namespace Shooter;
 
 /******************************** 非公開クラス *********************************/
@@ -81,29 +87,56 @@ private:
 	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
 };
 
+class PauseScene : public Scene
+{
+public:
+	PauseScene(IChangingSceneListener& listener);
+	~PauseScene();
+	void Draw() const override;
+	void Update() override;
+private:
+	static const int MaxItems = 2;
+	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
+	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> screenshot;
+	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+	int currentIndex;
+	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
+	bool isTerminated = false;
+};
+
 /******************************** Scene *********************************/
 
 void Scene::adjustWithKeys(Input::Commands decrement, std::function<void(void)> decrease, Input::Commands increment, std::function<void(void)> increase)
 {
 	const unsigned int DelayFrames = 12;
-	if (Timer::Create().GetCountedFrames() - previousPressedFrame >= DelayFrames) {
+	if (Timer::Create().GetPlayingFrames() - previousPressedFrame >= DelayFrames) {
 		if (Input::Create().GetKey(decrement)) {
 			decrease();
-			previousPressedFrame = Timer::Create().GetCountedFrames();
+			previousPressedFrame = Timer::Create().GetPlayingFrames();
 		}
 		if (Input::Create().GetKey(increment)) {
 			increase();
-			previousPressedFrame = Timer::Create().GetCountedFrames();
+			previousPressedFrame = Timer::Create().GetPlayingFrames();
 		}
 	} else {
 		if (Input::Create().GetKeyDown(decrement)) {
 			decrease();
-			previousPressedFrame = Timer::Create().GetCountedFrames();
+			previousPressedFrame = Timer::Create().GetPlayingFrames();
 		}
 		if (Input::Create().GetKeyDown(increment)) {
 			increase();
-			previousPressedFrame = Timer::Create().GetCountedFrames();
+			previousPressedFrame = Timer::Create().GetPlayingFrames();
 		}
+	}
+}
+
+void Scene::waitAndDo(const unsigned int delayFrames, std::function<void(void)> func)
+{
+	if (counter < delayFrames) {
+		++counter;
+	} else {
+		counter = 0;
+		func();
 	}
 }
 
@@ -159,7 +192,7 @@ void TitleScene::Update()
 GameOverScene::GameOverScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, createdFrame(Timer::Create().GetCountedFrames())
+	, createdFrame(Timer::Create().GetPlayingFrames())
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("GAME OVER");
 }
@@ -172,7 +205,7 @@ void GameOverScene::Draw() const
 void GameOverScene::Update()
 {
 	userInterfaceManager->Update();
-	if (Timer::Create().GetCountedFrames() - createdFrame > Timer::FPS * 3)
+	if (Timer::Create().GetPlayingFrames() - createdFrame > Timer::FPS * 3)
 		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
 }
 
@@ -181,7 +214,7 @@ void GameOverScene::Update()
 GameClearScene::GameClearScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, createdFrame(Timer::Create().GetCountedFrames())
+	, createdFrame(Timer::Create().GetPlayingFrames())
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("STAGE CLEAR");
 }
@@ -194,7 +227,7 @@ void GameClearScene::Draw() const
 void GameClearScene::Update()
 {
 	userInterfaceManager->Update();
-	if (Timer::Create().GetCountedFrames() - createdFrame > Timer::Create().FPS * 3)
+	if (Timer::Create().GetPlayingFrames() - createdFrame > Timer::Create().FPS * 3)
 		listener.PopScene();
 }
 
@@ -203,7 +236,7 @@ void GameClearScene::Update()
 GameAllClearScene::GameAllClearScene(IChangingSceneListener& listener)
 	: Scene(listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, createdFrame(Timer::Create().GetCountedFrames())
+	, createdFrame(Timer::Create().GetPlayingFrames())
 {
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("ALL CLEAR");
 }
@@ -216,7 +249,7 @@ void GameAllClearScene::Draw() const
 void GameAllClearScene::Update()
 {
 	userInterfaceManager->Update();
-	if (Timer::Create().GetCountedFrames() - createdFrame > Timer::Create().FPS * 3)
+	if (Timer::Create().GetPlayingFrames() - createdFrame > Timer::Create().FPS * 3)
 		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
 }
 
@@ -242,11 +275,11 @@ void GameScene::Update()
 	auto updatePlayer = [this](Player& player) {
 		// 自機の復活処理。
 		const unsigned int DelayFrames = 30;
-		static unsigned int playerDefeatedFrame = Timer::Create().GetCountedFrames();
-		if (!player.IsEnabled() && player.GetLife() > 0 && Timer::Create().GetCountedFrames() - playerDefeatedFrame >= DelayFrames) {
+		static unsigned int playerDefeatedFrame = Timer::Create().GetPlayingFrames();
+		if (!player.IsEnabled() && player.GetLife() > 0 && Timer::Create().GetPlayingFrames() - playerDefeatedFrame >= DelayFrames) {
 			player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
 			player.Spawned();
-			playerDefeatedFrame = Timer::Create().GetCountedFrames();
+			playerDefeatedFrame = Timer::Create().GetPlayingFrames();
 		}
 		
 		// 自機の移動。
@@ -266,10 +299,10 @@ void GameScene::Update()
 		// 自機のショット。
 		if (Input::Create().GetKey(Input::Commands::Shot)) {
 			const unsigned int ShotDelayFrames = 6;
-			static unsigned int playerShootingFrame = Timer::Create().GetCountedFrames();
-			if (Timer::Create().GetCountedFrames() - playerShootingFrame >= ShotDelayFrames) {
+			static unsigned int playerShootingFrame = Timer::Create().GetPlayingFrames();
+			if (Timer::Create().GetPlayingFrames() - playerShootingFrame >= ShotDelayFrames) {
 				player.Shoot();
-				playerShootingFrame = Timer::Create().GetCountedFrames();
+				playerShootingFrame = Timer::Create().GetPlayingFrames();
 			}
 		}
 	};
@@ -283,28 +316,26 @@ void GameScene::Update()
 	playerManager->Update();
 	userInterfaceManager->Update();
 	collisionDetector->CheckAll();
-	
-	if (player->GetLife() <= 0) {
-		static unsigned int counter = 0;
-		if (counter >= 30)
-			listener.PushScene(std::make_unique<GameOverScene>(listener));
-		else
-			++counter;
-	}
-	switch (status) {
-	case Script::Status::AllClear:
-		listener.PushScene(std::make_unique<GameAllClearScene>(listener));
-		break;
-	case Script::Status::Dead:
-		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
-		break;
-	case Script::Status::Running:
-		break;
-	case Script::Status::StageClear:
-		player->Erase();
-		listener.PushScene(std::make_unique<GameClearScene>(listener));
-		break;
-	}
+
+	if (Input::Create().GetKey(Input::Commands::Pause))
+		listener.PushScene(std::make_unique<PauseScene>(listener));
+	else if (player->GetLife() <= 0)
+		waitAndDo(30, [this]() { listener.PushScene(std::make_unique<GameOverScene>(listener)); });
+	else
+		switch (status) {
+		case Script::Status::AllClear:
+			listener.PushScene(std::make_unique<GameAllClearScene>(listener));
+			break;
+		case Script::Status::Dead:
+			listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
+			break;
+		case Script::Status::Running:
+			break;
+		case Script::Status::StageClear:
+			player->Erase();
+			listener.PushScene(std::make_unique<GameClearScene>(listener));
+			break;
+		}
 }
 
 // SDLにはZ-orderの概念が無いため、描画のタイミングで順番に注意する必要がある。
@@ -347,10 +378,6 @@ KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener)
 	menu[9] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(9));
 	menu[9].lock()->SetCaption(u8"Quit");
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
-}
-
-namespace Shooter {
-	extern SDL_Renderer* Renderer;
 }
 
 void KeyConfigScene::Draw() const
@@ -445,4 +472,70 @@ void OptionsScene::Update()
 			break;
 		}
 	}
+}
+
+/******************************** PauseScene *********************************/
+
+PauseScene::PauseScene(IChangingSceneListener& listener)
+	: Scene(listener)
+	, screenshot(nullptr, nullptr)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, currentIndex(0)
+{
+	// スクリーンショットの保存。
+	auto surface = SDL_CreateRGBSurface(0, Game::Width, Game::Height, 32, 0, 0, 0, 0);
+	SDL_RenderReadPixels(Renderer, nullptr, surface->format->format, surface->pixels, surface->pitch);
+	auto rawTexture = SDL_CreateTextureFromSurface(Renderer, surface);
+	SDL_SetTextureColorMod(rawTexture, 0x6B, 0x4A, 0x2B);
+	// TODO: Blurring effect.
+	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
+	this->screenshot = std::move(texture);
+	SDL_FreeSurface(surface);
+
+	// ゲームオブジェクトの生成。
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 3.0f }).lock()->SetCaption(u8"Pause");
+	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 1.0f / 2.0f + ItemHeight * index }; };
+	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(3));
+	menu[0].lock()->SetCaption(u8"Return");
+	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(4));
+	menu[1].lock()->SetCaption(u8"Exit");
+
+	// 停止モードに切替。
+	Timer::Create().Stop();
+}
+
+PauseScene::~PauseScene()
+{
+	Timer::Create().Restart();
+}
+
+void PauseScene::Draw() const
+{
+	SDL_RenderCopy(Renderer, screenshot.get(), nullptr, nullptr);
+	userInterfaceManager->Draw();
+}
+
+void PauseScene::Update()
+{
+	for (int i = 0; i < MaxItems; i++)
+		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
+	userInterfaceManager->Update();
+	if (isTerminated)
+			waitAndDo(10, [this]() { listener.PopScene(); });
+	else
+		if (Input::Create().GetKeyDown(Input::Commands::OK))
+			switch (currentIndex) {
+			case 0:
+				isTerminated = true;
+				break;
+			case 1:
+				listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
+				break;
+			}
+		else if (Input::Create().GetKeyDown(Input::Commands::Pause))
+			isTerminated = true;
+		else
+			adjustWithKeys(
+				Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
+				Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
 }

@@ -4,6 +4,18 @@
 
 using namespace Shooter;
 
+
+Timer::Timer()
+	: countedFrames(0)
+	, deltaTime(0)
+	, averageOfFPS(60)
+	, intervalPerFrame(1000.0f / FPS)
+	, currentTime(SDL_GetTicks())
+	, nextFrameTime(SDL_GetTicks() + intervalPerFrame)
+	, isStopping(true)
+	, stoppingFrames(0)
+{}
+
 void Timer::AdjustFPS(std::function<void(void)> drawingProcess)
 {
 	if (currentTime < nextFrameTime) {
@@ -26,16 +38,29 @@ void Timer::Start()
 	intervalPerFrame = 1000.0f / FPS;
 	currentTime = SDL_GetTicks();
 	nextFrameTime = SDL_GetTicks() + intervalPerFrame;
+	isStopping = false;
+	stoppingFrames = 0;
+}
+
+void Timer::Stop()
+{
+	isStopping = true;
+}
+
+void Timer::Restart()
+{
+	isStopping = false;
 }
 
 void Timer::Update()
 {
-	++countedFrames;
 	Uint32 previousTime = currentTime;
 	currentTime = SDL_GetTicks();
-	deltaTime = (currentTime - previousTime) / 1000.0f;
+	deltaTime = static_cast<float>(currentTime - previousTime) / 1000.0f;
 
-	// 平均を求める。
+	if (isStopping)
+		++stoppingFrames;
+	++countedFrames;
 	if (countedFrames % FPS == 0) {
 		static Uint32 timeBeforeFPS = 0;
 		auto temp = static_cast<float>(currentTime - timeBeforeFPS) / FPS;
@@ -44,5 +69,5 @@ void Timer::Update()
 		else
 			averageOfFPS = 0.0f;
 		timeBeforeFPS = currentTime;
-	}
+		}
 }
