@@ -149,7 +149,7 @@ AssetLoader::AssetLoader()
 		std::cerr << "SDL_mixer could not initialize!SDL_mixer Error :" << Mix_GetError() << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	Mix_AllocateChannels(32);
+	Mix_AllocateChannels(256);
 }
 
 AssetLoader::~AssetLoader()

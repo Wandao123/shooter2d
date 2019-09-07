@@ -15,7 +15,7 @@ public:
 		: Bullet(position, std::move(sprite), std::move(collider), EffectManager::EffectID::None, 1)
 		, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/shot1.wav")))
 	{
-		sound->SetVolume(Sound::MaxVolume / 4);
+		sound->SetVolume(Sound::MaxVolume / 8);
 	}
 
 	void Shot(const float speed, const float angle) override

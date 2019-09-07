@@ -16,7 +16,7 @@ namespace Shooter {
 		~Player() = default;
 		void Update() override;
 		void OnCollide(Mover& mover) override;
-		void Shoot();
+		virtual void Shoot() = 0;
 		void Spawned();  // 実体化関数
 
 		float GetHighSpeed() const
@@ -51,6 +51,7 @@ namespace Shooter {
 			SetAngle(std::atan2(this->velocity.y, this->velocity.x));
 		}
 	protected:
+		std::weak_ptr<PlayerManager> manager;
 		SDL_Rect& clipFromImage(unsigned int countedFrames) override;
 	private:
 		friend class PlayerManager;
@@ -60,7 +61,6 @@ namespace Shooter {
 		const float highSpeed;
 		const float lowSpeed;
 		int life = 3;  // 1まではプレイ可能で、0になったらゲームオーバー。life - 1 = 残機。
-		std::weak_ptr<PlayerManager> manager;
 		Vector2 velocity = { 0.0f, 0.0f };
 
 		/// <summary>相互参照用のセッター。</summary>
@@ -83,7 +83,9 @@ namespace Shooter {
 		};
 		enum class BulletID
 		{
-			ReimuNormal
+			ReimuNormal,
+			MarisaNormal,
+			SanaeNormal
 		};
 
 		std::weak_ptr<Player> GenerateObject(const PlayerID id, const Vector2& position);
