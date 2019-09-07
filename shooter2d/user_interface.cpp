@@ -42,6 +42,32 @@ private:
 	std::stringstream text;
 };
 
+class ObjectCounter : public StatusMonitor
+{
+public:
+	ObjectCounter(const Vector2& position)
+		: StatusMonitor(position)
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize / 2)))
+	{}
+
+	void Draw() const override
+	{
+		label->Write(position);
+	}
+
+	void Update() override
+	{
+		text.str("");
+		text << std::setw(ItemWidth) << std::left << caption;
+		text << std::setw(ItemWidth) << std::left << manager.lock()->GetList().size();
+		label->Text = text.str();
+	}
+private:
+	const int ItemWidth = 12;
+	std::unique_ptr<Label> label;
+	std::stringstream text;
+};
+
 class Title : public UserInterface
 {
 public:
@@ -349,6 +375,17 @@ std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInte
 		break;
 	case UserInterfaceID::PauseKeyConfig:
 		newObject = assignObject<KeyConfig<Input::Commands::Pause>>(position);
+		break;
+	}
+	return newObject;
+}
+
+std::weak_ptr<StatusMonitor> UserInterfaceManager::GenerateObject(const StatusMonitorID id, const Vector2& position)
+{
+	std::weak_ptr<StatusMonitor> newObject;
+	switch (id) {
+	case StatusMonitorID::ObjectCounter:
+		newObject = assignObject<ObjectCounter>(position);
 		break;
 	}
 	return newObject;

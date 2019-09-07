@@ -31,19 +31,19 @@ namespace Shooter {
 		bool activated;
 	};
 
-	/// <summary>ゲームの状態を表示するUIのためのインターフェース。</summary>
-	class IStatusMonitor
+	/// <summary>ゲームの状態を表示する。管理クラスを登録して、その所有オブジェクトを監視する。</summary>
+	class StatusMonitor : public UserInterface
 	{
 	public:
-		IStatusMonitor() = default;
-		virtual ~IStatusMonitor() = default;
+		StatusMonitor(const Vector2& position) : UserInterface(position) {}
+		virtual ~StatusMonitor() = default;
 
-		virtual void SetValue(unsigned int value)
+		virtual void Register(const std::weak_ptr<ObjectManager> manager)
 		{
-			this->value = value;
+			this->manager = manager;
 		}
 	protected:
-		unsigned int value;  // 残機、ボム数、スコアなど。
+		std::weak_ptr<ObjectManager> manager;
 	};
 
 	/// <summary>テキスト表示のためのインターフェース。操作説明などを記述する。</summary>
@@ -88,8 +88,12 @@ namespace Shooter {
 			BackwardKeyConfig,
 			PauseKeyConfig
 		};
+		enum class StatusMonitorID {
+			ObjectCounter
+		};
 
 		std::weak_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2& position);
+		std::weak_ptr<StatusMonitor> GenerateObject(const StatusMonitorID id, const Vector2& position);
 	};
 }
 
