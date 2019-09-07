@@ -37,13 +37,7 @@ namespace Shooter {
 	public:
 		StatusMonitor(const Vector2& position) : UserInterface(position) {}
 		virtual ~StatusMonitor() = default;
-
-		virtual void Register(const std::weak_ptr<ObjectManager> manager)
-		{
-			this->manager = manager;
-		}
-	protected:
-		std::weak_ptr<ObjectManager> manager;
+		virtual void Register(const std::weak_ptr<ObjectManager> manager) = 0;
 	};
 
 	/// <summary>テキスト表示のためのインターフェース。操作説明などを記述する。</summary>
@@ -89,7 +83,8 @@ namespace Shooter {
 			PauseKeyConfig
 		};
 		enum class StatusMonitorID {
-			ObjectCounter
+			ObjectCounter,
+			PlayersMonitor
 		};
 
 		std::weak_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2& position);

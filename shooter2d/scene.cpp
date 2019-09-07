@@ -268,9 +268,9 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }).lock()->Spawned();
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
 
-	auto objectMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::ObjectCounter, Vector2{ UserInterfaceManager::FontSize * 4, Game::Height - 7 });
-	objectMonitor.lock()->SetCaption("#Bullets");
-	objectMonitor.lock()->Register(bulletManager);
+	auto objectMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::PlayersMonitor, Vector2{ UserInterfaceManager::FontSize * 4, UserInterfaceManager::FontSize * 3 / 4 / 2 });
+	objectMonitor.lock()->SetCaption("Player");
+	objectMonitor.lock()->Register(playerManager);
 }
 
 void GameScene::Update()

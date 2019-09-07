@@ -2,6 +2,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include "bullet.h"
+#include "player.h"
 
 using namespace Shooter;
 
@@ -59,13 +61,20 @@ public:
 	{
 		text.str("");
 		text << std::setw(ItemWidth) << std::left << caption;
-		text << std::setw(ItemWidth) << std::left << manager.lock()->GetList().size();
+		if (!manager.expired())
+			text << std::setw(ItemWidth) << std::left << manager.lock()->GetList().size();
 		label->Text = text.str();
+	}
+
+	void Register(const std::weak_ptr<ObjectManager> manager) override
+	{
+		this->manager = manager;
 	}
 private:
 	const int ItemWidth = 12;
 	std::unique_ptr<Label> label;
 	std::stringstream text;
+	std::weak_ptr<ObjectManager> manager;
 };
 
 class Title : public UserInterface
@@ -311,6 +320,41 @@ private:
 	std::stringstream text;
 };
 
+class PlayersMonitor : public StatusMonitor
+{
+public:
+	PlayersMonitor(const Vector2& position)
+		: StatusMonitor(position)
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 4)))
+	{}
+
+	void Draw() const override
+	{
+		label->Write(position);
+	}
+
+	void Update() override
+	{
+		text.str("");
+		text << std::setw(ItemWidth) << std::left << caption;
+		if (!manager.expired())
+			text << std::setw(ItemWidth) << std::left << manager.lock()->GetPlayer().lock()->GetLife();
+		label->Text = text.str();
+	}
+
+	virtual void Register(const std::weak_ptr<ObjectManager> manager)
+	{
+		//if (std::is_same<decltype(*manager.lock()), PlayerManager>::value)
+		if (typeid(*manager.lock()) == typeid(PlayerManager))
+			this->manager = std::dynamic_pointer_cast<PlayerManager>(manager.lock());
+	}
+private:
+	const int ItemWidth = 8;
+	std::unique_ptr<Label> label;
+	std::stringstream text;
+	std::weak_ptr<PlayerManager> manager;
+};
+
 /******************************** UserInterface *********************************/
 
 UserInterface::UserInterface(const Vector2& position)
@@ -386,6 +430,9 @@ std::weak_ptr<StatusMonitor> UserInterfaceManager::GenerateObject(const StatusMo
 	switch (id) {
 	case StatusMonitorID::ObjectCounter:
 		newObject = assignObject<ObjectCounter>(position);
+		break;
+	case StatusMonitorID::PlayersMonitor:
+		newObject = assignObject<PlayersMonitor>(position);
 		break;
 	}
 	return newObject;
