@@ -47,7 +47,7 @@ Input::~Input()
 /// <returns>プログラムを終了するならばtrueを返す。</returns>
 bool Input::Update()
 {
-	for (int i = 0; i <= static_cast<int>(Commands::SIZE); i++)
+	for (int i = 0; i < static_cast<int>(Commands::SIZE); i++)
 		releasedKeysCounter[i] = currentStates[i] ? 0 : releasedKeysCounter[i] + 1;
 	SDL_Event event;
 	downedKeys.clear();
