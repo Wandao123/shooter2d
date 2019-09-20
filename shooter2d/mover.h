@@ -29,6 +29,7 @@ namespace Shooter {
 			, sprite(std::move(sprite))
 			, collider(std::move(collider))
 			, effectID(effectID)
+			, invincibleCounter(0)
 		{}
 		virtual ~Mover() {}
 		virtual void Draw() const override;
@@ -76,6 +77,16 @@ namespace Shooter {
 		{
 			return hitPoint;
 		}
+
+		unsigned int IsInvincible() const
+		{
+			return (invincibleCounter > 0) ? true : false;
+		}
+
+		void TurnInvincible(const unsigned int frames)
+		{
+			invincibleCounter = frames;
+		}
 	protected:
 		float speed;  // 単位：ドット毎フレーム
 		float angle;  // x軸を基準とした角度。時計回りの方向を正とする。
@@ -84,6 +95,7 @@ namespace Shooter {
 		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Collider> collider;
 		EffectManager::EffectID effectID;  // 消滅エフェクトのID。
+		unsigned int invincibleCounter;  // 無敵状態になっている残りのフレーム数。
 		bool isInside();
 		virtual void spawned();
 

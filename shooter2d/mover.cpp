@@ -11,10 +11,11 @@ void Mover::Draw() const
 
 void Mover::Update()
 {
-	// 移動処理。
+	// パラメータの更新。
 	position += { speed * std::cos(angle), speed * std::sin(angle) };  // 1フレームを単位時間とする。
 	if (!isInside())
 		enabled = false;
+	invincibleCounter = (invincibleCounter > 0) ? invincibleCounter - 1 : 0;
 
 	// アニメーション。
 	SDL_Rect& currentClip = clipFromImage(Timer::Create().GetPlayingFrames());

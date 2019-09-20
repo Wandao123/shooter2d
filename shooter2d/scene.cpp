@@ -57,6 +57,8 @@ private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	std::unique_ptr<CollisionDetector> collisionDetector;
 	std::unique_ptr<Script> script;
+private:
+	static const int InvincibleFrames = 360;
 };
 
 class KeyConfigScene : public Scene
@@ -265,11 +267,14 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	, script(std::make_unique<Script>(*bulletManager, *enemyManager, *playerManager))
 {
 	// 更新対象オブジェクトを生成。
-	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }).lock()->Spawned();
+	auto player = playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
+	player.lock()->Spawned();
+	player.lock()->TurnInvincible(InvincibleFrames / 2);
+
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
 
 	auto objectMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::PlayersMonitor, Vector2{ UserInterfaceManager::FontSize * 4, UserInterfaceManager::FontSize * 3 / 4 / 2 });
-	objectMonitor.lock()->SetCaption("Player");
+	objectMonitor.lock()->SetCaption(u8"Player");
 	objectMonitor.lock()->Register(playerManager);
 }
 
@@ -277,14 +282,17 @@ void GameScene::Update()
 {
 	auto updatePlayer = [this](Player& player) {
 		// 自機の復活処理。
-		const unsigned int DelayFrames = 30;
-		static unsigned int playerDefeatedFrame = Timer::Create().GetPlayingFrames();
-		if (!player.IsEnabled() && player.GetLife() > 0 && Timer::Create().GetPlayingFrames() - playerDefeatedFrame >= DelayFrames) {
-			player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
+		if (!player.IsEnabled() && player.GetLife() > 0) {
+			player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height + Player::Height / 2 });
 			player.Spawned();
-			playerDefeatedFrame = Timer::Create().GetPlayingFrames();
+			player.TurnInvincible(InvincibleFrames);
 		}
-		
+		if (player.GetPosition().y >= Game::Height - Player::Height) {
+			// ここでSetVelocityを使うと、移動制限処理のところで不具合が生じる。
+			player.SetPosition(player.GetPosition() + Vector2{ 0.0f, -1.0f });
+			return;
+		}
+
 		// 自機の移動。
 		float speed = Input::Create().GetKey(Input::Commands::Slow) ? player.GetLowSpeed() : player.GetHighSpeed();
 		Vector2 velocity = { 0.0f, 0.0f };
@@ -345,9 +353,9 @@ void GameScene::Update()
 void GameScene::Draw() const
 {
 	userInterfaceManager->Draw();
+	enemyManager->Draw();
 	effectManager->Draw();
 	playerManager->Draw();
-	enemyManager->Draw();
 	bulletManager->Draw();
 }
 

@@ -46,7 +46,7 @@ namespace Shooter {
 	/// <remarks>
 	/// 生成するオブジェクトの種類に応じて、このクラスの継承先で定義せよ。特に、インスタンスを返す関数を定義していないので、
 	///     std::weak_ptr GenerateObject(生成するオブジェクトのID, 生成する位置)
-	/// という型の関数を継承先で定義すること。下のassignObjectも参照。
+	/// という型の関数を継承先で定義すること。下記のassignObjectも参照。
 	/// </remarks>
 	class ObjectManager
 	{

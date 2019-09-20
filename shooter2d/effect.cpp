@@ -24,7 +24,7 @@ public:
 		clips[0] = { 0, 128, 128, 128 };
 		clips[1] = { 0, 128, 128, 128 };
 		clips[2] = { 0, 256, 128, 128 };
-		this->sound->SetVolume(Sound::MaxVolume);
+		this->sound->SetVolume(Sound::MaxVolume / 2);
 	}
 
 	void Update() override
@@ -48,7 +48,7 @@ public:
 	CircleEffect(const Vector2& position)
 		: Effect(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/effect_circle.png")), std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/enemy_vanish_effect-A.wav")))
 	{
-		this->sound->SetVolume(Sound::MaxVolume);
+		this->sound->SetVolume(Sound::MaxVolume / 2);
 	}
 
 	void Update() override

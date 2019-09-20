@@ -141,16 +141,16 @@ void Player::Update()
 	Mover::Update();
 
 	// 移動制限。
-	if ((position.x - Width * 0.5f < 0) || (position.x + Width * 0.5f > Game::Width))
+	if (position.x - Width * 0.5f < 0 || position.x + Width * 0.5f > Game::Width)
 		position.x -= velocity.x;
-	if ((position.y - Width * 0.5f < 0) || (position.y + Height * 0.5f > Game::Height))
+	if (position.y - Height * 0.5f < 0 || position.y + Height * 0.5f > Game::Height)
 		position.y -= velocity.y;
 
 	// 描画の前処理。
 	if (sprite->GetAlpha() < 255) {
-		if (Timer::Create().GetPlayingFrames() - beginningFrame >= InvincibleFrames)
+		if (invincibleCounter == 0)
 			sprite->SetAlpha(255);
-		else if ((Timer::Create().GetPlayingFrames() - beginningFrame) / 3 % 2 == 0)  // 3フレーム毎に点滅する。
+		else if (invincibleCounter / 3 % 2 == 0)  // 3フレーム毎に点滅する。
 			sprite->SetAlpha(0);
 		else
 			sprite->SetAlpha(191);
@@ -159,7 +159,7 @@ void Player::Update()
 
 void Player::OnCollide(Mover&)
 {
-	if (Timer::Create().GetPlayingFrames() - beginningFrame < InvincibleFrames)
+	if (invincibleCounter > 0)
 		return;
 	enabled = false;
 	hitPoint = 0;
@@ -171,7 +171,6 @@ void Player::Spawned()
 	if (life <= 0)
 		return;
 	Mover::spawned();
-	beginningFrame = Timer::Create().GetPlayingFrames();
 	sprite->SetAlpha(191);
 }
 
