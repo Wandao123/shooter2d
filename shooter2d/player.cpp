@@ -171,6 +171,9 @@ void Player::Spawned()
 	if (life <= 0)
 		return;
 	Mover::spawned();
+	SetSpeed(0.0f);
+	SetAngle(-M_PI_2);
+	velocity = { 0.0f, 0.0f };
 	sprite->SetAlpha(191);
 }
 

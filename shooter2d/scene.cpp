@@ -58,7 +58,8 @@ private:
 	std::unique_ptr<CollisionDetector> collisionDetector;
 	std::unique_ptr<Script> script;
 private:
-	static const int InvincibleFrames = 360;
+	const unsigned int InvincibleFrames = 360;
+	const unsigned int InputDelayFrames = InvincibleFrames / 4;
 };
 
 class KeyConfigScene : public Scene
@@ -266,13 +267,10 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	, collisionDetector(std::make_unique<CollisionDetector>(*bulletManager, *effectManager, *enemyManager, *playerManager))
 	, script(std::make_unique<Script>(*bulletManager, *enemyManager, *playerManager))
 {
-	// 更新対象オブジェクトを生成。
-	auto player = playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
+	auto player = playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width * 0.5f, Game::Height + Player::Height - InputDelayFrames });
 	player.lock()->Spawned();
 	player.lock()->TurnInvincible(InvincibleFrames / 2);
-
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
-
 	auto objectMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::PlayersMonitor, Vector2{ UserInterfaceManager::FontSize * 4, UserInterfaceManager::FontSize * 3 / 4 / 2 });
 	objectMonitor.lock()->SetCaption(u8"Player");
 	objectMonitor.lock()->Register(playerManager);
@@ -282,12 +280,14 @@ void GameScene::Update()
 {
 	auto updatePlayer = [this](Player& player) {
 		// 自機の復活処理。
+		static unsigned int spawningFrame = Timer::Create().GetPlayingFrames() - InputDelayFrames;
 		if (!player.IsEnabled() && player.GetLife() > 0) {
-			player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height + Player::Height / 2 });
+			player.SetPosition(Vector2{ Game::Width * 0.5f, Game::Height + Player::Height });
 			player.Spawned();
 			player.TurnInvincible(InvincibleFrames);
+			spawningFrame = Timer::Create().GetPlayingFrames();
 		}
-		if (player.GetPosition().y >= Game::Height - Player::Height) {
+		if (Timer::Create().GetPlayingFrames() - spawningFrame < InputDelayFrames) {  // 1フレーム目は必ず実行されない。
 			// ここでSetVelocityを使うと、移動制限処理のところで不具合が生じる。
 			player.SetPosition(player.GetPosition() + Vector2{ 0.0f, -1.0f });
 			return;
