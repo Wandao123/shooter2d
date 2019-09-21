@@ -5,19 +5,16 @@ using namespace Shooter;
 void CollisionDetector::CheckAll()
 {
 	// TODO: 判定する対象を減らす。四分木法など。
-	for (auto&& player : playerManager.GetList())
-		for (auto&& enemy : enemyManager.GetList())
-			CheckBetween(
-				*(std::dynamic_pointer_cast<Mover>(player.lock())),
-				*(std::dynamic_pointer_cast<Mover>(enemy.lock()))
-			);
 	auto player = playerManager.GetPlayer();
-	if (!player.expired())
-		for (auto&& bullet : bulletManager.GetList())
-			CheckBetween(
-				*(std::dynamic_pointer_cast<Mover>(player.lock())),
-				*(std::dynamic_pointer_cast<Mover>(bullet.lock()))
-			);
+	if (!player.expired()) {
+		for (auto&& bullet : enemyBulletManager.GetBullets())
+			CheckBetween(*player.lock(), *bullet.lock());
+		for (auto&& enemy : enemyManager.GetEnemies())
+			CheckBetween(*player.lock(), *enemy.lock());
+	}
+	for (auto&& bullet : playerBulletManager.GetBullets())
+		for (auto&& enemy : enemyManager.GetEnemies())
+			CheckBetween(*bullet.lock(), *enemy.lock());
 }
 
 void CollisionDetector::CheckBetween(Mover& mover1, Mover& mover2)

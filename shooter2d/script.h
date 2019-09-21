@@ -91,9 +91,9 @@ namespace Shooter {
 		std::function<void(SceneID)> changeScene =
 		[this](SceneID id) {
 			tasksList.clear();
-			for (auto&& enemy : enemyManager.GetList())
+			for (auto&& enemy : enemyManager.GetObjects())
 				enemy.lock()->Erase();
-			for (auto&& bullet : bulletManager.GetList())
+			for (auto&& bullet : bulletManager.GetObjects())
 				bullet.lock()->Erase();
 			switch (id) {
 			case SceneID::Title:

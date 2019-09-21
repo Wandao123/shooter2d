@@ -55,15 +55,7 @@ namespace Shooter {
 		virtual ~ObjectManager() {}
 		virtual void Draw() const;
 		virtual void Update();
-
-		std::list<std::weak_ptr<GameObject>> GetList() const
-		{
-			std::list<std::weak_ptr<GameObject>> temp;
-			for (auto&& object : objectsList)
-				if (object->IsEnabled())
-					temp.push_back(object);
-			return temp;
-		}
+		std::list<std::weak_ptr<GameObject>> GetObjects() const { return getList<GameObject>(); }
 	protected:
 		std::list<std::shared_ptr<GameObject>> objectsList;  // 更新対象オブジェクト。本来なら継承先でGameObjectの具象クラスに対して定義するべきか？
 
@@ -83,6 +75,18 @@ namespace Shooter {
 				}
 			objectsList.push_front(std::make_unique<ObjectType>(position));
 			return std::dynamic_pointer_cast<ObjectType>(*objectsList.begin());;
+		}
+
+		/// <summary>指定されたObjectType型のリストを返す。</summary>
+		/// <remarks>ObjectTypeはGameObjectの子クラスであることが前提。</remarks>
+		template <class ObjectType>
+		std::list<std::weak_ptr<ObjectType>> getList() const
+		{
+			std::list<std::weak_ptr<ObjectType>> temp;
+			for (auto&& object : objectsList)
+				if (object->IsEnabled())
+					temp.push_back(std::dynamic_pointer_cast<ObjectType>(object));
+			return temp;
 		}
 	};
 }

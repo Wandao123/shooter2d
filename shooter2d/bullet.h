@@ -34,9 +34,17 @@ namespace Shooter {
 			RiceRed,
 			RiceBlue
 		};
+		enum class ShotID
+		{
+			ReimuNormal,
+			MarisaNormal,
+			SanaeNormal
+		};
 
 		BulletManager();
 		std::weak_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
+		std::weak_ptr<Bullet> GenerateObject(const ShotID id, const Vector2& position);
+		std::list<std::weak_ptr<Bullet>> GetBullets() const { return getList<Bullet>(); }
 	};
 }
 

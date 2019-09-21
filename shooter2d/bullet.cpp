@@ -149,6 +149,55 @@ public:
 	}
 };
 
+class PlayerShot : public Bullet
+{
+public:
+	PlayerShot(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
+		: Bullet(position, std::move(sprite), std::move(collider), EffectManager::EffectID::None, 4)
+		, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/sha04.wav")))
+	{
+		sound->SetVolume(Sound::MaxVolume / 32);
+	}
+
+	void Shot(const float speed, const float angle) override
+	{
+		Bullet::Shot(speed, angle);
+		sound->Played();
+	}
+private:
+	std::unique_ptr<Sound> sound;
+};
+
+class ReimuNormalShot : public PlayerShot
+{
+public:
+	ReimuNormalShot(const Vector2& position)
+		: PlayerShot(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot1.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f))
+	{
+		clip = { 2, 3, 13, 63 };
+	}
+};
+
+class MarisaNormalShot : public PlayerShot
+{
+public:
+	MarisaNormalShot(const Vector2& position)
+		: PlayerShot(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot2.png")), std::make_unique<CircleCollider>(6.5f))
+	{
+		clip = { 1, 2, 15, 26 };
+	}
+};
+
+class SanaeNormalShot : public PlayerShot
+{
+public:
+	SanaeNormalShot(const Vector2& position)
+		: PlayerShot(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot3.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f))
+	{
+		clip = { 0, 0, 16, 16 };
+	}
+};
+
 /******************************** Bullet *********************************/
 
 /// <param name="position">初期位置</param>
@@ -239,6 +288,23 @@ std::weak_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vec
 		break;
 	case BulletID::RiceBlue:
 		newObject = assignObject<RiceBlueBullet>(position);
+		break;
+	}
+	return newObject;
+}
+
+std::weak_ptr<Bullet> BulletManager::GenerateObject(const ShotID id, const Vector2& position)
+{
+	std::weak_ptr<Bullet> newObject;
+	switch (id) {
+	case ShotID::ReimuNormal:
+		newObject = assignObject<ReimuNormalShot>(position);
+		break;
+	case ShotID::MarisaNormal:
+		newObject = assignObject<MarisaNormalShot>(position);
+		break;
+	case ShotID::SanaeNormal:
+		newObject = assignObject<SanaeNormalShot>(position);
 		break;
 	}
 	return newObject;

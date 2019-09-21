@@ -31,6 +31,7 @@ namespace Shooter {
 		};
 
 		std::weak_ptr<Enemy> GenerateObject(const EnemyID id, const Vector2& position);
+		std::list<std::weak_ptr<Enemy>> GetEnemies() const { return getList<Enemy>(); }
 	};
 }
 

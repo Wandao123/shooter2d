@@ -50,10 +50,11 @@ public:
 	void Draw() const override;
 	void Update() override;
 private:
-	std::shared_ptr<BulletManager> bulletManager;
 	std::shared_ptr<EffectManager> effectManager;
 	std::shared_ptr<EnemyManager> enemyManager;
+	std::shared_ptr<BulletManager> enemyBulletManager;
 	std::shared_ptr<PlayerManager> playerManager;
+	std::shared_ptr<BulletManager> playerBulletManager;
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	std::unique_ptr<CollisionDetector> collisionDetector;
 	std::unique_ptr<Script> script;
@@ -259,18 +260,21 @@ void GameAllClearScene::Update()
 
 GameScene::GameScene(IChangingSceneListener& listener)
 	: Scene(listener)
-	, bulletManager(std::make_shared<BulletManager>())
 	, effectManager(std::make_shared<EffectManager>())
 	, enemyManager(std::make_shared<EnemyManager>())
+	, enemyBulletManager(std::make_shared<BulletManager>())
 	, playerManager(std::make_shared<PlayerManager>())
+	, playerBulletManager(std::make_shared<BulletManager>())
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, collisionDetector(std::make_unique<CollisionDetector>(*bulletManager, *effectManager, *enemyManager, *playerManager))
-	, script(std::make_unique<Script>(*bulletManager, *enemyManager, *playerManager))
+	, collisionDetector(std::make_unique<CollisionDetector>(*effectManager, *enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
+	, script(std::make_unique<Script>(*enemyBulletManager, *enemyManager, *playerManager))
 {
-	auto player = playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width * 0.5f, Game::Height + Player::Height - InputDelayFrames });
+	auto player = playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width * 0.5f, Game::Height + Player::Height - static_cast<float>(InputDelayFrames) });
 	player.lock()->Spawned();
 	player.lock()->TurnInvincible(InvincibleFrames / 2);
+
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+
 	auto objectMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::PlayersMonitor, Vector2{ UserInterfaceManager::FontSize * 4, UserInterfaceManager::FontSize * 3 / 4 / 2 });
 	objectMonitor.lock()->SetCaption(u8"Player");
 	objectMonitor.lock()->Register(playerManager);
@@ -312,7 +316,11 @@ void GameScene::Update()
 			const unsigned int ShotDelayFrames = 6;
 			static unsigned int playerShootingFrame = Timer::Create().GetPlayingFrames();
 			if (Timer::Create().GetPlayingFrames() - playerShootingFrame >= ShotDelayFrames) {
-				player.Shoot();
+				const float bulletSpeed = 30.0f;
+				auto newLeftBullet = playerBulletManager->GenerateObject(BulletManager::ShotID::ReimuNormal, player.GetPosition() - Vector2{ 12.0f, 0.0f });
+				newLeftBullet.lock()->Shot(bulletSpeed, -M_PI_2);
+				auto newRightBullet = playerBulletManager->GenerateObject(BulletManager::ShotID::ReimuNormal, player.GetPosition() + Vector2{ 12.0f, 0.0f });
+				newRightBullet.lock()->Shot(bulletSpeed, -M_PI_2);
 				playerShootingFrame = Timer::Create().GetPlayingFrames();
 			}
 		}
@@ -321,7 +329,8 @@ void GameScene::Update()
 	auto player = playerManager->GetPlayer().lock();
 	updatePlayer(*player);
 	auto status = script->Run();
-	bulletManager->Update();
+	enemyBulletManager->Update();
+	playerBulletManager->Update();
 	effectManager->Update();
 	enemyManager->Update();
 	playerManager->Update();
@@ -356,7 +365,8 @@ void GameScene::Draw() const
 	enemyManager->Draw();
 	effectManager->Draw();
 	playerManager->Draw();
-	bulletManager->Draw();
+	enemyBulletManager->Draw();
+	playerBulletManager->Draw();
 }
 
 /******************************** KeyConfigScene *********************************/

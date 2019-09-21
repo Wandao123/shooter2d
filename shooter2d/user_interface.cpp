@@ -62,7 +62,7 @@ public:
 		text.str("");
 		text << std::setw(ItemWidth) << std::left << caption;
 		if (!manager.expired())
-			text << std::setw(ItemWidth) << std::left << manager.lock()->GetList().size();
+			text << std::setw(ItemWidth) << std::left << manager.lock()->GetObjects().size();
 		label->Text = text.str();
 	}
 
