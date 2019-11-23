@@ -58,9 +58,6 @@ private:
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	std::unique_ptr<CollisionDetector> collisionDetector;
 	std::unique_ptr<Script> script;
-private:
-	const unsigned int InvincibleFrames = 360;
-	const unsigned int InputDelayFrames = InvincibleFrames / 4;
 };
 
 class KeyConfigScene : public Scene
@@ -269,11 +266,6 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	, collisionDetector(std::make_unique<CollisionDetector>(*effectManager, *enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
 	, script(std::make_unique<Script>(*enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
 {
-	// 自機の初期化。
-	/*auto player = playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width * 0.5f, Game::Height + Player::Height - static_cast<float>(InputDelayFrames) });
-	player.lock()->Spawned();
-	player.lock()->TurnInvincible(InvincibleFrames / 2);*/
-
 	// UIの初期化。
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
 	auto objectMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::PlayersMonitor, Vector2{ UserInterfaceManager::FontSize * 4, UserInterfaceManager::FontSize * 3 / 4 / 2 });
@@ -289,52 +281,7 @@ GameScene::GameScene(IChangingSceneListener& listener)
 
 void GameScene::Update()
 {
-	/*auto updatePlayer = [this](Player& player) {
-		// 自機の復帰処理。
-		static unsigned int spawningFrame = Timer::Create().GetPlayingFrames() - InputDelayFrames;
-		if (!player.IsEnabled() && player.GetLife() > 0) {
-			player.SetPosition(Vector2{ Game::Width * 0.5f, Game::Height + Player::Height });
-			player.Spawned();
-			player.TurnInvincible(InvincibleFrames);
-			spawningFrame = Timer::Create().GetPlayingFrames();
-		}
-		if (Timer::Create().GetPlayingFrames() - spawningFrame < InputDelayFrames) {  // 1フレーム目は必ず実行されない。
-			// ここでSetVelocityを使うと、移動制限処理のところで不具合が生じる。
-			player.SetPosition(player.GetPosition() + Vector2{ 0.0f, -1.0f });
-			return;
-		}
-
-		// 自機の移動。復帰との兼ね合いから、Playerクラス内で処理できない。
-		float speed = Input::Create().GetKey(Input::Commands::Slow) ? player.GetLowSpeed() : player.GetHighSpeed();
-		Vector2 velocity = { 0.0f, 0.0f };
-		if (Input::Create().GetKey(Input::Commands::Leftward))
-			velocity.x = -speed;
-		if (Input::Create().GetKey(Input::Commands::Rightward))
-			velocity.x = +speed;
-		if (Input::Create().GetKey(Input::Commands::Forward))
-			velocity.y = -speed;
-		if (Input::Create().GetKey(Input::Commands::Backward))
-			velocity.y = +speed;
-		velocity = velocity.Normalize() * speed;
-		player.SetVelocity(velocity);
-
-		// 自機のショット。
-		if (Input::Create().GetKey(Input::Commands::Shot)) {
-			const unsigned int ShotDelayFrames = 6;
-			static unsigned int playerShootingFrame = Timer::Create().GetPlayingFrames();
-			if (Timer::Create().GetPlayingFrames() - playerShootingFrame >= ShotDelayFrames) {
-				const float bulletSpeed = 30.0f;
-				auto newLeftBullet = playerBulletManager->GenerateObject(BulletManager::ShotID::ReimuNormal, player.GetPosition() - Vector2{ 12.0f, 0.0f });
-				newLeftBullet.lock()->Shot(bulletSpeed, -M_PI_2);
-				auto newRightBullet = playerBulletManager->GenerateObject(BulletManager::ShotID::ReimuNormal, player.GetPosition() + Vector2{ 12.0f, 0.0f });
-				newRightBullet.lock()->Shot(bulletSpeed, -M_PI_2);
-				playerShootingFrame = Timer::Create().GetPlayingFrames();
-			}
-		}
-	};*/
-
 	auto player = playerManager->GetPlayer().lock();
-	//updatePlayer(*player);
 	auto status = script->Run();
 	enemyBulletManager->Update();
 	playerBulletManager->Update();

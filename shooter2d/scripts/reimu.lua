@@ -2,8 +2,6 @@ local parameters = {
 	InvincibleFrames = 360,
 	InputDelayFrames = 90,
 	ID = PlayerID.Reimu,
-	HighSpeed = 4.5,
-	LowSpeed = 2.0,
 	NormalShot = ShotID.ReimuNormal,
 	ShotDelayFrames = 6,
 	BulletSpeed = 30.0
@@ -34,30 +32,23 @@ local function Rebirth()
 	end
 end
 
--- 自機の移動。復帰との兼ね合いから、Playerクラス内で処理できない。
+-- 自機の移動。復帰との兼ね合い（復帰中は入力を受け付けない）から、Playerクラス内で処理できない。
 local function Move()
 	while true do
-		-- TODO: Playerクラス内のLowSpeed/HighSpeedを使うように修正。SetVelocityの引数を (direction: Vector2, slowMode: bool) に変更。
-		local speed = GetKey(CommandID.Slow) and parameters.LowSpeed or parameters.HighSpeed
-		local velX, velY = 0.0, 0.0
+		local dirX, dirY = 0.0, 0.0
 		if GetKey(CommandID.Leftward) then
-			velX = -speed
+			dirX = -1
 		end
 		if GetKey(CommandID.Rightward) then
-			velX = speed
+			dirX = 1
 		end
 		if GetKey(CommandID.Forward) then
-			velY = -speed
+			dirY = -1
 		end
 		if GetKey(CommandID.Backward) then
-			velY = speed
+			dirY = 1
 		end
-		-- TODO: Vector2クラスで書けるようにする。
-		if velX ~= 0.0 or velY ~= 0.0 then
-			velX = velX * speed / math.sqrt(velX ^ 2 + velY ^ 2)
-			velY = velY * speed / math.sqrt(velX ^ 2 + velY ^ 2)
-		end
-		player:SetVelocity(velX, velY)
+		player:SetVelocity(dirX, dirY, GetKey(CommandID.Slow))
 		coroutine.yield()
 	end
 end

@@ -16,16 +16,6 @@ namespace Shooter {
 		void OnCollide(Mover& mover) override;
 		void Spawned();  // 実体化関数
 
-		float GetHighSpeed() const
-		{
-			return highSpeed;
-		}
-
-		float GetLowSpeed() const
-		{
-			return lowSpeed;
-		}
-
 		int GetLife() const
 		{
 			return life;
@@ -39,11 +29,14 @@ namespace Shooter {
 		}
 
 		/// <summary>速度の方向を設定する。入力との関係上、speedとangle（極座標系）ではなくxy座標系で指定する。</summary>
-		/// <param name="velocity">xy座標系での移動速度（単位：ドット毎フレーム）</param>
-		void SetVelocity(const Vector2& velocity)
+		/// <param name="direction">xy座標系での移動方向</param>
+		/// <param name="slowMode">低速移動モードか否か</param>
+		/// <remarks>速度の方向のみ考慮することに注意（大きさは規格化される）。速さは予め設定されたhighSpeed/lowSpeedを使う。</remarks>
+		void SetVelocity(const Vector2& direction, const bool slowMode)
 		{
-			//this->velocity = velocity * Timer::FPS * Timer::Create().GetDeltaTime();  // 実時間を考慮する場合。
-			this->velocity = velocity;
+			auto speed = slowMode ? lowSpeed : highSpeed;
+			//this->velocity = direction.Normalize() * speed * Timer::FPS * Timer::Create().GetDeltaTime();  // 実時間を考慮する場合。
+			this->velocity = direction.Normalize() * speed;
 			SetSpeed(this->velocity.Magnitude());
 			SetAngle(std::atan2(this->velocity.y, this->velocity.x));
 		}

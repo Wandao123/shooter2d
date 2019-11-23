@@ -44,7 +44,6 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 	lua.new_usertype<Player>(
 		"Player",
 		"Angle", sol::property(&Player::GetAngle),
-		//"Height", sol::property([](Player& player) -> int { return player.Height; }),
 		"Life", sol::property([](Player& player) -> int { return player.GetLife(); }),
 		"PosX", sol::property(
 			[](Player& player) -> float { return player.GetPosition().x; },
@@ -53,9 +52,8 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 			[](Player& player) -> float { return player.GetPosition().y; },
 			[](Player& player, const float posY) { player.SetPosition({ player.GetPosition().x, posY }); }),
 		"Speed", sol::property(&Player::GetSpeed),
-		//"Width", sol::property([](Player& player) -> int { return player.Width; }),
 		"IsEnabled", &Player::IsEnabled,
-		"SetVelocity", [](Player& player, const float velX, const float velY) { player.SetVelocity({ velX, velY }); },
+		"SetVelocity", [](Player& player, const float dirX, const float dirY, const bool slowMode) { player.SetVelocity({ dirX, dirY }, slowMode); },
 		"Spawned", &Player::Spawned,
 		"TurnInvincible", &Player::TurnInvincible
 	);
@@ -144,9 +142,8 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 Script::Status Script::Run()
 {
 	// Luaのスレッドを実行。
-	if (std::none_of(staticTasksList.begin(), staticTasksList.end(), [](auto pair) { return pair.second.runnable(); }))  // 全てのスレッドが終了しているか否か。
-	//		&& tasksList.empty())
-		status = Status::Dead;
+	if (staticTasksList.empty() && tasksList.empty())
+		status = Status::Dead;  // 自機スクリプトの実装方法との関係上、基本的にここは実行されない。
 	else
 		status = Status::Running;
 	staticTasksList.remove_if([](std::pair<sol::thread, sol::coroutine> task) {  // 終了したスレッドを全て削除。削除しなければ再実行されることに注意。

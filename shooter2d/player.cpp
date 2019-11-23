@@ -58,7 +58,7 @@ void Player::Update()
 		position.x -= velocity.x;
 	if (position.y - Height * 0.5f < 0 || position.y + Height * 0.5f > Game::Height)
 		position.y -= velocity.y;
-	/* 復帰処理との兼ね合い（画面外から移動させる）から、次のように書かない。
+	/* 復帰処理との兼ね合い（画面外から移動させる）から、次のようには書かない。
 	if (position.x - Width * 0.5f < 0)
 		position.x = Width * 0.5f;
 	else if (position.x + Width * 0.5f > Game::Width)
