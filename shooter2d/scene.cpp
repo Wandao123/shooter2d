@@ -267,23 +267,30 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	, playerBulletManager(std::make_shared<BulletManager>())
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, collisionDetector(std::make_unique<CollisionDetector>(*effectManager, *enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
-	, script(std::make_unique<Script>(*enemyBulletManager, *enemyManager, *playerManager))
+	, script(std::make_unique<Script>(*enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
 {
-	auto player = playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width * 0.5f, Game::Height + Player::Height - static_cast<float>(InputDelayFrames) });
+	// 自機の初期化。
+	/*auto player = playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width * 0.5f, Game::Height + Player::Height - static_cast<float>(InputDelayFrames) });
 	player.lock()->Spawned();
-	player.lock()->TurnInvincible(InvincibleFrames / 2);
+	player.lock()->TurnInvincible(InvincibleFrames / 2);*/
 
+	// UIの初期化。
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
-
 	auto objectMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::PlayersMonitor, Vector2{ UserInterfaceManager::FontSize * 4, UserInterfaceManager::FontSize * 3 / 4 / 2 });
 	objectMonitor.lock()->SetCaption(u8"Player");
 	objectMonitor.lock()->Register(playerManager);
+
+	// スクリプトの初期化。
+	script->LoadFile("scripts/main.lua");
+	script->RegisterFunction("Main");
+	script->LoadFile("scripts/reimu.lua");  // TODO: 各機体毎に条件分岐。
+	script->RegisterFunction("PlayerScript");
 }
 
 void GameScene::Update()
 {
-	auto updatePlayer = [this](Player& player) {
-		// 自機の復活処理。
+	/*auto updatePlayer = [this](Player& player) {
+		// 自機の復帰処理。
 		static unsigned int spawningFrame = Timer::Create().GetPlayingFrames() - InputDelayFrames;
 		if (!player.IsEnabled() && player.GetLife() > 0) {
 			player.SetPosition(Vector2{ Game::Width * 0.5f, Game::Height + Player::Height });
@@ -297,7 +304,7 @@ void GameScene::Update()
 			return;
 		}
 
-		// 自機の移動。
+		// 自機の移動。復帰との兼ね合いから、Playerクラス内で処理できない。
 		float speed = Input::Create().GetKey(Input::Commands::Slow) ? player.GetLowSpeed() : player.GetHighSpeed();
 		Vector2 velocity = { 0.0f, 0.0f };
 		if (Input::Create().GetKey(Input::Commands::Leftward))
@@ -324,10 +331,10 @@ void GameScene::Update()
 				playerShootingFrame = Timer::Create().GetPlayingFrames();
 			}
 		}
-	};
+	};*/
 
 	auto player = playerManager->GetPlayer().lock();
-	updatePlayer(*player);
+	//updatePlayer(*player);
 	auto status = script->Run();
 	enemyBulletManager->Update();
 	playerBulletManager->Update();
@@ -352,7 +359,6 @@ void GameScene::Update()
 		case Script::Status::Running:
 			break;
 		case Script::Status::StageClear:
-			player->Erase();
 			listener.PushScene(std::make_unique<GameClearScene>(listener));
 			break;
 		}

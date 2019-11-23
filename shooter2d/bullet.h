@@ -19,7 +19,8 @@ namespace Shooter {
 	class BulletManager : public ObjectManager
 	{
 	public:
-		enum class BulletID
+		// HACK: 同じようなコードを二通り書く必要があるため、敵弾と自弾とに分けるのは非効率的か？
+		enum class BulletID  // 敵弾。
 		{
 			LargeRed,
 			LargeBlue,
@@ -34,7 +35,7 @@ namespace Shooter {
 			RiceRed,
 			RiceBlue
 		};
-		enum class ShotID
+		enum class ShotID  // 自弾。
 		{
 			ReimuNormal,
 			MarisaNormal,

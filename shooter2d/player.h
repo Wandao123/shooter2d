@@ -31,14 +31,14 @@ namespace Shooter {
 			return life;
 		}
 
-		/// <param name="life">ゲームオーバーまでの被弾数</param>
+		/// <param name="life">ゲームオーバーまでの被弾回数</param>
 		void SetLife(const int life)
 		{
 			if (life > 0)
 				this->life = life;
 		}
 
-		/// <summary>速度のセッター。入力との関係上、speedとangleではなくxy座標で指定したい。</summary>
+		/// <summary>速度の方向を設定する。入力との関係上、speedとangle（極座標系）ではなくxy座標系で指定する。</summary>
 		/// <param name="velocity">xy座標系での移動速度（単位：ドット毎フレーム）</param>
 		void SetVelocity(const Vector2& velocity)
 		{
@@ -53,7 +53,7 @@ namespace Shooter {
 		std::array<std::array<SDL_Rect, 5>, 3> clips;  // 3成分はそれぞれ停止時、左移動、右移動を表す。5成分は変化の差分を表す。
 		const float highSpeed;
 		const float lowSpeed;
-		int life = 3;  // 1まではプレイ可能で、0になったらゲームオーバー。life - 1 = 残機。
+		int life = 3;  // 1まではプレイ可能で、0になったらゲームオーバー。life - 1 = 残機。hitPointは撃破の判定に用いるのに対し、これは被弾回数を表す。
 		Vector2 velocity = { 0.0f, 0.0f };
 	};
 
@@ -69,7 +69,7 @@ namespace Shooter {
 		};
 
 		std::weak_ptr<Player> GenerateObject(const PlayerID id, const Vector2& position);
-		std::weak_ptr<Player> GetPlayer() const;
+		std::weak_ptr<Player> GetPlayer() const;  // TODO: objectsListに複数のアイテムが入っている場合を考慮。
 	};
 }
 
