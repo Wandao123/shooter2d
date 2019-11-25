@@ -2,7 +2,7 @@ local parameters = {
 	InvincibleFrames = 360,
 	InputDelayFrames = 90,
 	ID = PlayerID.Reimu,
-	NormalShot = ShotID.ReimuNormal,
+	NormalShot = BulletID.ReimuNormal,
 	ShotDelayFrames = 6,
 	BulletSpeed = 30.0
 }
@@ -57,8 +57,8 @@ end
 local function Shoot()
 	while true do
 		if GetKey(CommandID.Shot) then
-			GenerateShot(parameters.NormalShot, player.PosX - 12, player.PosY, parameters.BulletSpeed, -math.pi / 2)
-			GenerateShot(parameters.NormalShot, player.PosX + 12, player.PosY, parameters.BulletSpeed, -math.pi / 2)
+			GeneratePlayerBullet(parameters.NormalShot, player.PosX - 12, player.PosY, parameters.BulletSpeed, -math.pi / 2)
+			GeneratePlayerBullet(parameters.NormalShot, player.PosX + 12, player.PosY, parameters.BulletSpeed, -math.pi / 2)
 			for i = 1, parameters.ShotDelayFrames do
 				coroutine.yield()
 			end

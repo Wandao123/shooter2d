@@ -71,7 +71,8 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"SmallBlue", EnemyManager::EnemyID::SmallBlue
 	);
 	lua.new_enum(
-		"BulletID",  // 敵弾。
+		"BulletID",
+		// 敵弾。
 		"LargeRed", BulletManager::BulletID::LargeRed,
 		"LargeBlue", BulletManager::BulletID::LargeBlue,
 		"MiddleRed", BulletManager::BulletID::MiddleRed,
@@ -83,19 +84,17 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"ScaleRed", BulletManager::BulletID::ScaleRed,
 		"ScaleBlue", BulletManager::BulletID::ScaleBlue,
 		"RiceRed", BulletManager::BulletID::RiceRed,
-		"RiceBlue", BulletManager::BulletID::RiceBlue
+		"RiceBlue", BulletManager::BulletID::RiceBlue,
+		// 自弾。
+		"ReimuNormal", BulletManager::BulletID::ReimuNormal,
+		"MarisaNormal", BulletManager::BulletID::MarisaNormal,
+		"SanaeNormal", BulletManager::BulletID::SanaeNormal
 	);
 	lua.new_enum(
 		"PlayerID",
 		"Reimu", PlayerManager::PlayerID::Reimu,
 		"Marisa", PlayerManager::PlayerID::Marisa,
 		"Sanae", PlayerManager::PlayerID::Sanae
-	);
-	lua.new_enum(
-		"ShotID",  // 自弾。
-		"ReimuNormal", BulletManager::ShotID::ReimuNormal,
-		"MarisaNormal", BulletManager::ShotID::MarisaNormal,
-		"SanaeNormal", BulletManager::ShotID::SanaeNormal
 	);
 	lua.new_enum(
 		"SceneID",
@@ -123,7 +122,7 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 	);
 	lua["GenerateEnemy"] = generateEnemy;
 	lua["GeneratePlayer"] = generatePlayer;
-	lua["GenerateShot"] = generatePlayerBullet;
+	lua["GeneratePlayerBullet"] = generatePlayerBullet;
 	lua["ChangeScene"] = changeScene;
 	lua["StartCoroutine"] = sol::overload(
 		startCoroutine,

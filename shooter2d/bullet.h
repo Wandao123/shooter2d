@@ -19,9 +19,9 @@ namespace Shooter {
 	class BulletManager : public ObjectManager
 	{
 	public:
-		// HACK: 同じようなコードを二通り書く必要があるため、敵弾と自弾とに分けるのは非効率的か？
-		enum class BulletID  // 敵弾。
+		enum class BulletID
 		{
+			// 敵弾。
 			LargeRed,
 			LargeBlue,
 			MiddleRed,
@@ -33,10 +33,8 @@ namespace Shooter {
 			ScaleRed,
 			ScaleBlue,
 			RiceRed,
-			RiceBlue
-		};
-		enum class ShotID  // 自弾。
-		{
+			RiceBlue,
+			// 自弾。
 			ReimuNormal,
 			MarisaNormal,
 			SanaeNormal
@@ -44,7 +42,6 @@ namespace Shooter {
 
 		BulletManager();
 		std::weak_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
-		std::weak_ptr<Bullet> GenerateObject(const ShotID id, const Vector2& position);
 		std::list<std::weak_ptr<Bullet>> GetBullets() const { return getList<Bullet>(); }
 	};
 }

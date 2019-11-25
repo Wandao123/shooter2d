@@ -149,10 +149,10 @@ public:
 	}
 };
 
-class PlayerShot : public Bullet
+class PlayerBullet : public Bullet
 {
 public:
-	PlayerShot(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
+	PlayerBullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
 		: Bullet(position, std::move(sprite), std::move(collider), EffectManager::EffectID::None, 4)
 		, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/sha04.wav")))
 	{
@@ -168,31 +168,31 @@ private:
 	std::unique_ptr<Sound> sound;
 };
 
-class ReimuNormalShot : public PlayerShot
+class ReimuNormalBullet : public PlayerBullet
 {
 public:
-	ReimuNormalShot(const Vector2& position)
-		: PlayerShot(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot1.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f))
+	ReimuNormalBullet(const Vector2& position)
+		: PlayerBullet(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot1.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f))
 	{
 		clip = { 2, 3, 13, 63 };
 	}
 };
 
-class MarisaNormalShot : public PlayerShot
+class MarisaNormalBullet : public PlayerBullet
 {
 public:
-	MarisaNormalShot(const Vector2& position)
-		: PlayerShot(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot2.png")), std::make_unique<CircleCollider>(6.5f))
+	MarisaNormalBullet(const Vector2& position)
+		: PlayerBullet(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot2.png")), std::make_unique<CircleCollider>(6.5f))
 	{
 		clip = { 1, 2, 15, 26 };
 	}
 };
 
-class SanaeNormalShot : public PlayerShot
+class SanaeNormalBullet : public PlayerBullet
 {
 public:
-	SanaeNormalShot(const Vector2& position)
-		: PlayerShot(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot3.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f))
+	SanaeNormalBullet(const Vector2& position)
+		: PlayerBullet(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot3.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f))
 	{
 		clip = { 0, 0, 16, 16 };
 	}
@@ -253,6 +253,7 @@ std::weak_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vec
 {
 	std::weak_ptr<Bullet> newObject;
 	switch (id) {
+	// 敵弾。
 	case BulletID::LargeRed:
 		newObject = assignObject<LargeRedBullet>(position);
 		break;
@@ -289,22 +290,15 @@ std::weak_ptr<Bullet> BulletManager::GenerateObject(const BulletID id, const Vec
 	case BulletID::RiceBlue:
 		newObject = assignObject<RiceBlueBullet>(position);
 		break;
-	}
-	return newObject;
-}
-
-std::weak_ptr<Bullet> BulletManager::GenerateObject(const ShotID id, const Vector2& position)
-{
-	std::weak_ptr<Bullet> newObject;
-	switch (id) {
-	case ShotID::ReimuNormal:
-		newObject = assignObject<ReimuNormalShot>(position);
+	// 自弾。
+	case BulletID::ReimuNormal:
+		newObject = assignObject<ReimuNormalBullet>(position);
 		break;
-	case ShotID::MarisaNormal:
-		newObject = assignObject<MarisaNormalShot>(position);
+	case BulletID::MarisaNormal:
+		newObject = assignObject<MarisaNormalBullet>(position);
 		break;
-	case ShotID::SanaeNormal:
-		newObject = assignObject<SanaeNormalShot>(position);
+	case BulletID::SanaeNormal:
+		newObject = assignObject<SanaeNormalBullet>(position);
 		break;
 	}
 	return newObject;
