@@ -128,6 +128,7 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		startCoroutine,
 		startCoroutineWithArgs
 	);
+	lua["StopCoroutine"] = stopCoroutine;
 	lua["GetPlayer"] = getPlayer;
 	lua["GetKey"] = [](const Input::Commands command) -> bool { return Input::Create().GetKey(command); };
 	lua["GetKeyDown"] = [](const Input::Commands command) -> bool { return Input::Create().GetKeyDown(command); };
@@ -141,23 +142,13 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 Script::Status Script::Run()
 {
 	// Luaのスレッドを実行。
-	if (staticTasksList.empty() && tasksList.empty())
+	if (tasksList.empty())
 		status = Status::Dead;  // 自機スクリプトの実装方法との関係上、基本的にここは実行されない。
 	else
 		status = Status::Running;
-	staticTasksList.remove_if([](std::pair<sol::thread, sol::coroutine> task) {  // 終了したスレッドを全て削除。削除しなければ再実行されることに注意。
+	tasksList.remove_if([](Task task) {  // 終了したスレッドを全て削除。削除しなければ再実行されることに注意。また、無限ループがある場合も削除されない。
 		if (task.first.status() == sol::thread_status::dead) {
 			task.first.state().collect_garbage();  // タイミングがよく判らないため、明示的に実行。もしスレッドが終了していれば、ObjectManager::objectsListの各要素の参照カウントが1になる筈。
-			return true;
-		} else {
-			return false;
-		}
-	});
-	for (auto&& task : staticTasksList)
-		task.second();
-	tasksList.remove_if([](std::pair<sol::thread, sol::coroutine> task) {
-		if (task.first.status() == sol::thread_status::dead) {
-			task.first.state().collect_garbage();
 			return true;
 		} else {
 			return false;
@@ -184,12 +175,13 @@ void Script::LoadFile(const std::string filename)
 	lua.script_file(filename);  // TODO: エラー処理、二重読み込み？
 }
 
-/// <summary>寿命の永いコルーチンを登録する。</summary>
+/// <summary>コルーチンを登録する。</summary>
 /// <param name="name">登録する関数</param>
+/// <remarks>startCoroutineと殆ど同じ。</remarks>
 void Script::RegisterFunction(const std::string name)
 {
 	sol::thread th = sol::thread::create(lua.lua_state());
 	sol::coroutine co = th.state()[name];
 	co();
-	staticTasksList.push_back(std::make_pair(th, co));
+	tasksList.push_back(std::make_pair(th, co));
 }

@@ -42,8 +42,8 @@ namespace Shooter {
 		Status status;
 		sol::state lua;
 		// HACK: solのコルーチンの呼び出し方のために、組で保持する必要がある。Lua側でcoroutine.createをすれば、スレッドだけでもよい？
-		std::list<std::pair<sol::thread, sol::coroutine>> tasksList;  // 毎フレーム実行するコルーチンのリスト。1ステージ終了する度に全て破棄する。Luaスクリプトの内部から要素を追加する。
-		std::list<std::pair<sol::thread, sol::coroutine>> staticTasksList;  // 寿命の永い（明示的に破棄しない）コルーチンのリスト。自機スクリプトなどを登録する。RegisterFunction関数を介して外部から要素を登録する。
+		using Task = std::pair<sol::thread, sol::coroutine>;
+		std::list<Task> tasksList;  // 毎フレーム実行するコルーチンのリスト。
 
 		/// <summary>敵を生成する。</summary>
 		/// <param name="id">生成する敵のID</param>
@@ -119,7 +119,6 @@ namespace Shooter {
 		/// <param name="id">遷移先の画面ID</param>
 		std::function<void(SceneID)> changeScene =
 		[this](SceneID id) {
-			tasksList.clear();
 			for (auto&& enemy : enemyManager.GetObjects())
 				enemy.lock()->Erase();
 			for (auto&& bullet : enemyBulletManager.GetObjects())
@@ -139,26 +138,36 @@ namespace Shooter {
 			}
 		};
 
-		// TODO: 停めるための関数？
 		/// <summary>コルーチンを登録する。登録されたコルーチンは毎フレーム実行される。</summary>
 		/// <param name="func">登録するコルーチン</param>
-		std::function<void(const sol::function)> startCoroutine =
-		[this](const sol::function func) {
+		/// <returns>登録したタスク（スレッドとコルーチンの組）へのイテレータ。</returns>
+		std::function<std::list<Task>::iterator(const sol::function)> startCoroutine =
+		[this](const sol::function func) -> std::list<Task>::iterator {
 			sol::thread th = sol::thread::create(lua.lua_state());
 			sol::coroutine co(th.state(), func);
 			co();
 			tasksList.push_back(std::make_pair(th, co));
+			return --tasksList.end();
 		};
 
 		/// <summary>コルーチンを登録する。登録されたコルーチンは毎フレーム実行される。</summary>
 		/// <param name="func">登録するコルーチン</param>
 		/// <param name="va">コルーチンの引数リスト</param>
-		std::function<void(const sol::function, sol::variadic_args)> startCoroutineWithArgs =
-		[this](const sol::function func, sol::variadic_args va) {
+		/// <returns>登録したタスク（スレッドとコルーチンの組）へのイテレータ。</returns>
+		std::function<std::list<Task>::iterator(const sol::function, sol::variadic_args)> startCoroutineWithArgs =
+		[this](const sol::function func, sol::variadic_args va) -> std::list<Task>::iterator {
 			sol::thread th = sol::thread::create(lua.lua_state());
 			sol::coroutine co(th.state(), func);
 			co(sol::as_args(std::vector<sol::object>(va.begin(), va.end())));
 			tasksList.push_back(std::make_pair(th, co));
+			return --tasksList.end();
+		};
+
+		/// <summary>コルーチンを停止する。停止されたコルーチンは直後に削除される。</summary>
+		/// <param name="iter">タスク（スレッドとコルーチンの組）へのイテレータ</param>
+		std::function<void(const std::list<Task>::iterator)> stopCoroutine =
+		[this](const std::list<Task>::iterator iter) {
+			tasksList.erase(iter);
 		};
 
 		/// <summary>自機へのポインタを取得</summary>
