@@ -9,14 +9,14 @@ local parameters = {
 
 local player = nil
 
--- ‰Šú‰»B
+-- åˆæœŸåŒ–ã€‚
 local function Initialize()
 	player = GeneratePlayer(parameters.ID, ScreenWidth * 0.5, ScreenHeight + PlayerHeight - parameters.InputDelayFrames)
 	player:TurnInvincible(parameters.InvincibleFrames / 2)
 	coroutine.yield()
 end
 
--- ©‹@‚Ì•œ‹Aˆ—B
+-- è‡ªæ©Ÿã®å¾©å¸°å‡¦ç†ã€‚
 local function Rebirth()
 	if (not player:IsEnabled()) and (player.Life > 0) then
 		player.PosX = ScreenWidth * 0.5
@@ -25,14 +25,14 @@ local function Rebirth()
 		player:TurnInvincible(parameters.InvincibleFrames);
 		coroutine.yield()
 		for i = 1, parameters.InputDelayFrames do
-			-- ‚±‚±‚ÅSetVelocity‚ğg‚¤‚ÆAˆÚ“®§ŒÀˆ—‚Ì‚Æ‚±‚ë‚Å•s‹ï‡‚ª¶‚¶‚éB
+			-- ã“ã“ã§SetVelocityã‚’ä½¿ã†ã¨ã€ç§»å‹•åˆ¶é™å‡¦ç†ã®ã¨ã“ã‚ã§ä¸å…·åˆãŒç”Ÿã˜ã‚‹ã€‚
 			GetPlayer().PosY = GetPlayer().PosY - 1.0
 			coroutine.yield()
 		end
 	end
 end
 
--- ©‹@‚ÌˆÚ“®B•œ‹A‚Æ‚ÌŒ“‚Ë‡‚¢i•œ‹A’†‚Í“ü—Í‚ğó‚¯•t‚¯‚È‚¢j‚©‚çAPlayerƒNƒ‰ƒX“à‚Åˆ—‚Å‚«‚È‚¢B
+-- è‡ªæ©Ÿã®ç§»å‹•ã€‚å¾©å¸°ã¨ã®å…¼ã­åˆã„ï¼ˆå¾©å¸°ä¸­ã¯å…¥åŠ›ã‚’å—ã‘ä»˜ã‘ãªã„ï¼‰ã‹ã‚‰ã€Playerã‚¯ãƒ©ã‚¹å†…ã§å‡¦ç†ã§ããªã„ã€‚
 local function Move()
 	while true do
 		local dirX, dirY = 0.0, 0.0
@@ -53,7 +53,7 @@ local function Move()
 	end
 end
 
--- ©‹@‚ÌƒVƒ‡ƒbƒgB
+-- è‡ªæ©Ÿã®ã‚·ãƒ§ãƒƒãƒˆã€‚
 local function Shoot()
 	while true do
 		if GetKey(CommandID.Shot) then
