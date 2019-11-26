@@ -30,11 +30,10 @@ public:
 	void Update() override
 	{
 		if (counter < AnimationFrames) {
-			alpha = 255 - 255 * counter / AnimationFrames;
-			scalingRate = 0.5f + counter * 0.1f;
+			alpha = static_cast<int>(255 - 255.e0 * counter / AnimationFrames);
+			scalingRate = 0.5f + counter * 0.15f;
 			++counter;
-		}
-		else {
+		} else {
 			enabled = false;
 		}
 		Effect::Update();
@@ -54,11 +53,10 @@ public:
 	void Update() override
 	{
 		if (counter < AnimationFrames) {
-			alpha = 255 - 255 * counter / AnimationFrames;
+			alpha = static_cast<int>(255 - 255.e0 * counter / AnimationFrames);
 			scalingRate = 0.5f + counter * 0.05f;
 			++counter;
-		}
-		else {
+		} else {
 			enabled = false;
 		}
 		Effect::Update();
@@ -114,10 +112,11 @@ void Effect::Played()
 void Effect::Update()
 {
 	auto clipFromImage = [this]() -> Rect<int>& {
-		if (static_cast<float>(counter) / AnimationFrames < 0.3f)
+		/*if (static_cast<float>(counter) / AnimationFrames < 0.3f)
 			return clips[1];
 		else
-			return clips[2];
+			return clips[2];*/
+		return clips[0];
 	};
 	Rect<int>& currentClip = clipFromImage();
 	sprite->SetClip(currentClip);
