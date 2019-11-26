@@ -14,14 +14,13 @@ Sprite::Sprite(const std::weak_ptr<SDL_Texture> texture)
 {
 	int width, height;
 	SDL_QueryTexture(this->texture.lock().get(), nullptr, nullptr, &width, &height);
-	SDL_Rect temp = { 0, 0, width, height };
-	SetClip(temp);
+	clip = std::make_unique<SDL_Rect>(SDL_Rect{ 0, 0, width, height });
 }
 
 /// <param name="x">描画する位置のx座標</param>
 /// <param name="y">描画する位置のy座標</param>
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。</remarks>
-void Sprite::Draw(const Vector2& position) const
+void Sprite::Draw(const Vector2<float>& position) const
 {
 	SDL_Rect renderClip = { static_cast<int>(position.x - clip->w * 0.5f), static_cast<int>(position.y - clip->h * 0.5f), clip->w, clip->h };
 	SDL_RenderCopy(Renderer, texture.lock().get(), clip.get(), &renderClip);  // エラーコードを受け取った方が良い？
@@ -32,7 +31,7 @@ void Sprite::Draw(const Vector2& position) const
 /// <param name="angle">回転角（弧度法）</param>
 /// <param name="scale">拡大・縮小率 (0.0 .. 1.0)</param>
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。回転の中心は (clip->w / 2, clip->h / 2)。</remarks>
-void Sprite::Draw(const Vector2& position, const float angle, const float scale) const
+void Sprite::Draw(const Vector2<float>& position, const float angle, const float scale) const
 {
 	int scaledWidth = static_cast<int>(clip->w * scale);
 	int scaledHeight = static_cast<int>(clip->h * scale);
@@ -51,7 +50,7 @@ Label::Label(const std::weak_ptr<TTF_Font> font)
 /// <param name="x">描画する位置のx座標</param>
 /// <param name="y">描画する位置のy座標</param>
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。</remarks>
-void Label::Write(const Vector2& position) const
+void Label::Write(const Vector2<float>& position) const
 {
 	SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font.lock().get(), Text.c_str(), textColor);
 	if (textSurface == nullptr) {

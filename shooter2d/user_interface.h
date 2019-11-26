@@ -11,7 +11,7 @@ namespace Shooter {
 	class UserInterface : public GameObject
 	{
 	public:
-		UserInterface(const Vector2& positin);
+		UserInterface(const Vector2<float>& positin);
 		virtual ~UserInterface() {}
 		virtual void Update() override;
 		virtual void OnKeyPressed(Input::Commands) {}  // commandボタンが押された時のイベントハンドラ。
@@ -35,7 +35,7 @@ namespace Shooter {
 	class StatusMonitor : public UserInterface
 	{
 	public:
-		StatusMonitor(const Vector2& position) : UserInterface(position) {}
+		StatusMonitor(const Vector2<float>& position) : UserInterface(position) {}
 		virtual ~StatusMonitor() = default;
 		virtual void Register(const std::weak_ptr<ObjectManager> manager) = 0;
 	};
@@ -87,8 +87,8 @@ namespace Shooter {
 			PlayersMonitor
 		};
 
-		std::weak_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2& position);
-		std::weak_ptr<StatusMonitor> GenerateObject(const StatusMonitorID id, const Vector2& position);
+		std::weak_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2<float>& position);
+		std::weak_ptr<StatusMonitor> GenerateObject(const StatusMonitorID id, const Vector2<float>& position);
 	};
 }
 

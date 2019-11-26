@@ -19,7 +19,7 @@ void Mover::Update()
 	invincibleCounter = (invincibleCounter > 0) ? invincibleCounter - 1 : 0;
 
 	// アニメーション。
-	SDL_Rect& currentClip = clipFromImage(Timer::Create().GetPlayingFrames());
+	Rect<int>& currentClip = clipFromImage(Timer::Create().GetPlayingFrames());
 	sprite->SetClip(currentClip);
 }
 
@@ -32,8 +32,8 @@ bool Mover::isInside()
 {
 	if (counter < 60)
 		return true;
-	if (position.x + sprite->GetClip().w * 0.5f < 0 || position.x - sprite->GetClip().w * 0.5f > Game::Width
-		|| position.y + sprite->GetClip().h * 0.5f < 0 || position.y - sprite->GetClip().h * 0.5f > Game::Height) {
+	if (position.x + sprite->GetClip().width * 0.5f < 0 || position.x - sprite->GetClip().width * 0.5f > Game::Width
+		|| position.y + sprite->GetClip().height * 0.5f < 0 || position.y - sprite->GetClip().height * 0.5f > Game::Height) {
 		if (counter > 66)
 			return false;
 		else

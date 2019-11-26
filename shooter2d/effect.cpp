@@ -8,7 +8,7 @@ using namespace Shooter;
 class NoneEffect : public Effect
 {
 public:
-	NoneEffect(const Vector2& position)
+	NoneEffect(const Vector2<float>& position)
 		: Effect(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/effect_circle.png")), std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/enemy_vanish_effect-A.wav")))
 	{}
 
@@ -18,7 +18,7 @@ public:
 class DefetedPlayerEffect : public Effect
 {
 public:
-	DefetedPlayerEffect(const Vector2& position)
+	DefetedPlayerEffect(const Vector2<float>& position)
 		: Effect(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/effect_circle.png")), std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/nc899.wav")))
 	{
 		clips[0] = { 0, 128, 128, 128 };
@@ -45,7 +45,7 @@ public:
 class CircleEffect : public Effect
 {
 public:
-	CircleEffect(const Vector2& position)
+	CircleEffect(const Vector2<float>& position)
 		: Effect(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/effect_circle.png")), std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/enemy_vanish_effect-A.wav")))
 	{
 		this->sound->SetVolume(Sound::MaxVolume / 2);
@@ -68,7 +68,7 @@ public:
 class RedCircleEffect : public CircleEffect
 {
 public:
-	RedCircleEffect(const Vector2& position)
+	RedCircleEffect(const Vector2<float>& position)
 		: CircleEffect(position)
 	{
 		clips[0] = { 0, 128, 128, 128 };
@@ -80,7 +80,7 @@ public:
 class BlueCircleEffect : public CircleEffect
 {
 public:
-	BlueCircleEffect(const Vector2& position)
+	BlueCircleEffect(const Vector2<float>& position)
 		: CircleEffect(position)
 	{
 		clips[0] = { 128, 128, 128, 128 };
@@ -91,7 +91,7 @@ public:
 
 /******************************** Effect *********************************/
 
-Effect::Effect(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Sound>&& sound)
+Effect::Effect(const Vector2<float>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Sound>&& sound)
 	: GameObject(false, position)
 	, sprite(std::move(sprite))
 	, sound(std::move(sound))
@@ -113,20 +113,20 @@ void Effect::Played()
 
 void Effect::Update()
 {
-	auto clipFromImage = [this]() -> SDL_Rect& {
+	auto clipFromImage = [this]() -> Rect<int>& {
 		if (static_cast<float>(counter) / AnimationFrames < 0.3f)
 			return clips[1];
 		else
 			return clips[2];
 	};
-	SDL_Rect& currentClip = clipFromImage();
+	Rect<int>& currentClip = clipFromImage();
 	sprite->SetClip(currentClip);
 	sprite->SetAlpha(alpha);
 }
 
 /******************************** EffectManager *********************************/
 
-std::weak_ptr<Effect> EffectManager::GenerateObject(const EffectID id, const Vector2& position)
+std::weak_ptr<Effect> EffectManager::GenerateObject(const EffectID id, const Vector2<float>& position)
 {
 	std::weak_ptr<Effect> newObject;
 	switch (id) {

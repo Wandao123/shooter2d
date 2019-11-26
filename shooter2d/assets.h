@@ -26,17 +26,17 @@ namespace Shooter {
 	{
 	public:
 		Sprite(const std::weak_ptr<SDL_Texture> texture);
-		void Draw(const Vector2& position) const;
-		void Draw(const Vector2& position, const float angle, const float scale) const;
+		void Draw(const Vector2<float>& position) const;
+		void Draw(const Vector2<float>& position, const float angle, const float scale) const;
 
-		SDL_Rect& GetClip() const
+		Rect<int> GetClip() const
 		{
-			return *clip;
+			return { clip->x, clip->y, clip->w, clip->h };
 		}
 
-		void SetClip(const SDL_Rect& clip)
+		void SetClip(const Rect<int>& clip)
 		{
-			this->clip = std::make_unique<SDL_Rect>(clip);
+			this->clip = std::make_unique<SDL_Rect>(SDL_Rect{ clip.x, clip.y, clip.width, clip.height });
 		}
 
 		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue)
@@ -78,7 +78,7 @@ namespace Shooter {
 	public:
 		std::string Text;
 		Label(const std::weak_ptr<TTF_Font> font);
-		void Write(const Vector2& position) const;
+		void Write(const Vector2<float>& position) const;
 		//void SetText(const std::string text);
 
 		void SetTextColor(const unsigned char red, const unsigned char green, const unsigned char blue)

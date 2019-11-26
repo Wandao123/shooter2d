@@ -9,7 +9,7 @@ using namespace Shooter;
 class Reimu : public Player
 {
 public:
-	Reimu(const Vector2& position)
+	Reimu(const Vector2<float>& position)
 		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(1.0f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
@@ -17,7 +17,7 @@ public:
 class Marisa : public Player
 {
 public:
-	Marisa(const Vector2& position)
+	Marisa(const Vector2<float>& position)
 		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
@@ -25,7 +25,7 @@ public:
 class Sanae : public Player
 {
 public:
-	Sanae(const Vector2& position)
+	Sanae(const Vector2<float>& position)
 		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
@@ -38,7 +38,7 @@ public:
 /// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
 /// <param name="collider">当たり判定クラスへのポインタ</param>
 /// <param name="effectID">消滅エフェクトのID</param>
-Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
+Player::Player(const Vector2<float>& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
 	: Mover(position, 0.0f, -M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
@@ -99,7 +99,7 @@ void Player::Spawned()
 	sprite->SetAlpha(191);
 }
 
-SDL_Rect& Player::clipFromImage(unsigned int countedFrames)
+Rect<int>& Player::clipFromImage(unsigned int countedFrames)
 {
 	const int DelayFrames = 3;  // 左右移動の際に次の画像に切り替わるまでのフレーム数。
 	const int NumSlice = 5;     // 停止時、左移動、右移動における各変化のコマ数。
@@ -126,7 +126,7 @@ SDL_Rect& Player::clipFromImage(unsigned int countedFrames)
 
 /******************************** PlayerManager *********************************/
 
-std::weak_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vector2& position)
+std::weak_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vector2<float>& position)
 {
 	std::weak_ptr<Player> newObject;
 	switch (id) {

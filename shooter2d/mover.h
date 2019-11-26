@@ -20,7 +20,7 @@ namespace Shooter {
 		/// <param name="effectID">消滅エフェクトのID</param>
 		/// <param name="damage">衝突時に相手に与えるダメージ</param>
 		/// <param name="hitPoint">体力</param>
-		Mover(const Vector2& position, const float speed, const float angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, const unsigned int damage, const int hitPoint)
+		Mover(const Vector2<float>& position, const float speed, const float angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, const unsigned int damage, const int hitPoint)
 			: GameObject(false, position)
 			, speed(speed)
 			, angle(angle)
@@ -102,7 +102,7 @@ namespace Shooter {
 		/// <summary>現在のフレームにおける画像の切り取り位置を返す。</summary>
 		/// <param name="currentFrames">現在までのフレーム数</param>
 		/// <returns>切り取る矩形</returns>
-		virtual SDL_Rect& clipFromImage(unsigned int countedFrames) = 0;
+		virtual Rect<int>& clipFromImage(unsigned int countedFrames) = 0;
 	private:
 		unsigned int counter = 0;  // enabledがtrueになってからのフレーム数。
 	};

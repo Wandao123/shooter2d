@@ -7,7 +7,7 @@ using namespace Shooter;
 class SmallRedEnemy : public Enemy
 {
 public:
-	SmallRedEnemy(const Vector2& position)
+	SmallRedEnemy(const Vector2<float>& position)
 		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Enemy::Width * 0.5f), EffectManager::EffectID::RedCircle)
 	{
 		for (int j = 0; j < static_cast<int>(clips[0].size()); j++) {
@@ -21,7 +21,7 @@ public:
 class SmallBlueEnemy : public Enemy
 {
 public:
-	SmallBlueEnemy(const Vector2& position)
+	SmallBlueEnemy(const Vector2<float>& position)
 		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Enemy::Width * 0.5f), EffectManager::EffectID::BlueCircle)
 	{
 		for (int j = 0; j < static_cast<int>(clips[0].size()); j++) {
@@ -38,7 +38,7 @@ public:
 /// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
 /// <param name="collider">当たり判定クラスへのポインタ</param>
 /// <param name="effectID">消滅エフェクトのID</param>
-Enemy::Enemy(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
+Enemy::Enemy(const Vector2<float>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
 	: Mover(position, 0.0f, M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
 	, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/enemy_damage.wav")))
 {
@@ -76,7 +76,7 @@ void Enemy::Spawned(const float speed, const float angle, const int hitPoint)
 	this->hitPoint = hitPoint;
 }
 
-SDL_Rect& Enemy::clipFromImage(unsigned int countedFrames)
+Rect<int>& Enemy::clipFromImage(unsigned int countedFrames)
 {
 	const int DelayFrames = 6;
 	const int NumSlice = 3;
@@ -105,7 +105,7 @@ SDL_Rect& Enemy::clipFromImage(unsigned int countedFrames)
 
 /******************************** EnemyManager *********************************/
 
-std::weak_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const Vector2& position)
+std::weak_ptr<Enemy> EnemyManager::GenerateObject(const EnemyID id, const Vector2<float>& position)
 {
 	std::weak_ptr<Enemy> newObject;
 	switch (id) {

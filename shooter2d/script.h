@@ -55,7 +55,7 @@ namespace Shooter {
 		/// <returns>生成された敵へのポインタ</returns>
 		std::function<std::shared_ptr<Enemy>(const EnemyManager::EnemyID, const float, const float, const float, const float, const int)> generateEnemy =
 		[this](const EnemyManager::EnemyID id, const float posX, const float posY, const float speed, const float angle, const int hitPoint) -> std::shared_ptr<Enemy> {
-			auto newObject = enemyManager.GenerateObject(id, Vector2{ posX, posY }).lock();
+			auto newObject = enemyManager.GenerateObject(id, Vector2<float>{ posX, posY }).lock();
 			newObject->Spawned(speed, angle, hitPoint);
 			return std::move(newObject);
 		};
@@ -69,7 +69,7 @@ namespace Shooter {
 		/// <returns>生成された敵弾へのポインタ</returns>
 		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generateEnemyBullet =
 		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {
-			auto newObject = enemyBulletManager.GenerateObject(id, Vector2{ posX, posY }).lock();
+			auto newObject = enemyBulletManager.GenerateObject(id, Vector2<float>{ posX, posY }).lock();
 			newObject->Shot(speed, angle);
 			return std::move(newObject);
 		};
@@ -98,7 +98,7 @@ namespace Shooter {
 		/// <remarks>playerBulletManagerを使う以外はgenerateEnemyBulletと全く同じ。</remarks>
 		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generatePlayerBullet =
 		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {
-			auto newObject = playerBulletManager.GenerateObject(id, Vector2{ posX, posY }).lock();
+			auto newObject = playerBulletManager.GenerateObject(id, Vector2<float>{ posX, posY }).lock();
 			newObject->Shot(speed, angle);
 			return std::move(newObject);
 		};
@@ -110,7 +110,7 @@ namespace Shooter {
 		/// <returns>生成された自機へのポインタ</returns>
 		std::function<std::shared_ptr<Player>(const PlayerManager::PlayerID, const float, const float)> generatePlayer =
 		[this](const PlayerManager::PlayerID id, const float posX, const float posY) -> std::shared_ptr<Player> {
-			auto newObject = playerManager.GenerateObject(id, Vector2{ posX, posY }).lock();
+			auto newObject = playerManager.GenerateObject(id, Vector2<float>{ posX, posY }).lock();
 			newObject->Spawned();
 			return std::move(newObject);
 		};

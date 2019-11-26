@@ -9,14 +9,14 @@ namespace Shooter {
 	class Effect : public GameObject
 	{
 	public:
-		Effect(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Sound>&& sound);
+		Effect(const Vector2<float>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Sound>&& sound);
 		virtual ~Effect() {}
 		void Draw() const override;
 		virtual void Played();
 		virtual void Update() override;
 	protected:
 		const unsigned int AnimationFrames = 30;
-		std::array<SDL_Rect, 3> clips;  // 具体的な値は継承先で設定せよ。:
+		std::array<Rect<int>, 3> clips;  // 具体的な値は継承先で設定せよ。:
 		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Sound> sound;
 		unsigned int counter = 0;  // エフェクトのアニメーションが起きているフレーム数。アニメーションが進むと減少する。
@@ -35,7 +35,7 @@ namespace Shooter {
 			BlueCircle
 		};
 
-		std::weak_ptr<Effect> GenerateObject(const EffectID id, const Vector2& position);
+		std::weak_ptr<Effect> GenerateObject(const EffectID id, const Vector2<float>& position);
 	};
 }
 

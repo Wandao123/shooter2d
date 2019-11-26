@@ -7,13 +7,13 @@ namespace Shooter {
 	class Bullet : public Mover
 	{
 	public:
-		Bullet(const Vector2& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, unsigned int damage);
+		Bullet(const Vector2<float>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, unsigned int damage);
 		void Draw() const override;
 		void OnCollide(Mover& mover) override;
 		virtual void Shot(const float speed, const float angle);  // 実体化関数
 	protected:
-		SDL_Rect clip;  // 具体的な値は継承先で設定せよ。
-		SDL_Rect& clipFromImage(unsigned int countedFrames) override;
+		Rect<int> clip;  // 具体的な値は継承先で設定せよ。
+		Rect<int>& clipFromImage(unsigned int countedFrames) override;
 	};
 
 	class BulletManager : public ObjectManager
@@ -41,7 +41,7 @@ namespace Shooter {
 		};
 
 		BulletManager();
-		std::weak_ptr<Bullet> GenerateObject(const BulletID id, const Vector2& position);
+		std::weak_ptr<Bullet> GenerateObject(const BulletID id, const Vector2<float>& position);
 		std::list<std::weak_ptr<Bullet>> GetBullets() const { return getList<Bullet>(); }
 	};
 }

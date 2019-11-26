@@ -162,7 +162,7 @@ Script::Status Script::Run()
 	/*int counter = Timer::Create().GetPlayingFrames();
 	std::vector<std::shared_ptr<Enemy>> enemies;
 	if (counter % 15 == 0 && counter <= 70) {
-		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2{ Game::Width / 2.0f, 0.0f }));
+		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2<float>{ Game::Width / 2.0f, 0.0f }));
 		enemies.back()->Spawned(2.0f, M_PI_2, 100);
 	}
 	return status*/
