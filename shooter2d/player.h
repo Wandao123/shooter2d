@@ -10,7 +10,7 @@ namespace Shooter {
 	public:
 		static const int Height = 48;
 		static const int Width = 32;
-		Player(const Vector2<float>& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
+		Player(const Vector2<double>& position, const double highSpeed, const double lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
 		~Player() = default;
 		void Update() override;
 		void OnCollide(Mover& mover) override;
@@ -32,7 +32,7 @@ namespace Shooter {
 		/// <param name="direction">xy座標系での移動方向</param>
 		/// <param name="slowMode">低速移動モードか否か</param>
 		/// <remarks>速度の方向のみ考慮することに注意（大きさは規格化される）。速さは予め設定されたhighSpeed/lowSpeedを使う。</remarks>
-		void SetVelocity(const Vector2<float>& direction, const bool slowMode)
+		void SetVelocity(const Vector2<double>& direction, const bool slowMode)
 		{
 			auto speed = slowMode ? lowSpeed : highSpeed;
 			//this->velocity = direction.Normalize() * speed * Timer::FPS * Timer::Create().GetDeltaTime();  // 実時間を考慮する場合。
@@ -44,10 +44,10 @@ namespace Shooter {
 		Rect<int>& clipFromImage(unsigned int countedFrames) override;
 	private:
 		std::array<std::array<Rect<int>, 5>, 3> clips;  // 3成分はそれぞれ停止時、左移動、右移動を表す。5成分は変化の差分を表す。
-		const float highSpeed;
-		const float lowSpeed;
+		const double highSpeed;
+		const double lowSpeed;
 		int life = 3;  // 1まではプレイ可能で、0になったらゲームオーバー。life - 1 = 残機。hitPointは撃破の判定に用いるのに対し、これは被弾回数を表す。
-		Vector2<float> velocity = { 0.0f, 0.0f };
+		Vector2<double> velocity = { 0.0, 0.0 };
 	};
 
 	// このクラスではプレイヤーオブジェクトとプレイヤーの弾オブジェクトの両方を管理する。プレイヤーオブジェクトからの指示に従って弾を生成したいため。
@@ -61,7 +61,7 @@ namespace Shooter {
 			Sanae
 		};
 
-		std::weak_ptr<Player> GenerateObject(const PlayerID id, const Vector2<float>& position);
+		std::weak_ptr<Player> GenerateObject(const PlayerID id, const Vector2<double>& position);
 		std::weak_ptr<Player> GetPlayer() const;  // TODO: objectsListに複数のアイテムが入っている場合を考慮。
 	};
 }

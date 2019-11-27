@@ -9,7 +9,7 @@ namespace Shooter {
 	class Effect : public GameObject
 	{
 	public:
-		Effect(const Vector2<float>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Sound>&& sound);
+		Effect(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Sound>&& sound);
 		virtual ~Effect() {}
 		void Draw() const override;
 		virtual void Played();
@@ -21,7 +21,7 @@ namespace Shooter {
 		std::unique_ptr<Sound> sound;
 		unsigned int counter = 0;  // エフェクトのアニメーションが起きているフレーム数。アニメーションが進むと減少する。
 		unsigned int alpha = 255;
-		float scalingRate = 0.0f;
+		double scalingRate = 0.0;
 	};
 
 	class EffectManager : public ObjectManager
@@ -35,7 +35,7 @@ namespace Shooter {
 			BlueCircle
 		};
 
-		std::weak_ptr<Effect> GenerateObject(const EffectID id, const Vector2<float>& position);
+		std::weak_ptr<Effect> GenerateObject(const EffectID id, const Vector2<double>& position);
 	};
 }
 

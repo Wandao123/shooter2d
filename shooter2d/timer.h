@@ -22,7 +22,7 @@ namespace Shooter {
 		void Update();
 
 		/// <summary>直前のフレームからの経過時間を取得する。</summary>
-		float GetDeltaTime()
+		double GetDeltaTime()
 		{
 			return deltaTime;
 		}
@@ -35,17 +35,17 @@ namespace Shooter {
 		}
 
 		/// <summary>FPS定数のフレーム数だけ計測した、FPSの平均値を取得する。</summary>
-		float GetAverageOfFPS()
+		double GetAverageOfFPS()
 		{
 			return averageOfFPS;
 		}
 	private:
 		Uint32 countedFrames;
-		float deltaTime;        // 前のフレームからの経過時間（秒）。
-		float averageOfFPS;
-		float intervalPerFrame;
+		double deltaTime;        // 前のフレームからの経過時間（秒）。
+		double averageOfFPS;
+		double intervalPerFrame;
 		Uint32 currentTime;     // Startメンバ関数が呼ばれてからの経過フレーム数。
-		float nextFrameTime;
+		double nextFrameTime;
 		bool isStopping;        // 停止するためのフラグ。
 		Uint32 stoppingFrames;  // 停止したフレーム数。
 	};

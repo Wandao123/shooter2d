@@ -28,8 +28,8 @@ namespace Shooter {
 	public:
 		Sprite(const std::weak_ptr<SDL_Texture> texture);
 		void Draw() const;
-		void Draw(const Vector2<float>& position) const;
-		void Draw(const Vector2<float>& position, const float angle, const float scale) const;
+		void Draw(const Vector2<double>& position) const;
+		void Draw(const Vector2<double>& position, const double angle, const double scale) const;
 
 		Rect<int> GetClip() const
 		{
@@ -81,7 +81,7 @@ namespace Shooter {
 	public:
 		std::string Text;
 		Label(const std::weak_ptr<TTF_Font> font);
-		void Write(const Vector2<float>& position) const;
+		void Write(const Vector2<double>& position) const;
 		//void SetText(const std::string text);
 
 		// TODO: SetTextColorとSetAlphaとを統合。
@@ -205,12 +205,17 @@ namespace Shooter {
 		RectangleShape(const Vector2<int>& size = Vector2<int>(0, 0));
 		void Draw(const Vector2<int>& position) const override;
 
+		const Vector2<int>& GetSize() const
+		{
+			return size;
+		}
+
 		void SetSize(const Vector2<int>& size)
 		{
 			this->size = size;
 		}
 	private:
-		Vector2<int>& size;
+		Vector2<int> size;
 	};
 }
 

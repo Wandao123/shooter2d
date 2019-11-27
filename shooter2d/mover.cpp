@@ -32,8 +32,8 @@ bool Mover::isInside()
 {
 	if (counter < 60)
 		return true;
-	if (position.x + sprite->GetClip().width * 0.5f < 0 || position.x - sprite->GetClip().width * 0.5f > Media::Create().GetWidth()
-		|| position.y + sprite->GetClip().height * 0.5f < 0 || position.y - sprite->GetClip().height * 0.5f > Media::Create().GetHeight()) {
+	if (position.x + sprite->GetClip().width * 0.5 < 0 || position.x - sprite->GetClip().width * 0.5 > Media::Create().GetWidth()
+		|| position.y + sprite->GetClip().height * 0.5 < 0 || position.y - sprite->GetClip().height * 0.5 > Media::Create().GetHeight()) {
 		if (counter > 66)
 			return false;
 		else

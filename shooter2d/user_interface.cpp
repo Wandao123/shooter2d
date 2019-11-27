@@ -22,7 +22,7 @@ const std::string Filename = "/usr/share/fonts/TTF/LiberationMono-Regular.ttf";
 class FrameRate : public UserInterface
 {
 public:
-	FrameRate(const Vector2<float>& position)
+	FrameRate(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize / 2)))
 	{}
@@ -48,7 +48,7 @@ private:
 class ObjectCounter : public StatusMonitor
 {
 public:
-	ObjectCounter(const Vector2<float>& position)
+	ObjectCounter(const Vector2<double>& position)
 		: StatusMonitor(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize / 2)))
 	{}
@@ -81,7 +81,7 @@ private:
 class Title : public UserInterface
 {
 public:
-	Title(const Vector2<float>& position)
+	Title(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 2)))
 	{
@@ -105,7 +105,7 @@ private:
 class Button : public UserInterface
 {
 public:
-	Button(const Vector2<float>& position)
+	Button(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
 	{
@@ -135,7 +135,7 @@ private:
 class Potentiometer : public UserInterface
 {
 public:
-	Potentiometer(const Vector2<float>& position)
+	Potentiometer(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
 	{
@@ -188,7 +188,7 @@ protected:
 class SoundVolume : public Potentiometer
 {
 public:
-	SoundVolume(const Vector2<float>& position)
+	SoundVolume(const Vector2<double>& position)
 		: Potentiometer(position)
 		, value(AssetLoader::Create().GetSoundVolume())
 	{}
@@ -216,7 +216,7 @@ private:
 class MusicVolume : public Potentiometer
 {
 public:
-	MusicVolume(const Vector2<float>& position)
+	MusicVolume(const Vector2<double>& position)
 		: Potentiometer(position)
 		, value(AssetLoader::Create().GetMusicVolume())
 	{}
@@ -244,7 +244,7 @@ private:
 class FullscreenSwitcher : public Potentiometer
 {
 public:
-	FullscreenSwitcher(const Vector2<float>& position)
+	FullscreenSwitcher(const Vector2<double>& position)
 		: Potentiometer(position)
 	{}
 protected:
@@ -268,7 +268,7 @@ template<Input::Commands Command>
 class KeyConfig : public UserInterface
 {
 public:
-	KeyConfig(const Vector2<float>& position)
+	KeyConfig(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 4)))
 	{
@@ -310,7 +310,7 @@ private:
 class PlayersMonitor : public StatusMonitor
 {
 public:
-	PlayersMonitor(const Vector2<float>& position)
+	PlayersMonitor(const Vector2<double>& position)
 		: StatusMonitor(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 4)))
 	{}
@@ -344,7 +344,7 @@ private:
 
 /******************************** UserInterface *********************************/
 
-UserInterface::UserInterface(const Vector2<float>& position)
+UserInterface::UserInterface(const Vector2<double>& position)
 	: GameObject(true, position)
 	, caption(" ")
 	, activated(true)
@@ -358,7 +358,7 @@ void UserInterface::Update()
 
 /******************************** UserInterfaceManager *********************************/
 
-std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const Vector2<float>& position)
+std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const Vector2<double>& position)
 {
 	std::weak_ptr<UserInterface> newObject;
 	switch (id) {
@@ -411,7 +411,7 @@ std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInte
 	return newObject;
 }
 
-std::weak_ptr<StatusMonitor> UserInterfaceManager::GenerateObject(const StatusMonitorID id, const Vector2<float>& position)
+std::weak_ptr<StatusMonitor> UserInterfaceManager::GenerateObject(const StatusMonitorID id, const Vector2<double>& position)
 {
 	std::weak_ptr<StatusMonitor> newObject;
 	switch (id) {

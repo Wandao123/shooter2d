@@ -9,11 +9,11 @@ namespace Shooter {
 	public:
 		static const int Height = 32;
 		static const int Width = 32;
-		Enemy(const Vector2<float>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
+		Enemy(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
 		~Enemy() = default;
 		void Update() override;
 		void OnCollide(Mover& mover) override;
-		void Spawned(const float speed, const float angle, const int hitPoint);  // 実体化関数
+		void Spawned(const double speed, const double angle, const int hitPoint);  // 実体化関数
 	protected:
 		std::array<std::array<Rect<int>, 3>, 3> clips;  // 具体的な値は継承先で設定せよ。
 		bool isDamaged = false;  // 被弾したか否か。
@@ -30,7 +30,7 @@ namespace Shooter {
 			SmallBlue
 		};
 
-		std::weak_ptr<Enemy> GenerateObject(const EnemyID id, const Vector2<float>& position);
+		std::weak_ptr<Enemy> GenerateObject(const EnemyID id, const Vector2<double>& position);
 		std::list<std::weak_ptr<Enemy>> GetEnemies() const { return getList<Enemy>(); }
 	};
 }

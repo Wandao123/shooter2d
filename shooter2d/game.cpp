@@ -2,9 +2,6 @@
 #include "media.h"
 
 namespace Shooter {
-	SDL_Window *Window;
-	SDL_Renderer *Renderer;
-
 	Game::Game()
 	{
 		// グローバル変数（シングルトン）の初期化。SDLを初期化するために、真っ先にMediaクラスを呼ぶことに注意。

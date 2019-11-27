@@ -12,18 +12,17 @@ namespace Shooter {
 	class GameObject
 	{
 	public:
-		GameObject(const bool enabled, const Vector2<float> position) : enabled(enabled), position(position) {}
+		GameObject(const bool enabled, const Vector2<double>& position) : enabled(enabled), position(position) {}
 		virtual ~GameObject() = default;
 		virtual void Draw() const = 0;
 		virtual void Update() = 0;
 
-		// HACK: 参照を返したほうがいい？
-		Vector2<float> GetPosition() const
+		const Vector2<double>& GetPosition() const
 		{
 			return position;
 		}
 
-		void SetPosition(const Vector2<float>& position)  // HACK: 右辺値参照と左辺値参照とを使い分けるべき。
+		void SetPosition(const Vector2<double>& position)
 		{
 			this->position = position;
 		}
@@ -39,7 +38,7 @@ namespace Shooter {
 		}
 	protected:
 		bool enabled;
-		Vector2<float> position;  // ここで言う位置とは画像の中心のこと。
+		Vector2<double> position;  // ここで言う位置とは画像の中心のこと。
 	};
 
 	/// <summary>GameObjectの管理クラス。</summary>
@@ -66,7 +65,7 @@ namespace Shooter {
 		/// （参照カウントが増えない）ので、未使用と見なされる。
 		/// </remarks>
 		template <class ObjectType>
-		std::weak_ptr<ObjectType> assignObject(const Vector2<float>& position)
+		std::weak_ptr<ObjectType> assignObject(const Vector2<double>& position)
 		{
 			for (auto&& object : objectsList)
 				if (typeid(*object) == typeid(ObjectType) && !object->IsEnabled() && object.use_count() <= 1) {

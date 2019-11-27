@@ -23,8 +23,8 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"Bullet",
 		// Lua側で生成するならば、コンストラクタを定義して ``Enemy.new(...)'' とする。
 		"Angle", sol::property(&Bullet::GetAngle, &Bullet::SetAngle),
-		"PosX", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().x; }),
-		"PosY", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().y; }),
+		"PosX", sol::property([](Bullet& bullet) -> double { return bullet.GetPosition().x; }),
+		"PosY", sol::property([](Bullet& bullet) -> double { return bullet.GetPosition().y; }),
 		"Speed", sol::property(&Bullet::GetSpeed, &Bullet::SetSpeed),
 		"Erase", &Bullet::Erase,
 		"IsEnabled", &Bullet::IsEnabled,
@@ -34,8 +34,8 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"Enemy",
 		"Angle", sol::property(&Enemy::GetAngle, &Enemy::SetAngle),
 		"HitPoint", sol::property([](Enemy& enemy) -> int { return enemy.GetHitPoint(); }),
-		"PosX", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().x; }),
-		"PosY", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().y; }),
+		"PosX", sol::property([](Enemy& enemy) -> double { return enemy.GetPosition().x; }),
+		"PosY", sol::property([](Enemy& enemy) -> double { return enemy.GetPosition().y; }),
 		"Speed", sol::property(&Enemy::GetSpeed, &Enemy::SetSpeed),
 		"Erase", &Enemy::Erase,
 		"IsEnabled", &Enemy::IsEnabled,
@@ -46,14 +46,14 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"Angle", sol::property(&Player::GetAngle),
 		"Life", sol::property([](Player& player) -> int { return player.GetLife(); }),
 		"PosX", sol::property(
-			[](Player& player) -> float { return player.GetPosition().x; },
-			[](Player& player, const float posX) { player.SetPosition({ posX, player.GetPosition().y }); }),
+			[](Player& player) -> double { return player.GetPosition().x; },
+			[](Player& player, const double posX) { player.SetPosition({ posX, player.GetPosition().y }); }),
 		"PosY", sol::property(
-			[](Player& player) -> float { return player.GetPosition().y; },
-			[](Player& player, const float posY) { player.SetPosition({ player.GetPosition().x, posY }); }),
+			[](Player& player) -> double { return player.GetPosition().y; },
+			[](Player& player, const double posY) { player.SetPosition({ player.GetPosition().x, posY }); }),
 		"Speed", sol::property(&Player::GetSpeed),
 		"IsEnabled", &Player::IsEnabled,
-		"SetVelocity", [](Player& player, const float dirX, const float dirY, const bool slowMode) { player.SetVelocity({ dirX, dirY }, slowMode); },
+		"SetVelocity", [](Player& player, const double dirX, const double dirY, const bool slowMode) { player.SetVelocity({ dirX, dirY }, slowMode); },
 		"Spawned", &Player::Spawned,
 		"TurnInvincible", &Player::TurnInvincible
 	);
@@ -162,8 +162,8 @@ Script::Status Script::Run()
 	/*int counter = Timer::Create().GetPlayingFrames();
 	std::vector<std::shared_ptr<Enemy>> enemies;
 	if (counter % 15 == 0 && counter <= 70) {
-		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2<float>{ Media::Create().GetWidth() / 2.0f, 0.0f }));
-		enemies.back()->Spawned(2.0f, M_PI_2, 100);
+		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2<double>{ Media::Create().GetWidth() / 2.0, 0.0 }));
+		enemies.back()->Spawned(2.0, M_PI_2, 100);
 	}
 	return status*/
 }

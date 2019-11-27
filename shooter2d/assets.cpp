@@ -23,9 +23,9 @@ void Sprite::Draw() const
 /// <param name="x">描画する位置のx座標</param>
 /// <param name="y">描画する位置のy座標</param>
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。</remarks>
-void Sprite::Draw(const Vector2<float>& position) const
+void Sprite::Draw(const Vector2<double>& position) const
 {
-	SDL_Rect renderClip = { static_cast<int>(position.x - clip->w * 0.5f), static_cast<int>(position.y - clip->h * 0.5f), clip->w, clip->h };
+	SDL_Rect renderClip = { static_cast<int>(position.x - clip->w * 0.5), static_cast<int>(position.y - clip->h * 0.5), clip->w, clip->h };
 	SDL_RenderCopy(Media::Create().Renderer, texture.lock().get(), clip.get(), &renderClip);  // エラーコードを受け取った方が良い？
 }
 
@@ -35,11 +35,11 @@ void Sprite::Draw(const Vector2<float>& position) const
 /// <param name="angle">回転角（弧度法）</param>
 /// <param name="scale">拡大・縮小率 (0.0 .. 1.0)</param>
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。回転の中心は (clip->w / 2, clip->h / 2)。</remarks>
-void Sprite::Draw(const Vector2<float>& position, const float angle, const float scale) const
+void Sprite::Draw(const Vector2<double>& position, const double angle, const double scale) const
 {
 	int scaledWidth = static_cast<int>(clip->w * scale);
 	int scaledHeight = static_cast<int>(clip->h * scale);
-	SDL_Rect renderClip = { static_cast<int>(position.x - scaledWidth * 0.5f), static_cast<int>(position.y - scaledHeight * 0.5f), scaledWidth, scaledHeight };
+	SDL_Rect renderClip = { static_cast<int>(position.x - scaledWidth * 0.5), static_cast<int>(position.y - scaledHeight * 0.5), scaledWidth, scaledHeight };
 	SDL_RenderCopyEx(Media::Create().Renderer, texture.lock().get(), clip.get(), &renderClip, angle * 180.0 / M_PI, nullptr, SDL_FLIP_NONE);  // エラーコードを受け取った方が良い？
 }
 
@@ -55,7 +55,7 @@ Label::Label(const std::weak_ptr<TTF_Font> font)
 /// <param name="x">描画する位置のx座標</param>
 /// <param name="y">描画する位置のy座標</param>
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。</remarks>
-void Label::Write(const Vector2<float>& position) const
+void Label::Write(const Vector2<double>& position) const
 {
 	SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font.lock().get(), Text.c_str(), textColor);
 	if (textSurface == nullptr) {
@@ -70,8 +70,8 @@ void Label::Write(const Vector2<float>& position) const
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureAlphaMod(texture, alpha);
 	SDL_Rect renderText = {
-		static_cast<int>(position.x - textSurface->w * 0.5f),
-		static_cast<int>(position.y - textSurface->h * 0.5f),
+		static_cast<int>(position.x - textSurface->w * 0.5),
+		static_cast<int>(position.y - textSurface->h * 0.5),
 		textSurface->w,
 		textSurface->h
 	};
@@ -113,7 +113,7 @@ void Sound::Played() const
 void Sound::SetVolume(const int volume)
 {
 	this->volume = volume;
-	Mix_VolumeChunk(audio.lock().get(), std::round(static_cast<float>(AssetLoader::Create().GetSoundVolume()) / 100 * volume));
+	Mix_VolumeChunk(audio.lock().get(), static_cast<int>(static_cast<double>(AssetLoader::Create().GetSoundVolume()) / 100 * volume));
 }
 
 /******************************** Music *********************************/
@@ -131,7 +131,7 @@ void Music::Played() const
 void Music::SetVolume(const int volume)
 {
 	this->volume = volume;
-	Mix_VolumeMusic(std::round(static_cast<float>(AssetLoader::Create().GetMusicVolume()) / 100 * volume));
+	Mix_VolumeMusic(static_cast<int>(static_cast<double>(AssetLoader::Create().GetMusicVolume()) / 100 * volume));
 }
 
 /******************************** AssetLoader *********************************/
@@ -273,9 +273,9 @@ std::weak_ptr<Mix_Music> AssetLoader::GetMusic(const std::string filename)
 std::weak_ptr<SDL_Texture> AssetLoader::TakeScreenshot()
 {
 	auto addImage = [this]() -> std::shared_ptr<SDL_Texture> {
-		int *width, *height;
-		SDL_GetRendererOutputSize(Media::Create().Renderer, width, height);
-		SDL_Surface* surface = SDL_CreateRGBSurface(0, *width, *height, 32, 0, 0, 0, 0);
+		int width, height;
+		SDL_GetRendererOutputSize(Media::Create().Renderer, &width, &height);
+		SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
 		SDL_RenderReadPixels(Media::Create().Renderer, nullptr, surface->format->format, surface->pixels, surface->pitch);
 		SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Media::Create().Renderer, surface);
 		SDL_FreeSurface(surface);
@@ -309,7 +309,7 @@ void Shape::SetBlendModeMod()
 /******************************** RectangleShape *********************************/
 
 RectangleShape::RectangleShape(const Vector2<int>& size)
-	: size(Vector2<int>(size))
+	: size(size)
 {}
 
 void RectangleShape::Draw(const Vector2<int>& position) const

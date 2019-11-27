@@ -53,9 +53,9 @@ namespace Shooter {
 		/// <param name="angle">初期速度のx軸からの角度</param>
 		/// <param name="hitPoint">敵の体力</param>
 		/// <returns>生成された敵へのポインタ</returns>
-		std::function<std::shared_ptr<Enemy>(const EnemyManager::EnemyID, const float, const float, const float, const float, const int)> generateEnemy =
-		[this](const EnemyManager::EnemyID id, const float posX, const float posY, const float speed, const float angle, const int hitPoint) -> std::shared_ptr<Enemy> {
-			auto newObject = enemyManager.GenerateObject(id, Vector2<float>{ posX, posY }).lock();
+		std::function<std::shared_ptr<Enemy>(const EnemyManager::EnemyID, const double, const double, const double, const double, const int)> generateEnemy =
+		[this](const EnemyManager::EnemyID id, const double posX, const double posY, const double speed, const double angle, const int hitPoint) -> std::shared_ptr<Enemy> {
+			auto newObject = enemyManager.GenerateObject(id, Vector2<double>{ posX, posY }).lock();
 			newObject->Spawned(speed, angle, hitPoint);
 			return std::move(newObject);
 		};
@@ -67,9 +67,9 @@ namespace Shooter {
 		/// <param name="speed">初期速度の大きさ（速さ）</param>
 		/// <param name="angle">初期速度のx軸からの角度</param>
 		/// <returns>生成された敵弾へのポインタ</returns>
-		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generateEnemyBullet =
-		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {
-			auto newObject = enemyBulletManager.GenerateObject(id, Vector2<float>{ posX, posY }).lock();
+		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const double, const double, const double, const double)> generateEnemyBullet =
+		[this](const BulletManager::BulletID id, const double posX, const double posY, const double speed, const double angle) -> std::shared_ptr<Bullet> {
+			auto newObject = enemyBulletManager.GenerateObject(id, Vector2<double>{ posX, posY }).lock();
 			newObject->Shot(speed, angle);
 			return std::move(newObject);
 		};
@@ -80,8 +80,8 @@ namespace Shooter {
 		/// <param name="speed">初期速度の大きさ（速さ）</param>
 		/// <param name="angle">初期速度のx軸からの角度</param>
 		/// <returns>生成された敵弾へのポインタ</returns>
-		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, std::shared_ptr<Enemy>, const float, const float)> generateBulletFromEnemy =
-		[this](const BulletManager::BulletID id, std::shared_ptr<Enemy> enemy, const float speed, const float angle) -> std::shared_ptr<Bullet> {
+		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, std::shared_ptr<Enemy>, const double, const double)> generateBulletFromEnemy =
+		[this](const BulletManager::BulletID id, std::shared_ptr<Enemy> enemy, const double speed, const double angle) -> std::shared_ptr<Bullet> {
 			if (enemy->IsEnabled())
 				return std::move(generateEnemyBullet(id, enemy->GetPosition().x, enemy->GetPosition().y, speed, angle));
 			else
@@ -96,9 +96,9 @@ namespace Shooter {
 		/// <param name="angle">初期速度のx軸からの角度</param>
 		/// <returns>生成された自弾へのポインタ</returns>
 		/// <remarks>playerBulletManagerを使う以外はgenerateEnemyBulletと全く同じ。</remarks>
-		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const float, const float, const float, const float)> generatePlayerBullet =
-		[this](const BulletManager::BulletID id, const float posX, const float posY, const float speed, const float angle) -> std::shared_ptr<Bullet> {
-			auto newObject = playerBulletManager.GenerateObject(id, Vector2<float>{ posX, posY }).lock();
+		std::function<std::shared_ptr<Bullet>(const BulletManager::BulletID, const double, const double, const double, const double)> generatePlayerBullet =
+		[this](const BulletManager::BulletID id, const double posX, const double posY, const double speed, const double angle) -> std::shared_ptr<Bullet> {
+			auto newObject = playerBulletManager.GenerateObject(id, Vector2<double>{ posX, posY }).lock();
 			newObject->Shot(speed, angle);
 			return std::move(newObject);
 		};
@@ -108,9 +108,9 @@ namespace Shooter {
 		/// <param name="posX">初期位置のx座標</param>
 		/// <param name="posY">初期位置のy座標</param>
 		/// <returns>生成された自機へのポインタ</returns>
-		std::function<std::shared_ptr<Player>(const PlayerManager::PlayerID, const float, const float)> generatePlayer =
-		[this](const PlayerManager::PlayerID id, const float posX, const float posY) -> std::shared_ptr<Player> {
-			auto newObject = playerManager.GenerateObject(id, Vector2<float>{ posX, posY }).lock();
+		std::function<std::shared_ptr<Player>(const PlayerManager::PlayerID, const double, const double)> generatePlayer =
+		[this](const PlayerManager::PlayerID id, const double posX, const double posY) -> std::shared_ptr<Player> {
+			auto newObject = playerManager.GenerateObject(id, Vector2<double>{ posX, posY }).lock();
 			newObject->Spawned();
 			return std::move(newObject);
 		};

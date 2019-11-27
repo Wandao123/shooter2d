@@ -6,7 +6,7 @@
 
 namespace Shooter {
 	/// <summary>2次元ベクトルクラス。</summary>
-	/// <remarks>代入を除いて、演算は新しくVector2かfloatを生成する。</remarks>
+	/// <remarks>代入を除いて、演算は新しくVector2かdoubleを生成する。</remarks>
 	template <typename Type>
 	struct Vector2
 	{
@@ -61,10 +61,10 @@ namespace Shooter {
 
 		Vector2 Normalize() const
 		{
-			if (x != 0.0f || y != 0.0f)
+			if (x != 0.0 || y != 0.0)
 				return { x / Magnitude(), y / Magnitude() };
 			else
-				return { 0.0f, 0.0f };
+				return { 0.0, 0.0 };
 		}
 
 		Type Dot(const Vector2& vector) const
@@ -103,7 +103,7 @@ namespace Shooter {
 			return (Dividend - Divisor * static_cast<int>(std::trunc(static_cast<double>(Dividend) / Divisor)));
 		}
 
-		inline float Remainder(const float Dividend, const float Divisor)
+		inline double Remainder(const double Dividend, const double Divisor)
 		{
 			return (Dividend - Divisor * std::trunc(Dividend / Divisor));
 		}
@@ -114,7 +114,7 @@ namespace Shooter {
 			return (Dividend - Divisor * static_cast<int>(std::floor(static_cast<double>(Dividend) / Divisor)));
 		}
 
-		inline float Modulo(const float Dividend, const float Divisor)
+		inline double Modulo(const double Dividend, const double Divisor)
 		{
 			return (Dividend - Divisor * std::floor(Dividend / Divisor));
 		}

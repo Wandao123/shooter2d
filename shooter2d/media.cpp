@@ -44,7 +44,7 @@ void Media::Clear() const
 /// <param name="height">変更後の高さ</param>
 void Media::ChangeScreenSize(const int width, const int height)
 {
-	if (width <= 0 || height <= 0) {
+	if (width > 0 && height > 0) {
 		this->width = width;
 		this->height = height;
 		SDL_SetWindowSize(Window, width, height);
