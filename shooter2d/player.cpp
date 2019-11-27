@@ -1,5 +1,5 @@
 #include "bullet.h"
-#include "game.h"
+#include "media.h"
 #include "player.h"
 
 using namespace Shooter;
@@ -54,19 +54,19 @@ void Player::Update()
 	Mover::Update();
 
 	// 移動制限。ただし、速度を変化させた場合のみで、位置を直接変える場合は制限しない。
-	if (position.x - Width * 0.5f < 0 || position.x + Width * 0.5f > Game::Width)
+	if (position.x - Width * 0.5f < 0 || position.x + Width * 0.5f > Media::Create().GetWidth())
 		position.x -= velocity.x;
-	if (position.y - Height * 0.5f < 0 || position.y + Height * 0.5f > Game::Height)
+	if (position.y - Height * 0.5f < 0 || position.y + Height * 0.5f > Media::Create().GetHeight())
 		position.y -= velocity.y;
 	/* 復帰処理との兼ね合い（画面外から移動させる）から、次のようには書かない。
 	if (position.x - Width * 0.5f < 0)
 		position.x = Width * 0.5f;
-	else if (position.x + Width * 0.5f > Game::Width)
-		position.x = Game::Width - Width * 0.5f;
+	else if (position.x + Width * 0.5f > Media::Create().GetWidth())
+		position.x = Media::Create().GetWidth() - Width * 0.5f;
 	if (position.y - Height * 0.5f < 0)
 		position.y = Height * 0.5f;
-	else if (position.y + Height * 0.5f > Game::Height)
-		position.y = Game::Height - Height * 0.5f;*/
+	else if (position.y + Height * 0.5f > Media::Create().GetHeight())
+		position.y = Media::Create().GetHeight() - Height * 0.5f;*/
 
 	// 描画の前処理。
 	if (sprite->GetAlpha() < 255) {

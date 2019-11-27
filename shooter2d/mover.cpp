@@ -1,6 +1,6 @@
-#include <algorithm>
-#include "game.h"
 #include "mover.h"
+#include "media.h"
+#include <algorithm>
 
 using namespace Shooter;
 
@@ -32,8 +32,8 @@ bool Mover::isInside()
 {
 	if (counter < 60)
 		return true;
-	if (position.x + sprite->GetClip().width * 0.5f < 0 || position.x - sprite->GetClip().width * 0.5f > Game::Width
-		|| position.y + sprite->GetClip().height * 0.5f < 0 || position.y - sprite->GetClip().height * 0.5f > Game::Height) {
+	if (position.x + sprite->GetClip().width * 0.5f < 0 || position.x - sprite->GetClip().width * 0.5f > Media::Create().GetWidth()
+		|| position.y + sprite->GetClip().height * 0.5f < 0 || position.y - sprite->GetClip().height * 0.5f > Media::Create().GetHeight()) {
 		if (counter > 66)
 			return false;
 		else

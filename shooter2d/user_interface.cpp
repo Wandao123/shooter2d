@@ -1,9 +1,10 @@
 #include "user_interface.h"
+#include "bullet.h"
+#include "media.h"
+#include "player.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include "bullet.h"
-#include "player.h"
 
 using namespace Shooter;
 
@@ -240,41 +241,27 @@ private:
 	int value;
 };
 
-namespace Shooter {
-	extern SDL_Window* Window;
-}
-
 class FullscreenSwitcher : public Potentiometer
 {
 public:
 	FullscreenSwitcher(const Vector2<float>& position)
 		: Potentiometer(position)
-		, isFullscreen((SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN) != 0)
 	{}
 protected:
 	void printValue() override
 	{
-		text << std::setw(ItemWidth) << std::left << (isFullscreen ? "ON" : "OFF");
+		text << std::setw(ItemWidth) << std::left << (Media::Create().IsFullScreen() ? "ON" : "OFF");
 	}
 
 	void decrease() override
 	{
-		// HACK: Window変数の依存性をGameクラスに押しつけられないか？
-		if (isFullscreen) {
-			isFullscreen = false;
-			SDL_SetWindowFullscreen(Window, 0);
-		} else {
-			isFullscreen = true;
-			SDL_SetWindowFullscreen(Window, SDL_WINDOW_FULLSCREEN);
-		}
+		Media::Create().ChangeToFullScreen();
 	}
 
 	void increase() override
 	{
 		decrease();
 	}
-private:
-	bool isFullscreen;
 };
 
 template<Input::Commands Command>

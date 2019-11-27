@@ -1,6 +1,6 @@
-#include <algorithm>
-#include "game.h"
 #include "scene.h"  // ここで script.h は読み込み済み。
+#include "media.h"
+#include <algorithm>
 
 using namespace Shooter;
 
@@ -59,7 +59,7 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 	);
 
 	// 定数の登録。
-	int width = Game::Width, height = Game::Height;  // 直に代入するとgccでコンパイルできない。
+	int width = Media::Create().GetWidth(), height = Media::Create().GetHeight();  // 直に代入するとgccでコンパイルできない。
 	lua["ScreenWidth"] = width;
 	lua["ScreenHeight"] = height;
 	width = Player::Width; height = Player::Height;
@@ -162,7 +162,7 @@ Script::Status Script::Run()
 	/*int counter = Timer::Create().GetPlayingFrames();
 	std::vector<std::shared_ptr<Enemy>> enemies;
 	if (counter % 15 == 0 && counter <= 70) {
-		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2<float>{ Game::Width / 2.0f, 0.0f }));
+		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2<float>{ Media::Create().GetWidth() / 2.0f, 0.0f }));
 		enemies.back()->Spawned(2.0f, M_PI_2, 100);
 	}
 	return status*/
