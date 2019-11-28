@@ -1,5 +1,5 @@
 if build_machine.system() == 'windows'
-    cpp = run_command('wsl', './grabber.sh')
+    cpp = run_command('grabber.bat')
 elif build_machine.system() == 'linux'
     cpp = run_command('grabber.sh')
 endif
