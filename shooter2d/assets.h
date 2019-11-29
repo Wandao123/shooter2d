@@ -190,7 +190,7 @@ namespace Shooter {
 	{
 	public:
 		Shape() = default;
-		~Shape() = default;
+		virtual ~Shape() = default;
 		virtual void Draw(const Vector2<int>&) const = 0;
 		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha);
 		void SetBlendModeAdd();
