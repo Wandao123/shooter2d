@@ -466,6 +466,7 @@ PauseScene::PauseScene(IChangingSceneListener& listener)
 
 PauseScene::~PauseScene()
 {
+	AssetLoader::Create().ClearScreenshots();
 	Timer::Create().Restart();
 }
 
