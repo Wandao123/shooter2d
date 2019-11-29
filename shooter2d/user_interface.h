@@ -11,7 +11,7 @@ namespace Shooter {
 	class UserInterface : public GameObject
 	{
 	public:
-		UserInterface(const Vector2& positin);
+		UserInterface(const Vector2<double>& positin);
 		virtual ~UserInterface() {}
 		virtual void Update() override;
 		virtual void OnKeyPressed(Input::Commands) {}  // commandボタンが押された時のイベントハンドラ。
@@ -31,19 +31,13 @@ namespace Shooter {
 		bool activated;
 	};
 
-	/// <summary>ゲームの状態を表示するUIのためのインターフェース。</summary>
-	class IStatusMonitor
+	/// <summary>ゲームの状態を表示する。管理クラスを登録して、その所有オブジェクトを監視する。</summary>
+	class StatusMonitor : public UserInterface
 	{
 	public:
-		IStatusMonitor() = default;
-		virtual ~IStatusMonitor() = default;
-
-		virtual void SetValue(unsigned int value)
-		{
-			this->value = value;
-		}
-	protected:
-		unsigned int value;  // 残機、ボム数、スコアなど。
+		StatusMonitor(const Vector2<double>& position) : UserInterface(position) {}
+		virtual ~StatusMonitor() = default;
+		virtual void Register(const std::weak_ptr<ObjectManager> manager) = 0;
 	};
 
 	/// <summary>テキスト表示のためのインターフェース。操作説明などを記述する。</summary>
@@ -88,8 +82,13 @@ namespace Shooter {
 			BackwardKeyConfig,
 			PauseKeyConfig
 		};
+		enum class StatusMonitorID {
+			ObjectCounter,
+			PlayersMonitor
+		};
 
-		std::weak_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2& position);
+		std::weak_ptr<UserInterface> GenerateObject(const UserInterfaceID id, const Vector2<double>& position);
+		std::weak_ptr<StatusMonitor> GenerateObject(const StatusMonitorID id, const Vector2<double>& position);
 	};
 }
 

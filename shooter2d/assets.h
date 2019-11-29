@@ -3,6 +3,7 @@
 
 #include "vector2.h"
 #include "singleton.h"
+#include <list>
 #include <map>
 #include <memory>
 #include <string>
@@ -26,19 +27,21 @@ namespace Shooter {
 	{
 	public:
 		Sprite(const std::weak_ptr<SDL_Texture> texture);
-		void Draw(const Vector2& position) const;
-		void Draw(const Vector2& position, const float angle, const float scale) const;
+		void Draw() const;
+		void Draw(const Vector2<double>& position) const;
+		void Draw(const Vector2<double>& position, const double angle, const double scale) const;
 
-		SDL_Rect& GetClip() const
+		Rect<int> GetClip() const
 		{
-			return *clip;
+			return { clip->x, clip->y, clip->w, clip->h };
 		}
 
-		void SetClip(const SDL_Rect& clip)
+		void SetClip(const Rect<int>& clip)
 		{
-			this->clip = std::make_unique<SDL_Rect>(clip);
+			this->clip = std::make_unique<SDL_Rect>(SDL_Rect{ clip.x, clip.y, clip.width, clip.height });
 		}
 
+		// TODO: SetColorとSetAlphaとを統合。
 		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue)
 		{
 			SDL_SetTextureColorMod(texture.lock().get(), red, green, blue);
@@ -78,9 +81,10 @@ namespace Shooter {
 	public:
 		std::string Text;
 		Label(const std::weak_ptr<TTF_Font> font);
-		void Write(const Vector2& position) const;
+		void Write(const Vector2<double>& position) const;
 		//void SetText(const std::string text);
 
+		// TODO: SetTextColorとSetAlphaとを統合。
 		void SetTextColor(const unsigned char red, const unsigned char green, const unsigned char blue)
 		{
 			textColor = { red, green, blue, 0xFF };
@@ -140,6 +144,7 @@ namespace Shooter {
 		std::weak_ptr<TTF_Font> GetFont(const std::string filename, const int size);
 		std::weak_ptr<Mix_Chunk> GetChunk(const std::string filename);
 		std::weak_ptr<Mix_Music> GetMusic(const std::string filename);
+		std::weak_ptr<SDL_Texture> TakeScreenshot();
 
 		unsigned short int GetSoundVolume()
 		{
@@ -164,14 +169,53 @@ namespace Shooter {
 		{
 			musicVolume = percentage;
 		}
+
+		void ClearScreenshots()
+		{
+			screenshots.clear();
+		}
 	private:
 		std::map<std::string, std::shared_ptr<SDL_Surface>> surfaces;
 		std::multimap<std::string, std::shared_ptr<SDL_Texture>> textures;  // Textureを共有すると、透過などの際に他のクラスにも影響が出ることに注意。
 		std::map<std::tuple<std::string, int>, std::shared_ptr<TTF_Font>> fonts;
 		std::map<std::string, std::shared_ptr<Mix_Chunk>> chunks;
 		std::map<std::string, std::shared_ptr<Mix_Music>> musics;
+		std::list<std::shared_ptr<SDL_Texture>> screenshots;
 		unsigned short int soundVolume;
 		unsigned short int musicVolume;
+	};
+
+	/// <summary>図形の描画を担うクラス。SDLのラッパーとして機能する。</summary>
+	class Shape
+	{
+	public:
+		Shape() = default;
+		virtual ~Shape() = default;
+		virtual void Draw(const Vector2<int>&) const = 0;
+		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha);
+		void SetBlendModeAdd();
+		void SetBlendModeMod();
+	protected:
+		SDL_Color color = { 0xFF, 0xFF, 0xFF, 0xFF };
+	};
+
+	class RectangleShape : public Shape
+	{
+	public:
+		RectangleShape(const Vector2<int>& size = Vector2<int>(0, 0));
+		void Draw(const Vector2<int>& position) const override;
+
+		const Vector2<int>& GetSize() const
+		{
+			return size;
+		}
+
+		void SetSize(const Vector2<int>& size)
+		{
+			this->size = size;
+		}
+	private:
+		Vector2<int> size;
 	};
 }
 

@@ -1,4 +1,7 @@
 #include "user_interface.h"
+#include "bullet.h"
+#include "media.h"
+#include "player.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -19,7 +22,7 @@ const std::string Filename = "/usr/share/fonts/TTF/LiberationMono-Regular.ttf";
 class FrameRate : public UserInterface
 {
 public:
-	FrameRate(const Vector2& position)
+	FrameRate(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize / 2)))
 	{}
@@ -42,10 +45,43 @@ private:
 	std::stringstream text;
 };
 
+class ObjectCounter : public StatusMonitor
+{
+public:
+	ObjectCounter(const Vector2<double>& position)
+		: StatusMonitor(position)
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize / 2)))
+	{}
+
+	void Draw() const override
+	{
+		label->Write(position);
+	}
+
+	void Update() override
+	{
+		text.str("");
+		text << std::setw(ItemWidth) << std::left << caption;
+		if (!manager.expired())
+			text << std::setw(ItemWidth) << std::left << manager.lock()->GetObjects().size();
+		label->Text = text.str();
+	}
+
+	void Register(const std::weak_ptr<ObjectManager> manager) override
+	{
+		this->manager = manager;
+	}
+private:
+	const int ItemWidth = 12;
+	std::unique_ptr<Label> label;
+	std::stringstream text;
+	std::weak_ptr<ObjectManager> manager;
+};
+
 class Title : public UserInterface
 {
 public:
-	Title(const Vector2& position)
+	Title(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 2)))
 	{
@@ -69,7 +105,7 @@ private:
 class Button : public UserInterface
 {
 public:
-	Button(const Vector2& position)
+	Button(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
 	{
@@ -99,7 +135,7 @@ private:
 class Potentiometer : public UserInterface
 {
 public:
-	Potentiometer(const Vector2& position)
+	Potentiometer(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
 	{
@@ -152,7 +188,7 @@ protected:
 class SoundVolume : public Potentiometer
 {
 public:
-	SoundVolume(const Vector2& position)
+	SoundVolume(const Vector2<double>& position)
 		: Potentiometer(position)
 		, value(AssetLoader::Create().GetSoundVolume())
 	{}
@@ -180,7 +216,7 @@ private:
 class MusicVolume : public Potentiometer
 {
 public:
-	MusicVolume(const Vector2& position)
+	MusicVolume(const Vector2<double>& position)
 		: Potentiometer(position)
 		, value(AssetLoader::Create().GetMusicVolume())
 	{}
@@ -205,48 +241,34 @@ private:
 	int value;
 };
 
-namespace Shooter {
-	extern SDL_Window* Window;
-}
-
 class FullscreenSwitcher : public Potentiometer
 {
 public:
-	FullscreenSwitcher(const Vector2& position)
+	FullscreenSwitcher(const Vector2<double>& position)
 		: Potentiometer(position)
-		, isFullscreen((SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN) != 0)
 	{}
 protected:
 	void printValue() override
 	{
-		text << std::setw(ItemWidth) << std::left << (isFullscreen ? "ON" : "OFF");
+		text << std::setw(ItemWidth) << std::left << (Media::Create().IsFullScreen() ? "ON" : "OFF");
 	}
 
 	void decrease() override
 	{
-		// HACK: Window変数の依存性をGameクラスに押しつけられないか？
-		if (isFullscreen) {
-			isFullscreen = false;
-			SDL_SetWindowFullscreen(Window, 0);
-		} else {
-			isFullscreen = true;
-			SDL_SetWindowFullscreen(Window, SDL_WINDOW_FULLSCREEN);
-		}
+		Media::Create().ChangeToFullScreen();
 	}
 
 	void increase() override
 	{
 		decrease();
 	}
-private:
-	bool isFullscreen;
 };
 
 template<Input::Commands Command>
 class KeyConfig : public UserInterface
 {
 public:
-	KeyConfig(const Vector2& position)
+	KeyConfig(const Vector2<double>& position)
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 4)))
 	{
@@ -285,9 +307,44 @@ private:
 	std::stringstream text;
 };
 
+class PlayersMonitor : public StatusMonitor
+{
+public:
+	PlayersMonitor(const Vector2<double>& position)
+		: StatusMonitor(position)
+		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 4)))
+	{}
+
+	void Draw() const override
+	{
+		label->Write(position);
+	}
+
+	void Update() override
+	{
+		text.str("");
+		text << std::setw(ItemWidth) << std::left << caption;
+		if (!manager.expired())
+			text << std::setw(ItemWidth) << std::left << manager.lock()->GetPlayer().lock()->GetLife();
+		label->Text = text.str();
+	}
+
+	virtual void Register(const std::weak_ptr<ObjectManager> manager)
+	{
+		//if (std::is_same<decltype(*manager.lock()), PlayerManager>::value)
+		if (typeid(*manager.lock()) == typeid(PlayerManager))
+			this->manager = std::dynamic_pointer_cast<PlayerManager>(manager.lock());
+	}
+private:
+	const int ItemWidth = 8;
+	std::unique_ptr<Label> label;
+	std::stringstream text;
+	std::weak_ptr<PlayerManager> manager;
+};
+
 /******************************** UserInterface *********************************/
 
-UserInterface::UserInterface(const Vector2& position)
+UserInterface::UserInterface(const Vector2<double>& position)
 	: GameObject(true, position)
 	, caption(" ")
 	, activated(true)
@@ -301,7 +358,7 @@ void UserInterface::Update()
 
 /******************************** UserInterfaceManager *********************************/
 
-std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const Vector2& position)
+std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInterfaceID id, const Vector2<double>& position)
 {
 	std::weak_ptr<UserInterface> newObject;
 	switch (id) {
@@ -349,6 +406,20 @@ std::weak_ptr<UserInterface> UserInterfaceManager::GenerateObject(const UserInte
 		break;
 	case UserInterfaceID::PauseKeyConfig:
 		newObject = assignObject<KeyConfig<Input::Commands::Pause>>(position);
+		break;
+	}
+	return newObject;
+}
+
+std::weak_ptr<StatusMonitor> UserInterfaceManager::GenerateObject(const StatusMonitorID id, const Vector2<double>& position)
+{
+	std::weak_ptr<StatusMonitor> newObject;
+	switch (id) {
+	case StatusMonitorID::ObjectCounter:
+		newObject = assignObject<ObjectCounter>(position);
+		break;
+	case StatusMonitorID::PlayersMonitor:
+		newObject = assignObject<PlayersMonitor>(position);
 		break;
 	}
 	return newObject;

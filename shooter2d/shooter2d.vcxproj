@@ -163,6 +163,7 @@
     <ClCompile Include="game_object.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="media.cpp" />
     <ClCompile Include="mover.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="game_object.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="media.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="scene.h" />

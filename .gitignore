@@ -261,9 +261,12 @@ __pycache__/
 *.pyc
 
 # Local settings
-images/
-se/
+/build/
+/subprojects/*
+!/subprojects/sol2.wrap
+/shooter2d/images/
+/shooter2d/se/
+/shooter2d/main
 *.o
 *.d
-main
 CMakeLists.txt

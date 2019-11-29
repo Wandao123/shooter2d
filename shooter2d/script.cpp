@@ -1,57 +1,70 @@
-#include "game.h"
 #include "scene.h"  // ここで script.h は読み込み済み。
+#include "media.h"
+#include <algorithm>
 
 using namespace Shooter;
 
-/// <param name="bulletManager">GameSceneクラスのbulletManagerメンバ変数</param>
 /// <param name="enemyManager">GameSceneクラスのenemyManagerメンバ変数</param>
+/// <param name="enemyBulletManager">GameSceneクラスのenemyBulletManagerメンバ変数</param>
 /// <param name="playerManager">GameSceneクラスのplayerManagerメンバ変数</param>
-Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerManager& playerManager)
-	: bulletManager(bulletManager)
-	, enemyManager(enemyManager)
+/// <param name="playerBulletManager">GameSceneクラスのplayerBulletManagerメンバ変数</param>
+Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, PlayerManager& playerManager, BulletManager& playerBulletManager)
+	: enemyManager(enemyManager)
+	, enemyBulletManager(enemyBulletManager)
 	, playerManager(playerManager)
+	, playerBulletManager(playerBulletManager)
 	, status(Status::Running)
 {
 	// Luaの初期化。
 	lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::coroutine, sol::lib::math, sol::lib::io, sol::lib::string, sol::lib::os);
-	//const std::string package_path = lua["package"]["path"];
-	//lua["package"]["path"] = package_path + ";./scripts/?.lua";  // Luaのpackage.pathにscriptsディレクトリを追加。
-	lua.script_file(MainScript);  // TODO: エラー処理
 
 	// 各種クラスの定義
 	lua.new_usertype<Bullet>(
 		"Bullet",
 		// Lua側で生成するならば、コンストラクタを定義して ``Enemy.new(...)'' とする。
-		"Speed", sol::property(&Bullet::GetSpeed, &Bullet::SetSpeed),
 		"Angle", sol::property(&Bullet::GetAngle, &Bullet::SetAngle),
-		"PosX", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().x; }),
-		"PosY", sol::property([](Bullet& bullet) -> float { return bullet.GetPosition().y; }),
+		"PosX", sol::property([](Bullet& bullet) -> double { return bullet.GetPosition().x; }),
+		"PosY", sol::property([](Bullet& bullet) -> double { return bullet.GetPosition().y; }),
+		"Speed", sol::property(&Bullet::GetSpeed, &Bullet::SetSpeed),
+		"Erase", &Bullet::Erase,
 		"IsEnabled", &Bullet::IsEnabled,
-		"Erase", &Bullet::Erase
+		"TurnInvincible", &Bullet::TurnInvincible
 	);
 	lua.new_usertype<Enemy>(
 		"Enemy",
-		"Speed", sol::property(&Enemy::GetSpeed, &Enemy::SetSpeed),
 		"Angle", sol::property(&Enemy::GetAngle, &Enemy::SetAngle),
-		"PosX", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().x; }),
-		"PosY", sol::property([](Enemy& enemy) -> float { return enemy.GetPosition().y; }),
+		"HitPoint", sol::property([](Enemy& enemy) -> int { return enemy.GetHitPoint(); }),
+		"PosX", sol::property([](Enemy& enemy) -> double { return enemy.GetPosition().x; }),
+		"PosY", sol::property([](Enemy& enemy) -> double { return enemy.GetPosition().y; }),
+		"Speed", sol::property(&Enemy::GetSpeed, &Enemy::SetSpeed),
 		"Erase", &Enemy::Erase,
 		"IsEnabled", &Enemy::IsEnabled,
-		"HitPoint", sol::property([](Enemy& enemy) -> int { return enemy.GetHitPoint(); })
+		"TurnInvincible", &Enemy::TurnInvincible
 	);
 	lua.new_usertype<Player>(
 		"Player",
-		"Speed", sol::property(&Player::GetSpeed),
 		"Angle", sol::property(&Player::GetAngle),
-		"PosX", sol::property([](Player& player) -> float { return player.GetPosition().x; }),
-		"PosY", sol::property([](Player& player) -> float { return player.GetPosition().y; }),
-		"IsEnabled", &Player::IsEnabled
+		"Life", sol::property([](Player& player) -> int { return player.GetLife(); }),
+		"PosX", sol::property(
+			[](Player& player) -> double { return player.GetPosition().x; },
+			[](Player& player, const double posX) { player.SetPosition({ posX, player.GetPosition().y }); }),
+		"PosY", sol::property(
+			[](Player& player) -> double { return player.GetPosition().y; },
+			[](Player& player, const double posY) { player.SetPosition({ player.GetPosition().x, posY }); }),
+		"Speed", sol::property(&Player::GetSpeed),
+		"IsEnabled", &Player::IsEnabled,
+		"SetVelocity", [](Player& player, const double dirX, const double dirY, const bool slowMode) { player.SetVelocity({ dirX, dirY }, slowMode); },
+		"Spawned", &Player::Spawned,
+		"TurnInvincible", &Player::TurnInvincible
 	);
 
 	// 定数の登録。
-	int width = Game::Width, height = Game::Height;  // 直に代入するとgccでコンパイルできない。
+	int width = Media::Create().GetWidth(), height = Media::Create().GetHeight();  // 直に代入するとgccでコンパイルできない。
 	lua["ScreenWidth"] = width;
 	lua["ScreenHeight"] = height;
+	width = Player::Width; height = Player::Height;
+	lua["PlayerWidth"] = width;
+	lua["PlayerHeight"] = height;
 	lua.new_enum(
 		"EnemyID",
 		"SmallRed", EnemyManager::EnemyID::SmallRed,
@@ -59,6 +72,7 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 	);
 	lua.new_enum(
 		"BulletID",
+		// 敵弾。
 		"LargeRed", BulletManager::BulletID::LargeRed,
 		"LargeBlue", BulletManager::BulletID::LargeBlue,
 		"MiddleRed", BulletManager::BulletID::MiddleRed,
@@ -70,7 +84,17 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		"ScaleRed", BulletManager::BulletID::ScaleRed,
 		"ScaleBlue", BulletManager::BulletID::ScaleBlue,
 		"RiceRed", BulletManager::BulletID::RiceRed,
-		"RiceBlue", BulletManager::BulletID::RiceBlue
+		"RiceBlue", BulletManager::BulletID::RiceBlue,
+		// 自弾。
+		"ReimuNormal", BulletManager::BulletID::ReimuNormal,
+		"MarisaNormal", BulletManager::BulletID::MarisaNormal,
+		"SanaeNormal", BulletManager::BulletID::SanaeNormal
+	);
+	lua.new_enum(
+		"PlayerID",
+		"Reimu", PlayerManager::PlayerID::Reimu,
+		"Marisa", PlayerManager::PlayerID::Marisa,
+		"Sanae", PlayerManager::PlayerID::Sanae
 	);
 	lua.new_enum(
 		"SceneID",
@@ -78,24 +102,37 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 		"StageClear", SceneID::StageClear,
 		"AllClear", SceneID::AllClear
 	);
+	lua.new_enum(
+		"CommandID",
+		"Shot", Input::Commands::Shot,
+		"Bomb", Input::Commands::Bomb,
+		"Slow", Input::Commands::Slow,
+		"Skip", Input::Commands::Skip,
+		"Leftward", Input::Commands::Leftward,
+		"Rightward", Input::Commands::Rightward,
+		"Forward", Input::Commands::Forward,
+		"Backward", Input::Commands::Backward,
+		"Pause", Input::Commands::Pause
+	);
 
 	// 関数群の登録。
-	lua["GenerateEnemy"] = generateEnemy;
 	lua["GenerateBullet"] = sol::overload(
-		generateBullet,
+		generateEnemyBullet,
 		generateBulletFromEnemy
 	);
+	lua["GenerateEnemy"] = generateEnemy;
+	lua["GeneratePlayer"] = generatePlayer;
+	lua["GeneratePlayerBullet"] = generatePlayerBullet;
 	lua["ChangeScene"] = changeScene;
 	lua["StartCoroutine"] = sol::overload(
 		startCoroutine,
 		startCoroutineWithArgs
 	);
-	lua["GetPlayer"] = getPlayer;  // 定数として扱うべき？　その場合は事前に生成されていることを要求する。
-
-	// Main関数の登録。
-	sol::thread th = sol::thread::create(lua.lua_state());
-	sol::coroutine co = th.state()["Main"];
-	mainTask = std::make_pair(th, co);
+	lua["StopCoroutine"] = stopCoroutine;
+	lua["GetPlayer"] = getPlayer;
+	lua["GetKey"] = [](const Input::Commands command) -> bool { return Input::Create().GetKey(command); };
+	lua["GetKeyDown"] = [](const Input::Commands command) -> bool { return Input::Create().GetKeyDown(command); };
+	lua["GetKeyUp"] = [](const Input::Commands command) -> bool { return Input::Create().GetKeyUp(command); };
 }
 
 /// <summary>プレイ中の敵の出現や弾の生成などの全容を記述する。</summary>
@@ -105,17 +142,15 @@ Script::Script(BulletManager& bulletManager, EnemyManager& enemyManager, PlayerM
 Script::Status Script::Run()
 {
 	// Luaのスレッドを実行。
-	if (!mainTask.second.runnable() && tasksList.empty())
-		status = Status::Dead;
+	if (tasksList.empty())
+		status = Status::Dead;  // 自機スクリプトの実装方法との関係上、基本的にここは実行されない。
 	else
 		status = Status::Running;
-	mainTask.second();
-	tasksList.remove_if([](std::pair<sol::thread, sol::coroutine> task) {  // 終了したスレッドを全て削除。
+	tasksList.remove_if([](Task task) {  // 終了したスレッドを全て削除。削除しなければ再実行されることに注意。また、無限ループがある場合も削除されない。
 		if (task.first.status() == sol::thread_status::dead) {
 			task.first.state().collect_garbage();  // タイミングがよく判らないため、明示的に実行。もしスレッドが終了していれば、ObjectManager::objectsListの各要素の参照カウントが1になる筈。
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	});
@@ -127,7 +162,26 @@ Script::Status Script::Run()
 	/*int counter = Timer::Create().GetPlayingFrames();
 	std::vector<std::shared_ptr<Enemy>> enemies;
 	if (counter % 15 == 0 && counter <= 70) {
-		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2{ Game::Width / 2.0f, 0.0f }));
-		enemies.back()->Spawned(2.0f, M_PI_2, 100);
-	}*/
+		enemies.push_back(enemyManager->GenerateObject(EnemyManager::EnemyID::SmallBlue, Vector2<double>{ Media::Create().GetWidth() / 2.0, 0.0 }));
+		enemies.back()->Spawned(2.0, M_PI_2, 100);
+	}
+	return status*/
+}
+
+/// <summary>スクリプトのファイルを読み込む。</summary>
+/// <param name="filename">スクリプトのファイルへのパス</param>
+void Script::LoadFile(const std::string filename)
+{
+	lua.script_file(filename);  // TODO: エラー処理、二重読み込み？
+}
+
+/// <summary>コルーチンを登録する。</summary>
+/// <param name="name">登録する関数</param>
+/// <remarks>startCoroutineと殆ど同じ。</remarks>
+void Script::RegisterFunction(const std::string name)
+{
+	sol::thread th = sol::thread::create(lua.lua_state());
+	sol::coroutine co = th.state()[name];
+	co();
+	tasksList.push_back(std::make_pair(th, co));
 }
