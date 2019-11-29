@@ -321,11 +321,11 @@ void GameScene::Draw() const
 
 KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener)
 	: Scene(listener)
+	, rectangle(Vector2<int>((UserInterfaceManager::FontSize * 3 / 4) * 9 * 3, ItemHeight))  // 1文字の幅 x 文字数 x 項目数
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
-	rectangle.SetSize(Vector2<int>((UserInterfaceManager::FontSize * 3 / 4) * 9 * 3, ItemHeight));  // 1文字の幅 x 文字数 x 項目数
-	rectangle.SetColor(0xFF, 0xFF, 0x00, 63);
+	rectangle.SetColor(0xFF, 0xFF, 0x00, 0x3F);
 
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 1.0 / 10.0 }).lock()->SetCaption(u8"Key config");
 	auto makePos = [this](unsigned int index) -> Vector2<double> { return { Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 2.0 / 10.0 + ItemHeight * index }; };
