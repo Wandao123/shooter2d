@@ -26,7 +26,7 @@ namespace Shooter {
 		void waitAndDo(const unsigned int delayFrames, std::function<void(void)> func);
 	private:
 		unsigned int previousPressedFrame;  // 直前のキーが押されたフレーム。
-		unsigned int counter;               // 
+		unsigned int counter;               // waitAndDoで使うためのカウンタ。
 	};
 
 	class TitleScene : public Scene

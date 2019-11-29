@@ -22,8 +22,6 @@ namespace Shooter {
 	class Game : public IChangingSceneListener
 	{
 	public:
-		static const int Width = 640;
-		static const int Height = 480;
 		Game();
 		~Game();
 		void Run();

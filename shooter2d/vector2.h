@@ -6,12 +6,14 @@
 
 namespace Shooter {
 	/// <summary>2次元ベクトルクラス。</summary>
-	/// <remarks>代入を除いて、演算は新しくVector2かfloatを生成する。</remarks>
+	/// <remarks>代入を除いて、演算は新しくVector2かdoubleを生成する。</remarks>
+	template <typename Type>
 	struct Vector2
 	{
-		float x, y;
+		Type x, y;
 
-		Vector2(float x, float y) : x(x), y(y) {}
+		Vector2() : x(0), y(0) {}
+		Vector2(const Type x, const Type y) : x(x), y(y) {}
 
 		Vector2 &operator=(const Vector2& vector) = default;
 
@@ -25,7 +27,7 @@ namespace Shooter {
 			return { this->x - vector.x, this->y - vector.y };
 		}
 
-		Vector2 operator*(const float& scalar) const
+		Vector2 operator*(const Type& scalar) const
 		{
 			return { this->x * scalar, this->y * scalar };
 		}
@@ -42,38 +44,56 @@ namespace Shooter {
 			return *this;
 		}
 
-		float Magnitude() const
+		bool operator==(const Vector2& vector) const
+		{
+			return (this->x == vector.x) && (this->y == vector.y);
+		}
+
+		Type Magnitude() const
 		{
 			return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
 		}
 
-		float SquaredMagnitude() const
+		Type SquaredMagnitude() const
 		{
 			return std::pow(x, 2) + std::pow(y, 2);
 		}
 
 		Vector2 Normalize() const
 		{
-			if (x != 0.0f || y != 0.0f)
+			if (x != 0.0 || y != 0.0)
 				return { x / Magnitude(), y / Magnitude() };
 			else
-				return { 0.0f, 0.0f };
+				return { 0.0, 0.0 };
 		}
 
-		float Dot(const Vector2& vector) const
+		Type Dot(const Vector2& vector) const
 		{
 			return this->x * vector.x + this->y * vector.y;
 		}
 
-		float Cross(const Vector2& vector) const
+		Type Cross(const Vector2& vector) const
 		{
 			return this->x * vector.y - this->y * vector.x;
 		}
 
-		Vector2 Rotate(const float angle) const
+		Vector2 Rotate(const Type angle) const
 		{
 			return { std::cos(angle) * x - std::sin(angle) * y, std::sin(angle) * x + std::cos(angle) * y };
 		}
+	};
+
+	/// <summary>矩形クラス。</summary>
+	/// <remarks>画像の切り抜きなどに利用する。</remarks>
+	template <typename Type>
+	struct Rect
+	{
+		Type x, y;           // 左上端の座標。
+		Type width, height;  // 幅、高さ。
+
+		Rect() : x(0), y(0), width(0), height(0) {}
+		Rect(const Type x, const Type y, const Type width, const Type height) : x(x), y(y), width(width), height(height) {}
+		Rect(const Vector2<Type>& position, const Vector2<Type>& size) : x(position.x), y(position.y), width(size.x), height(size.y) {}
 	};
 
 	namespace MathUtils {
@@ -83,7 +103,7 @@ namespace Shooter {
 			return (Dividend - Divisor * static_cast<int>(std::trunc(static_cast<double>(Dividend) / Divisor)));
 		}
 
-		inline float Remainder(const float Dividend, const float Divisor)
+		inline double Remainder(const double Dividend, const double Divisor)
 		{
 			return (Dividend - Divisor * std::trunc(Dividend / Divisor));
 		}
@@ -94,7 +114,7 @@ namespace Shooter {
 			return (Dividend - Divisor * static_cast<int>(std::floor(static_cast<double>(Dividend) / Divisor)));
 		}
 
-		inline float Modulo(const float Dividend, const float Divisor)
+		inline double Modulo(const double Dividend, const double Divisor)
 		{
 			return (Dividend - Divisor * std::floor(Dividend / Divisor));
 		}

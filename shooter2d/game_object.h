@@ -12,18 +12,17 @@ namespace Shooter {
 	class GameObject
 	{
 	public:
-		GameObject(const bool enabled, const Vector2 position) : enabled(enabled), position(position) {}
+		GameObject(const bool enabled, const Vector2<double>& position) : enabled(enabled), position(position) {}
 		virtual ~GameObject() = default;
 		virtual void Draw() const = 0;
 		virtual void Update() = 0;
 
-		// HACK: 参照を返したほうがいい？
-		Vector2 GetPosition() const
+		const Vector2<double>& GetPosition() const
 		{
 			return position;
 		}
 
-		void SetPosition(const Vector2& position)  // HACK: 右辺値参照と左辺値参照とを使い分けるべき。
+		void SetPosition(const Vector2<double>& position)
 		{
 			this->position = position;
 		}
@@ -39,14 +38,14 @@ namespace Shooter {
 		}
 	protected:
 		bool enabled;
-		Vector2 position;  // ここで言う位置とは画像の中心のこと。
+		Vector2<double> position;  // ここで言う位置とは画像の中心のこと。
 	};
 
 	/// <summary>GameObjectの管理クラス。</summary>
 	/// <remarks>
 	/// 生成するオブジェクトの種類に応じて、このクラスの継承先で定義せよ。特に、インスタンスを返す関数を定義していないので、
 	///     std::weak_ptr GenerateObject(生成するオブジェクトのID, 生成する位置)
-	/// という型の関数を継承先で定義すること。下のassignObjectも参照。
+	/// という型の関数を継承先で定義すること。下記のassignObjectも参照。
 	/// </remarks>
 	class ObjectManager
 	{
@@ -55,15 +54,7 @@ namespace Shooter {
 		virtual ~ObjectManager() {}
 		virtual void Draw() const;
 		virtual void Update();
-
-		std::list<std::weak_ptr<GameObject>> GetList() const
-		{
-			std::list<std::weak_ptr<GameObject>> temp;
-			for (auto&& object : objectsList)
-				if (object->IsEnabled())
-					temp.push_back(object);
-			return temp;
-		}
+		std::list<std::weak_ptr<GameObject>> GetObjects() const { return getList<GameObject>(); }
 	protected:
 		std::list<std::shared_ptr<GameObject>> objectsList;  // 更新対象オブジェクト。本来なら継承先でGameObjectの具象クラスに対して定義するべきか？
 
@@ -74,7 +65,7 @@ namespace Shooter {
 		/// （参照カウントが増えない）ので、未使用と見なされる。
 		/// </remarks>
 		template <class ObjectType>
-		std::weak_ptr<ObjectType> assignObject(const Vector2& position)
+		std::weak_ptr<ObjectType> assignObject(const Vector2<double>& position)
 		{
 			for (auto&& object : objectsList)
 				if (typeid(*object) == typeid(ObjectType) && !object->IsEnabled() && object.use_count() <= 1) {
@@ -83,6 +74,18 @@ namespace Shooter {
 				}
 			objectsList.push_front(std::make_unique<ObjectType>(position));
 			return std::dynamic_pointer_cast<ObjectType>(*objectsList.begin());;
+		}
+
+		/// <summary>指定されたObjectType型のリストを返す。</summary>
+		/// <remarks>ObjectTypeはGameObjectの子クラスであることが前提。</remarks>
+		template <class ObjectType>
+		std::list<std::weak_ptr<ObjectType>> getList() const
+		{
+			std::list<std::weak_ptr<ObjectType>> temp;
+			for (auto&& object : objectsList)
+				if (object->IsEnabled())
+					temp.push_back(std::dynamic_pointer_cast<ObjectType>(object));
+			return temp;
 		}
 	};
 }

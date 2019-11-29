@@ -10,20 +10,22 @@ namespace Shooter {
 	class CollisionDetector {
 	public:
 		// スマート・ポインタではなくとも参照で十分なときには参照をつかう。
-		CollisionDetector(BulletManager& bulletManager, EffectManager& effectManager, EnemyManager& enemyManager, PlayerManager& playerManager)
-			: bulletManager(bulletManager)
-			, effectManager(effectManager)
+		CollisionDetector(EffectManager& effectManager, EnemyManager& enemyManager, BulletManager& enemyBulletManager, PlayerManager& playerManager, BulletManager& playerBulletManager)
+			: effectManager(effectManager)
 			, enemyManager(enemyManager)
+			, enemyBulletManager(enemyBulletManager)
 			, playerManager(playerManager)
+			, playerBulletManager(playerBulletManager)
 		{}
 
 		void CheckAll();
 		void CheckBetween(Mover& mover1, Mover& mover2);
 	private:
-		BulletManager& bulletManager;
 		EffectManager& effectManager;
 		EnemyManager& enemyManager;
+		BulletManager& enemyBulletManager;
 		PlayerManager& playerManager;
+		BulletManager& playerBulletManager;
 	};
 }
 

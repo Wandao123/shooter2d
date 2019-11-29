@@ -1,38 +1,16 @@
 #include "game.h"
-#include <iostream>
-#include <cstdlib>
+#include "media.h"
 
 namespace Shooter {
-	SDL_Window *Window;
-	SDL_Renderer *Renderer;
-
 	Game::Game()
 	{
-		//SDL_SetMainReady();
-		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0) {
-			std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
-			std::cerr << "Warning: Linear texture filtering not enabled!" << std::endl;
-		Window = SDL_CreateWindow("Bullet Hell 2D Shmup", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Width, Height, SDL_WINDOW_SHOWN);
-		if (Shooter::Window == nullptr) {
-			std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		//Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		Renderer = SDL_CreateRenderer(Shooter::Window, -1, SDL_RENDERER_ACCELERATED);
-		if (Shooter::Renderer == nullptr) {
-			std::cerr << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
-			exit(EXIT_FAILURE);
-		}
-
-		// グローバル変数（シングルトン）の初期化
+		// グローバル変数（シングルトン）の初期化。SDLを初期化するために、真っ先にMediaクラスを呼ぶことに注意。
+		Media::Create();
 		Input::Create();
 		Timer::Create();
 		AssetLoader::Create();
 
-		// シーンの設定
+		// シーンの設定。
 		PushScene(std::make_unique<TitleScene>(*this));
 	}
 
@@ -44,9 +22,7 @@ namespace Shooter {
 		AssetLoader::Destroy();
 		Timer::Destroy();
 		Input::Destroy();
-		SDL_DestroyRenderer(Shooter::Renderer);
-		SDL_DestroyWindow(Shooter::Window);
-		SDL_Quit();
+		Media::Destroy();
 	}
 
 	void Game::Run()
@@ -59,10 +35,9 @@ namespace Shooter {
 			scenes.top()->Update();
 			Timer::Create().AdjustFPS([this]() {
 				// 実際の描画
-				SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0x00);
-				SDL_RenderClear(Renderer);
+				Media::Create().Clear();
 				scenes.top()->Draw();
-				SDL_RenderPresent(Renderer);
+				Media::Create().Present();
 			});
 		}
 	}

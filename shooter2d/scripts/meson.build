@@ -1,5 +1,5 @@
 if build_machine.system() == 'windows'
-    lua = run_command('wsl', './grabber.sh')
+    lua = run_command('grabber.bat')
 elif build_machine.system() == 'linux'
     lua = run_command('grabber.sh')
 endif

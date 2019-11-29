@@ -1,10 +1,5 @@
 #include "game.h"
-
-// TODO: assetsに押し付ける方法？
-namespace Shooter {
-	extern SDL_Renderer* Renderer;
-}
-
+#include "media.h"
 
 using namespace Shooter;
 
@@ -50,10 +45,11 @@ public:
 	void Draw() const override;
 	void Update() override;
 private:
-	std::shared_ptr<BulletManager> bulletManager;
 	std::shared_ptr<EffectManager> effectManager;
 	std::shared_ptr<EnemyManager> enemyManager;
+	std::shared_ptr<BulletManager> enemyBulletManager;
 	std::shared_ptr<PlayerManager> playerManager;
+	std::shared_ptr<BulletManager> playerBulletManager;
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	std::unique_ptr<CollisionDetector> collisionDetector;
 	std::unique_ptr<Script> script;
@@ -68,6 +64,7 @@ public:
 private:
 	static const int MaxItems = 10;
 	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
+	RectangleShape rectangle;
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	int currentIndex;
 	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
@@ -97,7 +94,7 @@ public:
 private:
 	static const int MaxItems = 2;
 	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
-	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> screenshot;
+	std::unique_ptr<Sprite> screenshot;
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	int currentIndex;
 	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
@@ -139,7 +136,6 @@ void Scene::waitAndDo(const unsigned int delayFrames, std::function<void(void)> 
 	}
 }
 
-
 /******************************** TitleScene *********************************/
 
 TitleScene::TitleScene(IChangingSceneListener& listener)
@@ -147,15 +143,15 @@ TitleScene::TitleScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 5.0f }).lock()->SetCaption(u8"Bullet Hell 2D Shmup");
-	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 5.0f + ItemHeight * index }; };
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 1.0 / 5.0 }).lock()->SetCaption(u8"Bullet Hell 2D Shmup");
+	auto makePos = [this](unsigned int index) -> Vector2<double> { return { Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 2.0 / 5.0 + ItemHeight * index }; };
 	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(0));
 	menu[0].lock()->SetCaption(u8"Start");
 	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(1));
 	menu[1].lock()->SetCaption(u8"Options");
 	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(2));
 	menu[2].lock()->SetCaption(u8"Quit");
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2<double>(Media::Create().GetWidth() - 56, Media::Create().GetHeight() - 7));
 }
 
 void TitleScene::Draw() const
@@ -193,7 +189,7 @@ GameOverScene::GameOverScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetPlayingFrames())
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("GAME OVER");
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 0.5 }).lock()->SetCaption("GAME OVER");
 }
 
 void GameOverScene::Draw() const
@@ -215,7 +211,7 @@ GameClearScene::GameClearScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetPlayingFrames())
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("STAGE CLEAR");
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 0.5 }).lock()->SetCaption("STAGE CLEAR");
 }
 
 void GameClearScene::Draw() const
@@ -237,7 +233,7 @@ GameAllClearScene::GameAllClearScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetPlayingFrames())
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 0.5f }).lock()->SetCaption("ALL CLEAR");
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 0.5 }).lock()->SetCaption("ALL CLEAR");
 }
 
 void GameAllClearScene::Draw() const
@@ -256,60 +252,34 @@ void GameAllClearScene::Update()
 
 GameScene::GameScene(IChangingSceneListener& listener)
 	: Scene(listener)
-	, bulletManager(std::make_shared<BulletManager>())
 	, effectManager(std::make_shared<EffectManager>())
 	, enemyManager(std::make_shared<EnemyManager>())
+	, enemyBulletManager(std::make_shared<BulletManager>())
 	, playerManager(std::make_shared<PlayerManager>())
+	, playerBulletManager(std::make_shared<BulletManager>())
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, collisionDetector(std::make_unique<CollisionDetector>(*bulletManager, *effectManager, *enemyManager, *playerManager))
-	, script(std::make_unique<Script>(*bulletManager, *enemyManager, *playerManager))
+	, collisionDetector(std::make_unique<CollisionDetector>(*effectManager, *enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
+	, script(std::make_unique<Script>(*enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
 {
-	// 更新対象オブジェクトを生成。
-	playerManager->GenerateObject(PlayerManager::PlayerID::Reimu, Vector2{ Game::Width / 2.0f, Game::Height - Player::Height }).lock()->Spawned();
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+	// UIの初期化。
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2<double>(Media::Create().GetWidth() - 56, Media::Create().GetHeight() - 7));
+	auto objectMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::PlayersMonitor, Vector2<double>{ UserInterfaceManager::FontSize * 4, UserInterfaceManager::FontSize * 3 / 4 / 2 });
+	objectMonitor.lock()->SetCaption(u8"Player");
+	objectMonitor.lock()->Register(playerManager);
+
+	// スクリプトの初期化。
+	script->LoadFile("scripts/main.lua");
+	script->RegisterFunction("Main");
+	script->LoadFile("scripts/reimu.lua");  // TODO: 各機体毎に条件分岐。
+	script->RegisterFunction("PlayerScript");
 }
 
 void GameScene::Update()
 {
-	auto updatePlayer = [this](Player& player) {
-		// 自機の復活処理。
-		const unsigned int DelayFrames = 30;
-		static unsigned int playerDefeatedFrame = Timer::Create().GetPlayingFrames();
-		if (!player.IsEnabled() && player.GetLife() > 0 && Timer::Create().GetPlayingFrames() - playerDefeatedFrame >= DelayFrames) {
-			player.SetPosition(Vector2{ Game::Width / 2.0f, Game::Height - Player::Height });
-			player.Spawned();
-			playerDefeatedFrame = Timer::Create().GetPlayingFrames();
-		}
-		
-		// 自機の移動。
-		float speed = Input::Create().GetKey(Input::Commands::Slow) ? player.GetLowSpeed() : player.GetHighSpeed();
-		Vector2 velocity = { 0.0f, 0.0f };
-		if (Input::Create().GetKey(Input::Commands::Leftward))
-			velocity.x = -speed;
-		if (Input::Create().GetKey(Input::Commands::Rightward))
-			velocity.x = +speed;
-		if (Input::Create().GetKey(Input::Commands::Forward))
-			velocity.y = -speed;
-		if (Input::Create().GetKey(Input::Commands::Backward))
-			velocity.y = +speed;
-		velocity = velocity.Normalize() * speed;
-		player.SetVelocity(velocity);
-
-		// 自機のショット。
-		if (Input::Create().GetKey(Input::Commands::Shot)) {
-			const unsigned int ShotDelayFrames = 6;
-			static unsigned int playerShootingFrame = Timer::Create().GetPlayingFrames();
-			if (Timer::Create().GetPlayingFrames() - playerShootingFrame >= ShotDelayFrames) {
-				player.Shoot();
-				playerShootingFrame = Timer::Create().GetPlayingFrames();
-			}
-		}
-	};
-
 	auto player = playerManager->GetPlayer().lock();
-	updatePlayer(*player);
 	auto status = script->Run();
-	bulletManager->Update();
+	enemyBulletManager->Update();
+	playerBulletManager->Update();
 	effectManager->Update();
 	enemyManager->Update();
 	playerManager->Update();
@@ -331,7 +301,6 @@ void GameScene::Update()
 		case Script::Status::Running:
 			break;
 		case Script::Status::StageClear:
-			player->Erase();
 			listener.PushScene(std::make_unique<GameClearScene>(listener));
 			break;
 		}
@@ -341,10 +310,11 @@ void GameScene::Update()
 void GameScene::Draw() const
 {
 	userInterfaceManager->Draw();
+	enemyManager->Draw();
 	effectManager->Draw();
 	playerManager->Draw();
-	enemyManager->Draw();
-	bulletManager->Draw();
+	enemyBulletManager->Draw();
+	playerBulletManager->Draw();
 }
 
 /******************************** KeyConfigScene *********************************/
@@ -354,8 +324,11 @@ KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 10.0f }).lock()->SetCaption(u8"Key config");
-	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 10.0f + ItemHeight * index }; };
+	rectangle.SetSize(Vector2<int>((UserInterfaceManager::FontSize * 3 / 4) * 9 * 3, ItemHeight));  // 1文字の幅 x 文字数 x 項目数
+	rectangle.SetColor(0xFF, 0xFF, 0x00, 63);
+
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 1.0 / 10.0 }).lock()->SetCaption(u8"Key config");
+	auto makePos = [this](unsigned int index) -> Vector2<double> { return { Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 2.0 / 10.0 + ItemHeight * index }; };
 	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::ShotKeyConfig, makePos(0));
 	menu[0].lock()->SetCaption(u8"Shot");
 	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::BombKeyConfig, makePos(1));
@@ -376,20 +349,15 @@ KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener)
 	menu[8].lock()->SetCaption(u8"Pause");
 	menu[9] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(9));
 	menu[9].lock()->SetCaption(u8"Quit");
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2<double>(Media::Create().GetWidth() - 56, Media::Create().GetHeight() - 7));
 }
 
 void KeyConfigScene::Draw() const
 {
 	userInterfaceManager->Draw();
-
-	// TODO: 選択中のUIを実装して、Rendererを隠蔽。
-	int posX = static_cast<int>(Game::Width * 0.5f), posY = static_cast<int>(Game::Height * 2.0f / 10.0f + ItemHeight * currentIndex);
-	int width = 14 * 3 * 14, height = ItemHeight;
-	SDL_Rect rect = { posX - width / 2, posY - height / 2, width, height };
-	SDL_SetRenderDrawColor(Renderer, 0xFF, 0xFF, 0x00, 63);
-	SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
-	SDL_RenderFillRect(Renderer, &rect);
+	int posX = static_cast<int>(Media::Create().GetWidth() * 0.5);
+	int posY = static_cast<int>(Media::Create().GetHeight() * 2.0 / 10.0 + ItemHeight * currentIndex);
+	rectangle.Draw({ posX - rectangle.GetSize().x / 2, posY - rectangle.GetSize().y / 2 });
 }
 
 void KeyConfigScene::Update()
@@ -425,8 +393,8 @@ OptionsScene::OptionsScene(IChangingSceneListener& listener)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 4.0f }).lock()->SetCaption(u8"Options");
-	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 2.0f / 4.0f + ItemHeight * index }; };
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 1.0 / 4.0 }).lock()->SetCaption(u8"Options");
+	auto makePos = [this](unsigned int index) -> Vector2<double> { return { Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 2.0 / 4.0 + ItemHeight * index }; };
 	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::MusicVolume, makePos(0));
 	menu[0].lock()->SetCaption(u8"Music Volume");
 	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::SoundVolume, makePos(1));
@@ -437,7 +405,7 @@ OptionsScene::OptionsScene(IChangingSceneListener& listener)
 	menu[3].lock()->SetCaption(u8"Key config");
 	menu[4] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(4));
 	menu[4].lock()->SetCaption(u8"Quit");
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2{ Game::Width - 56, Game::Height - 7 });
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2<double>(Media::Create().GetWidth() - 56, Media::Create().GetHeight() - 7));
 }
 
 void OptionsScene::Draw() const
@@ -477,23 +445,16 @@ void OptionsScene::Update()
 
 PauseScene::PauseScene(IChangingSceneListener& listener)
 	: Scene(listener)
-	, screenshot(nullptr, nullptr)
+	, screenshot(std::make_unique<Sprite>(AssetLoader::Create().TakeScreenshot()))
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
-	// スクリーンショットの保存。
-	auto surface = SDL_CreateRGBSurface(0, Game::Width, Game::Height, 32, 0, 0, 0, 0);
-	SDL_RenderReadPixels(Renderer, nullptr, surface->format->format, surface->pixels, surface->pitch);
-	auto rawTexture = SDL_CreateTextureFromSurface(Renderer, surface);
-	SDL_SetTextureColorMod(rawTexture, 0x86, 0x5D, 0x36);
 	// TODO: Blurring effect.
-	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
-	this->screenshot = std::move(texture);
-	SDL_FreeSurface(surface);
+	screenshot->SetColor(0x86, 0x5D, 0x36);
 
 	// ゲームオブジェクトの生成。
-	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2{ Game::Width * 0.5f, Game::Height * 1.0f / 3.0f }).lock()->SetCaption(u8"Pause");
-	auto makePos = [this](unsigned int index) -> Vector2 { return { Game::Width * 0.5f, Game::Height * 1.0f / 2.0f + ItemHeight * index }; };
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 1.0 / 3.0 }).lock()->SetCaption(u8"Pause");
+	auto makePos = [this](unsigned int index) -> Vector2<double> { return { Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 1.0 / 2.0 + ItemHeight * index }; };
 	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(3));
 	menu[0].lock()->SetCaption(u8"Return");
 	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(4));
@@ -505,12 +466,13 @@ PauseScene::PauseScene(IChangingSceneListener& listener)
 
 PauseScene::~PauseScene()
 {
+	AssetLoader::Create().ClearScreenshots();
 	Timer::Create().Restart();
 }
 
 void PauseScene::Draw() const
 {
-	SDL_RenderCopy(Renderer, screenshot.get(), nullptr, nullptr);
+	screenshot->Draw();
 	userInterfaceManager->Draw();
 }
 

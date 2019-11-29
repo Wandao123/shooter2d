@@ -1,5 +1,5 @@
 #include "bullet.h"
-#include "game.h"
+#include "media.h"
 #include "player.h"
 
 using namespace Shooter;
@@ -9,45 +9,25 @@ using namespace Shooter;
 class Reimu : public Player
 {
 public:
-	Reimu(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(1.0f), EffectManager::EffectID::DefetedPlayer)
+	Reimu(const Vector2<double>& position)
+		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(1.0), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
 class Marisa : public Player
 {
 public:
-	Marisa(const Vector2& position)
-		: Player(position, 5.0f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
+	Marisa(const Vector2<double>& position)
+		: Player(position, 5.0, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(1.3), EffectManager::EffectID::DefetedPlayer)
 	{}
 };
 
 class Sanae : public Player
 {
 public:
-	Sanae(const Vector2& position)
-		: Player(position, 4.5f, 2.0f, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(1.3f), EffectManager::EffectID::DefetedPlayer)
+	Sanae(const Vector2<double>& position)
+		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(1.3), EffectManager::EffectID::DefetedPlayer)
 	{}
-};
-
-class ReimuNormalShot : public Bullet
-{
-public:
-	ReimuNormalShot(const Vector2& position)
-		: Bullet(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot1.png")), std::make_unique<CircleCollider>(Vector2{ 0.0f, -23.0f }, 6.5f), EffectManager::EffectID::None, 4)
-		, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/sha04.wav")))
-	{
-		clip = { 2, 3, 13, 63 };
-		sound->SetVolume(Sound::MaxVolume / 32);
-	}
-
-	void Shot(const float speed, const float angle) override
-	{
-		Bullet::Shot(speed, angle);
-		sound->Played();
-	}
-private:
-	std::unique_ptr<Sound> sound;
 };
 
 /******************************** Player *********************************/
@@ -58,8 +38,8 @@ private:
 /// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
 /// <param name="collider">当たり判定クラスへのポインタ</param>
 /// <param name="effectID">消滅エフェクトのID</param>
-Player::Player(const Vector2& position, const float highSpeed, const float lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
-	: Mover(position, 0.0f, -M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
+Player::Player(const Vector2<double>& position, const double highSpeed, const double lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
+	: Mover(position, 0.0, -M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {
@@ -73,17 +53,26 @@ void Player::Update()
 {
 	Mover::Update();
 
-	// 移動制限。
-	if ((position.x - Width * 0.5f < 0) || (position.x + Width * 0.5f > Game::Width))
+	// 移動制限。ただし、速度を変化させた場合のみで、位置を直接変える場合は制限しない。
+	if (position.x - Width * 0.5 < 0 || position.x + Width * 0.5 > Media::Create().GetWidth())
 		position.x -= velocity.x;
-	if ((position.y - Width * 0.5f < 0) || (position.y + Height * 0.5f > Game::Height))
+	if (position.y - Height * 0.5 < 0 || position.y + Height * 0.5 > Media::Create().GetHeight())
 		position.y -= velocity.y;
+	/* 復帰処理との兼ね合い（画面外から移動させる）から、次のようには書かない。
+	if (position.x - Width * 0.5 < 0)
+		position.x = Width * 0.5;
+	else if (position.x + Width * 0.5 > Media::Create().GetWidth())
+		position.x = Media::Create().GetWidth() - Width * 0.5;
+	if (position.y - Height * 0.5 < 0)
+		position.y = Height * 0.5;
+	else if (position.y + Height * 0.5 > Media::Create().GetHeight())
+		position.y = Media::Create().GetHeight() - Height * 0.5;*/
 
 	// 描画の前処理。
 	if (sprite->GetAlpha() < 255) {
-		if (Timer::Create().GetPlayingFrames() - beginningFrame >= InvincibleFrames)
+		if (invincibleCounter == 0)
 			sprite->SetAlpha(255);
-		else if ((Timer::Create().GetPlayingFrames() - beginningFrame) / 3 % 2 == 0)  // 3フレーム毎に点滅する。
+		else if (invincibleCounter / 3 % 2 == 0)  // 3フレーム毎に点滅する。
 			sprite->SetAlpha(0);
 		else
 			sprite->SetAlpha(191);
@@ -92,7 +81,7 @@ void Player::Update()
 
 void Player::OnCollide(Mover&)
 {
-	if (Timer::Create().GetPlayingFrames() - beginningFrame < InvincibleFrames)
+	if (invincibleCounter > 0)
 		return;
 	enabled = false;
 	hitPoint = 0;
@@ -104,28 +93,21 @@ void Player::Spawned()
 	if (life <= 0)
 		return;
 	Mover::spawned();
-	beginningFrame = Timer::Create().GetPlayingFrames();
+	SetSpeed(0.0);
+	SetAngle(-M_PI_2);
+	velocity = { 0.0, 0.0 };
 	sprite->SetAlpha(191);
 }
 
-void Player::Shoot()
-{
-	const float bulletSpeed = 30.0f;
-	auto newLeftBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position - Vector2{ 12.0f, 0.0f });
-	newLeftBullet.lock()->Shot(bulletSpeed, -M_PI_2);
-	auto newRightBullet = manager.lock()->GenerateObject(PlayerManager::BulletID::ReimuNormal, position + Vector2{ 12.0f, 0.0f });
-	newRightBullet.lock()->Shot(bulletSpeed, -M_PI_2);
-}
-
-SDL_Rect& Player::clipFromImage(unsigned int countedFrames)
+Rect<int>& Player::clipFromImage(unsigned int countedFrames)
 {
 	const int DelayFrames = 3;  // 左右移動の際に次の画像に切り替わるまでのフレーム数。
 	const int NumSlice = 5;     // 停止時、左移動、右移動における各変化のコマ数。
 	const int Period = 6;       // 停止時などに画像を繰り返す周期。
 	static int level = 0;       // 左右に何フレーム進んでいるか表すフラグ。-(DelayFrames * NumSlice - 1) .. DelayFrames * NumSlice - 1 の範囲を動く。
-	if (velocity.x < 0.0f)
+	if (velocity.x < 0.0)
 		level = std::max(level - 1, -(DelayFrames * NumSlice - 1));
-	else if (velocity.x > 0.0f)
+	else if (velocity.x > 0.0)
 		level = std::min(level + 1, DelayFrames * NumSlice - 1);
 	else
 		level = (level != 0) ? (level - level / std::abs(level)) : 0;
@@ -144,7 +126,7 @@ SDL_Rect& Player::clipFromImage(unsigned int countedFrames)
 
 /******************************** PlayerManager *********************************/
 
-std::weak_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vector2& position)
+std::weak_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vector2<double>& position)
 {
 	std::weak_ptr<Player> newObject;
 	switch (id) {
@@ -156,18 +138,6 @@ std::weak_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vec
 		break;
 	case PlayerID::Sanae:
 		newObject = assignObject<Sanae>(position);
-		break;
-	}
-	newObject.lock()->setManager(shared_from_this());
-	return newObject;
-}
-
-std::weak_ptr<Bullet> PlayerManager::GenerateObject(const BulletID id, const Vector2& position)
-{
-	std::weak_ptr<Bullet> newObject;
-	switch (id) {
-	case BulletID::ReimuNormal:
-		newObject = assignObject<ReimuNormalShot>(position);
 		break;
 	}
 	return newObject;
