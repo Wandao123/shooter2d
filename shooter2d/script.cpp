@@ -23,8 +23,12 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"Bullet",
 		// Lua側で生成するならば、コンストラクタを定義して ``Enemy.new(...)'' とする。
 		"Angle", sol::property(&Bullet::GetAngle, &Bullet::SetAngle),
-		"PosX", sol::property([](Bullet& bullet) -> double { return bullet.GetPosition().x; }),
-		"PosY", sol::property([](Bullet& bullet) -> double { return bullet.GetPosition().y; }),
+		"PosX", sol::property(
+			[](Bullet& bullet) -> double { return bullet.GetPosition().x; },
+			[](Bullet& bullet, const double posX) { bullet.SetPosition({ posX, bullet.GetPosition().y }); }),
+		"PosY", sol::property(
+			[](Bullet& bullet) -> double { return bullet.GetPosition().y; },
+			[](Bullet& bullet, const double posY) { bullet.SetPosition({ bullet.GetPosition().x, posY }); }),
 		"Speed", sol::property(&Bullet::GetSpeed, &Bullet::SetSpeed),
 		"Erase", &Bullet::Erase,
 		"IsEnabled", &Bullet::IsEnabled,
@@ -34,8 +38,12 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"Enemy",
 		"Angle", sol::property(&Enemy::GetAngle, &Enemy::SetAngle),
 		"HitPoint", sol::property([](Enemy& enemy) -> int { return enemy.GetHitPoint(); }),
-		"PosX", sol::property([](Enemy& enemy) -> double { return enemy.GetPosition().x; }),
-		"PosY", sol::property([](Enemy& enemy) -> double { return enemy.GetPosition().y; }),
+		"PosX", sol::property(
+			[](Enemy& enemy) -> double { return enemy.GetPosition().x; },
+			[](Enemy& enemy, const double posX) { enemy.SetPosition({ posX, enemy.GetPosition().y }); }),
+		"PosY", sol::property(
+			[](Enemy& enemy) -> double { return enemy.GetPosition().y; },
+			[](Enemy& enemy, const double posY) { enemy.SetPosition({ enemy.GetPosition().x, posY }); }),
 		"Speed", sol::property(&Enemy::GetSpeed, &Enemy::SetSpeed),
 		"Erase", &Enemy::Erase,
 		"IsEnabled", &Enemy::IsEnabled,
@@ -59,10 +67,9 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 	);
 
 	// 定数の登録。
-	int width = Media::Create().GetWidth(), height = Media::Create().GetHeight();  // 直に代入するとgccでコンパイルできない。
-	lua["ScreenWidth"] = width;
-	lua["ScreenHeight"] = height;
-	width = Player::Width; height = Player::Height;
+	lua["ScreenWidth"] = Media::Create().GetWidth();
+	lua["ScreenHeight"] = Media::Create().GetHeight();
+	int width = Player::Width, height = Player::Height;  // 直に代入するとgccでコンパイルできない。
 	lua["PlayerWidth"] = width;
 	lua["PlayerHeight"] = height;
 	lua.new_enum(
