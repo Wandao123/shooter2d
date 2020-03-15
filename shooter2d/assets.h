@@ -19,7 +19,7 @@ SDL2main.libを追加の依存ファイルに指定するという方法でも�
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-//#include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
 
 namespace Shooter {
 	/// <summary>スプライトの表示を担うクラス。SDLのラッパーとして機能する。</summary>

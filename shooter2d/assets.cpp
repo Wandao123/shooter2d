@@ -328,9 +328,9 @@ RectangleShape::RectangleShape(const Vector2<int>& size)
 void RectangleShape::Draw(const Vector2<int>& position) const
 {
 	Shape::Draw(position);
-	SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
-	SDL_Rect rect = { position.x, position.y, size.x, size.y };
-	SDL_RenderFillRect(Media::Create().Renderer, &rect);
+	//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
+	//SDL_Rect rect = { position.x, position.y, size.x, size.y };
+	//SDL_RenderFillRect(Media::Create().Renderer, &rect);
+	boxRGBA(Media::Create().Renderer, position.x + size.x, position.y, position.x, position.y + size.y, color.r, color.g, color.b, color.a);
 	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
-	//boxRGBA(Media::Create().Renderer, position.x + size.x, position.y, position.x, position.y + size.y, color.r, color.g, color.b, color.a);
 }

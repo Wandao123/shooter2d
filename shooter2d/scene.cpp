@@ -8,7 +8,7 @@ using namespace Shooter;
 class GameOverScene : public Scene
 {
 public:
-	GameOverScene(IChangingSceneListener& listener);
+	GameOverScene(IChangingSceneListener& listener, Parameters& parameters);
 	void Draw() const override;
 	void Update() override;
 private:
@@ -19,7 +19,7 @@ private:
 class GameClearScene : public Scene
 {
 public:
-	GameClearScene(IChangingSceneListener& listener);
+	GameClearScene(IChangingSceneListener& listener, Parameters& parameters);
 	void Draw() const override;
 	void Update() override;
 private:
@@ -30,7 +30,7 @@ private:
 class GameAllClearScene : public Scene
 {
 public:
-	GameAllClearScene(IChangingSceneListener& listener);
+	GameAllClearScene(IChangingSceneListener& listener, Parameters& parameters);
 	void Draw() const override;
 	void Update() override;
 private:
@@ -41,7 +41,7 @@ private:
 class GameScene : public Scene
 {
 public:
-	GameScene(IChangingSceneListener& listener);
+	GameScene(IChangingSceneListener& listener, Parameters& parameters);
 	void Draw() const override;
 	void Update() override;
 private:
@@ -58,7 +58,7 @@ private:
 class KeyConfigScene : public Scene
 {
 public:
-	KeyConfigScene(IChangingSceneListener& listener);
+	KeyConfigScene(IChangingSceneListener& listener, Parameters& parameters);
 	void Draw() const override;
 	void Update() override;
 private:
@@ -73,7 +73,7 @@ private:
 class OptionsScene : public Scene
 {
 public:
-	OptionsScene(IChangingSceneListener& listener);
+	OptionsScene(IChangingSceneListener& listener, Parameters& parameters);
 	void Draw() const override;
 	void Update() override;
 private:
@@ -87,7 +87,7 @@ private:
 class PauseScene : public Scene
 {
 public:
-	PauseScene(IChangingSceneListener& listener);
+	PauseScene(IChangingSceneListener& listener, Parameters& parameters);
 	~PauseScene();
 	void Draw() const override;
 	void Update() override;
@@ -95,6 +95,20 @@ private:
 	static const int MaxItems = 2;
 	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
 	std::unique_ptr<Sprite> screenshot;
+	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
+	int currentIndex;
+	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
+};
+
+class PlayerSelectScene : public Scene
+{
+public:
+	PlayerSelectScene(IChangingSceneListener& listener, Parameters& parameters);
+	void Draw() const override;
+	void Update() override;
+private:
+	static const int MaxItems = 3;
+	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	int currentIndex;
 	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
@@ -138,8 +152,8 @@ void Scene::waitAndDo(const unsigned int delayFrames, std::function<void(void)> 
 
 /******************************** TitleScene *********************************/
 
-TitleScene::TitleScene(IChangingSceneListener& listener)
-	: Scene(listener)
+TitleScene::TitleScene(IChangingSceneListener& listener, Parameters& parameters)
+	: Scene(listener, parameters)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
@@ -170,22 +184,27 @@ void TitleScene::Update()
 	if (Input::Create().GetKeyDown(Input::Commands::OK)) {
 		switch (currentIndex) {
 		case 0:
-			listener.ClearAndChangeScene(std::make_unique<GameScene>(listener));
+			listener.PushScene(std::make_unique<PlayerSelectScene>(listener, parameters));
 			break;
 		case 1:
-			listener.PushScene(std::make_unique<OptionsScene>(listener));
+			listener.PushScene(std::make_unique<OptionsScene>(listener, parameters));
 			break;
 		case 2:
 			listener.Quit();
 			break;
 		}
+	} else if (Input::Create().GetKeyDown(Input::Commands::Cancel)) {
+		if (currentIndex == 2)
+			listener.Quit();
+		else
+			currentIndex = 2;
 	}
 }
 
 /******************************** GameOverScene *********************************/
 
-GameOverScene::GameOverScene(IChangingSceneListener& listener)
-	: Scene(listener)
+GameOverScene::GameOverScene(IChangingSceneListener& listener, Parameters& parameters)
+	: Scene(listener, parameters)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetPlayingFrames())
 {
@@ -201,13 +220,13 @@ void GameOverScene::Update()
 {
 	userInterfaceManager->Update();
 	if (Timer::Create().GetPlayingFrames() - createdFrame > Timer::FPS * 3)
-		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
+		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener, parameters));
 }
 
 /******************************** GameClearScene *********************************/
 
-GameClearScene::GameClearScene(IChangingSceneListener& listener)
-	: Scene(listener)
+GameClearScene::GameClearScene(IChangingSceneListener& listener, Parameters& parameters)
+	: Scene(listener, parameters)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetPlayingFrames())
 {
@@ -228,8 +247,8 @@ void GameClearScene::Update()
 
 /******************************** GameAllClearScene *********************************/
 
-GameAllClearScene::GameAllClearScene(IChangingSceneListener& listener)
-	: Scene(listener)
+GameAllClearScene::GameAllClearScene(IChangingSceneListener& listener, Parameters& parameters)
+	: Scene(listener, parameters)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, createdFrame(Timer::Create().GetPlayingFrames())
 {
@@ -245,13 +264,13 @@ void GameAllClearScene::Update()
 {
 	userInterfaceManager->Update();
 	if (Timer::Create().GetPlayingFrames() - createdFrame > Timer::Create().FPS * 3)
-		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
+		listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener, parameters));
 }
 
 /******************************** GameScene *********************************/
 
-GameScene::GameScene(IChangingSceneListener& listener)
-	: Scene(listener)
+GameScene::GameScene(IChangingSceneListener& listener, Parameters& parameters)
+	: Scene(listener, parameters)
 	, effectManager(std::make_shared<EffectManager>())
 	, enemyManager(std::make_shared<EnemyManager>())
 	, enemyBulletManager(std::make_shared<BulletManager>())
@@ -270,7 +289,17 @@ GameScene::GameScene(IChangingSceneListener& listener)
 	// スクリプトの初期化。
 	script->LoadFile("scripts/main.lua");
 	script->RegisterFunction("Main");
-	script->LoadFile("scripts/reimu.lua");  // TODO: 各機体毎に条件分岐。
+	switch (parameters[Scene::ParameterKeys::Character]) {
+	case static_cast<int>(PlayerManager::PlayerID::Reimu):
+		script->LoadFile("scripts/reimu.lua");
+		break;
+	case static_cast<int>(PlayerManager::PlayerID::Marisa):
+		script->LoadFile("scripts/marisa.lua");
+		break;
+	case static_cast<int>(PlayerManager::PlayerID::Sanae):
+		script->LoadFile("scripts/sanae.lua");
+		break;
+	}
 	script->RegisterFunction("PlayerScript");
 }
 
@@ -287,21 +316,21 @@ void GameScene::Update()
 	collisionDetector->CheckAll();
 
 	if (Input::Create().GetKeyDown(Input::Commands::Pause))
-		listener.PushScene(std::make_unique<PauseScene>(listener));
+		listener.PushScene(std::make_unique<PauseScene>(listener, parameters));
 	else if (player->GetLife() <= 0)
-		waitAndDo(30, [this]() { listener.PushScene(std::make_unique<GameOverScene>(listener)); });
+		waitAndDo(30, [this]() { listener.PushScene(std::make_unique<GameOverScene>(listener, parameters)); });
 	else
 		switch (status) {
 		case Script::Status::AllClear:
-			listener.PushScene(std::make_unique<GameAllClearScene>(listener));
+			listener.PushScene(std::make_unique<GameAllClearScene>(listener, parameters));
 			break;
 		case Script::Status::Dead:
-			listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
+			listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener, parameters));
 			break;
 		case Script::Status::Running:
 			break;
 		case Script::Status::StageClear:
-			listener.PushScene(std::make_unique<GameClearScene>(listener));
+			listener.PushScene(std::make_unique<GameClearScene>(listener, parameters));
 			break;
 		}
 }
@@ -319,12 +348,13 @@ void GameScene::Draw() const
 
 /******************************** KeyConfigScene *********************************/
 
-KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener)
-	: Scene(listener)
+KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener, Parameters& parameters)
+	: Scene(listener, parameters)
 	, rectangle(Vector2<int>((UserInterfaceManager::FontSize * 3 / 4) * 9 * 3, ItemHeight))  // 1文字の幅 x 文字数 x 項目数
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
+	rectangle.SetBlendMode(Shape::BlendMode::Blend);
 	rectangle.SetColor(0xFF, 0xFF, 0x00, 0x3F);
 
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 1.0 / 10.0 }).lock()->SetCaption(u8"Key config");
@@ -388,8 +418,8 @@ void KeyConfigScene::Update()
 
 /******************************** OptionsScene *********************************/
 
-OptionsScene::OptionsScene(IChangingSceneListener& listener)
-	: Scene(listener)
+OptionsScene::OptionsScene(IChangingSceneListener& listener, Parameters& parameters)
+	: Scene(listener, parameters)
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
@@ -423,7 +453,7 @@ void OptionsScene::Update()
 	adjustWithKeys(
 		Input::Commands::Right, [this](void) { menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Right); },
 		Input::Commands::Left, [this](void) { menu[currentIndex].lock()->OnKeyPressed(Input::Commands::Left); });
-	userInterfaceManager->Update();  // ClearAndChangeSceneを実行してから更新するとエラー。
+	userInterfaceManager->Update();
 	if (Input::Create().GetKeyDown(Input::Commands::OK)) {
 		switch (currentIndex) {
 		case 0:
@@ -432,7 +462,7 @@ void OptionsScene::Update()
 			// 何もしない。
 			break;
 		case 3:
-			listener.PushScene(std::make_unique<KeyConfigScene>(listener));
+			listener.PushScene(std::make_unique<KeyConfigScene>(listener, parameters));
 			break;
 		case 4:
 			listener.PopScene();
@@ -443,8 +473,8 @@ void OptionsScene::Update()
 
 /******************************** PauseScene *********************************/
 
-PauseScene::PauseScene(IChangingSceneListener& listener)
-	: Scene(listener)
+PauseScene::PauseScene(IChangingSceneListener& listener, Parameters& parameters)
+	: Scene(listener, parameters)
 	, screenshot(std::make_unique<Sprite>(AssetLoader::Create().TakeScreenshot()))
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
@@ -487,7 +517,7 @@ void PauseScene::Update()
 			listener.PopScene();
 			break;
 		case 1:
-			listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener));
+			listener.ClearAndChangeScene(std::make_unique<TitleScene>(listener, parameters));
 			break;
 		}
 	else if (Input::Create().GetKeyDown(Input::Commands::Pause))
@@ -496,4 +526,58 @@ void PauseScene::Update()
 		adjustWithKeys(
 			Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
 			Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
+}
+
+/******************************** PlayerSelectScene *********************************/
+
+PlayerSelectScene::PlayerSelectScene(IChangingSceneListener& listener, Parameters& parameters)
+	: Scene(listener, parameters)
+	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
+	, currentIndex(0)
+{
+	auto iter = parameters.find(Scene::ParameterKeys::Character);
+	if (iter != parameters.end())
+		currentIndex = iter->second;
+
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 1.0 / 4.0 }).lock()->SetCaption(u8"Player Select");
+	auto makePos = [this](unsigned int index) -> Vector2<double> { return { Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 2.0 / 4.0 + ItemHeight * index }; };
+	menu[0] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(0));
+	menu[0].lock()->SetCaption(u8"Hakurei Reimu");
+	menu[1] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(1));
+	menu[1].lock()->SetCaption(u8"Kirisame Marisa");
+	menu[2] = userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Button, makePos(2));
+	menu[2].lock()->SetCaption(u8"Kochiya Sanae");
+	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2<double>(Media::Create().GetWidth() - 56, Media::Create().GetHeight() - 7));
+}
+
+void PlayerSelectScene::Draw() const
+{
+	userInterfaceManager->Draw();
+}
+
+void PlayerSelectScene::Update()
+{
+	adjustWithKeys(
+		Input::Commands::Up, [this](void) { currentIndex = MathUtils::Modulo(currentIndex - 1, MaxItems); },
+		Input::Commands::Down, [this](void) { currentIndex = MathUtils::Modulo(currentIndex + 1, MaxItems); });
+	for (int i = 0; i < MaxItems; i++)
+		menu[i].lock()->SetActive((i != currentIndex) ? false : true);
+	userInterfaceManager->Update();
+	if (Input::Create().GetKeyDown(Input::Commands::OK) || Input::Create().GetKeyDown(Input::Commands::Cancel)) {
+		switch (currentIndex) {
+		case 0:
+			parameters[Scene::ParameterKeys::Character] = static_cast<int>(PlayerManager::PlayerID::Reimu);
+			break;
+		case 1:
+			parameters[Scene::ParameterKeys::Character] = static_cast<int>(PlayerManager::PlayerID::Marisa);
+			break;
+		case 2:
+			parameters[Scene::ParameterKeys::Character] = static_cast<int>(PlayerManager::PlayerID::Sanae);
+			break;
+		}
+		if (Input::Create().GetKeyDown(Input::Commands::OK))
+			listener.ClearAndChangeScene(std::make_unique<GameScene>(listener, parameters));
+		else
+			listener.PopScene();
+	}
 }
