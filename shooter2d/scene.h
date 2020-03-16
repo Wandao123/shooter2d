@@ -12,8 +12,16 @@ namespace Shooter {
 	class Scene
 	{
 	public:
-		Scene(IChangingSceneListener& listener)
+		enum class ParameterKeys {
+			Character,
+			Level,
+			Stage
+		};
+		using Parameters = std::map<ParameterKeys, int>;  // 型安全にするならstructの方が良い？
+
+		Scene(IChangingSceneListener& listener, Parameters& parameters)
 			: listener(listener)
+			, parameters(parameters)
 			, previousPressedFrame(Timer::Create().GetPlayingFrames())
 			, counter(0)
 		{}
@@ -22,6 +30,7 @@ namespace Shooter {
 		virtual void Update() = 0;
 	protected:
 		IChangingSceneListener& listener;
+		Parameters& parameters;
 		void adjustWithKeys(Input::Commands decrement, std::function<void(void)> decrease, Input::Commands increment, std::function<void(void)> increase);
 		void waitAndDo(const unsigned int delayFrames, std::function<void(void)> func);
 	private:
@@ -32,7 +41,7 @@ namespace Shooter {
 	class TitleScene : public Scene
 	{
 	public:
-		TitleScene(IChangingSceneListener& listener);
+		TitleScene(IChangingSceneListener& listener, Parameters& parameters);
 		void Draw() const override;
 		void Update() override;
 	private:

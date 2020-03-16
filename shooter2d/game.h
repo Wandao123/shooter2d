@@ -31,6 +31,7 @@ namespace Shooter {
 		void Quit() override;
 	private:
 		bool quitFlag = false;
+		Scene::Parameters parameters;
 		std::stack<std::unique_ptr<Scene>> scenes;
 	};
 }

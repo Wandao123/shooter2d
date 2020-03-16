@@ -11,7 +11,7 @@ namespace Shooter {
 		AssetLoader::Create();
 
 		// シーンの設定。
-		PushScene(std::make_unique<TitleScene>(*this));
+		PushScene(std::make_unique<TitleScene>(*this, parameters));
 	}
 
 	Game::~Game()
@@ -44,6 +44,7 @@ namespace Shooter {
 
 	void Game::ClearAndChangeScene(std::unique_ptr<Scene>&& newScene)
 	{
+		parameters.clear();  // ここで消去すればnewScene::parametersも（たらい回しにしているため）消去される筈。
 		while (!scenes.empty())
 			scenes.pop();  // 呼び出し元が破棄されるから危険？
 		scenes.push(std::move(newScene));

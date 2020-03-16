@@ -19,6 +19,7 @@ SDL2main.libを追加の依存ファイルに指定するという方法でも�
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
 
 namespace Shooter {
 	/// <summary>スプライトの表示を担うクラス。SDLのラッパーとして機能する。</summary>
@@ -189,13 +190,20 @@ namespace Shooter {
 	class Shape
 	{
 	public:
+		enum class BlendMode {
+			None,
+			Blend,
+			Add,
+			Mod
+		};
+
 		Shape() = default;
 		virtual ~Shape() = default;
-		virtual void Draw(const Vector2<int>&) const = 0;
+		virtual void Draw(const Vector2<int>&) const;
 		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha);
-		void SetBlendModeAdd();
-		void SetBlendModeMod();
+		void SetBlendMode(const BlendMode blendMode);
 	protected:
+		BlendMode blendMode = BlendMode::None;
 		SDL_Color color = { 0xFF, 0xFF, 0xFF, 0xFF };
 	};
 

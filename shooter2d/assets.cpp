@@ -289,21 +289,34 @@ std::weak_ptr<SDL_Texture> AssetLoader::TakeScreenshot()
 }
 
 /******************************** Shape *********************************/
+void Shape::Draw(const Vector2<int>&) const
+{
+	switch (blendMode){
+	case BlendMode::None:
+		SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
+		break;
+	case BlendMode::Blend:
+		SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_BLEND);
+		break;
+	case BlendMode::Add:
+		SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_ADD);
+		break;
+	case BlendMode::Mod:
+		SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_MOD);
+		break;
+	}
+}
+
 void Shape::SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha)
 {
-	if (alpha < 0xFF)
-		SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_BLEND);
 	color = { red, green, blue, alpha };
+	if (color.a < 0xFF)
+		blendMode = BlendMode::Blend;
 }
 
-void Shape::SetBlendModeAdd()
+void Shape::SetBlendMode(const BlendMode blendMode)
 {
-	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_ADD);
-}
-
-void Shape::SetBlendModeMod()
-{
-	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_MOD);
+	this->blendMode = blendMode;
 }
 
 /******************************** RectangleShape *********************************/
@@ -314,7 +327,10 @@ RectangleShape::RectangleShape(const Vector2<int>& size)
 
 void RectangleShape::Draw(const Vector2<int>& position) const
 {
-	SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
-	SDL_Rect rect = { position.x, position.y, size.x, size.y };
-	SDL_RenderFillRect(Media::Create().Renderer, &rect);
+	Shape::Draw(position);
+	//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
+	//SDL_Rect rect = { position.x, position.y, size.x, size.y };
+	//SDL_RenderFillRect(Media::Create().Renderer, &rect);
+	boxRGBA(Media::Create().Renderer, position.x + size.x, position.y, position.x, position.y + size.y, color.r, color.g, color.b, color.a);
+	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
 }

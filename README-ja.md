@@ -95,7 +95,7 @@ Linux ではディストリビューションに応じてパスが変わりま�
       <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static</VcpkgTriplet>
     </PropertyGroup>
     ```
-1. shooter2d.slnをVisual Studioで開いて「プロジェクト」->「プロパティ」->「リンク」->「追加の依存ライブラリ」に opengl32.lib, version.lib, winmm.lib, imm32.lib を書き加える。
+1. shooter2d.slnをVisual Studioで開いて「プロジェクト」->「プロパティ」->「リンカー」->「入力」->「追加の依存ファイル」に opengl32.lib, version.lib, winmm.lib, imm32.lib, setupapi.lib を書き加える。
 1. Visual StudioからReleaseビルドする。
 
 ### Linux OS
