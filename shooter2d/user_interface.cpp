@@ -37,7 +37,8 @@ public:
 		if (Timer::Create().GetPlayingFrames() % (Timer::FPS / 2) == 0) {
 			text.str("");
 			text << "FPS " << std::fixed << std::setprecision(3) << Timer::Create().GetAverageOfFPS();
-			label->Text = text.str();
+			label->SetText(text.str());
+			label->MakeTexture();
 		}
 	}
 private:
@@ -64,7 +65,8 @@ public:
 		text << std::setw(ItemWidth) << std::left << caption;
 		if (!manager.expired())
 			text << std::setw(ItemWidth) << std::left << manager.lock()->GetObjects().size();
-		label->Text = text.str();
+		label->SetText(text.str());
+		label->MakeTexture();
 	}
 
 	void Register(const std::weak_ptr<ObjectManager> manager) override
@@ -85,7 +87,7 @@ public:
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 2)))
 	{
-		label->SetTextColor(0xFF, 0xFF, 0xFF);
+		label->SetColor(0xFF, 0xFF, 0xFF);
 	}
 
 	void Draw() const override
@@ -96,7 +98,8 @@ public:
 	void Update() override
 	{
 		UserInterface::Update();
-		label->Text = caption;
+		label->SetText(caption);
+		label->MakeTexture();
 	}
 private:
 	std::unique_ptr<Label> label;
@@ -109,7 +112,7 @@ public:
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
 	{
-		label->SetTextColor(0xFF, 0xFF, 0xFF);
+		label->SetColor(0xFF, 0xFF, 0xFF);
 	}
 
 	void Draw() const override
@@ -120,13 +123,12 @@ public:
 	void Update() override
 	{
 		if (activated) {
-			label->SetTextColor(255, 255, 255);
-			label->SetAlpha(255);
+			label->SetColor(0xFF, 0xFF, 0xFF, 0xFF);
 		} else {
-			//label->SetTextColor(127, 127, 127);
-			label->SetAlpha(127);
+			label->SetColor(0xFF, 0xFF, 0xFF, 0x7F);
 		}
-		label->Text = caption;
+		label->SetText(caption);
+		label->MakeTexture();
 	}
 private:
 	std::unique_ptr<Label> label;
@@ -139,7 +141,7 @@ public:
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize)))
 	{
-		label->SetTextColor(0xFF, 0xFF, 0xFF);
+		label->SetColor(0xFF, 0xFF, 0xFF);
 	}
 
 	void Draw() const override
@@ -150,16 +152,15 @@ public:
 	void Update() override
 	{
 		if (activated) {
-			label->SetTextColor(255, 255, 255);
-			label->SetAlpha(255);
+			label->SetColor(0xFF, 0xFF, 0xFF, 0xFF);
 		} else {
-			//label->SetTextColor(127, 127, 127);
-			label->SetAlpha(127);
+			label->SetColor(0xFF, 0xFF, 0xFF, 0x7F);
 		}
 		text.str("");
 		text << std::setw(ItemWidth) << std::left << caption;
 		printValue();
-		label->Text = text.str();
+		label->SetText(text.str());
+		label->MakeTexture();
 	}
 
 	void OnKeyPressed(Input::Commands command) override
@@ -272,7 +273,7 @@ public:
 		: UserInterface(position)
 		, label(std::make_unique<Label>(AssetLoader::Create().GetFont(Filename, UserInterfaceManager::FontSize * 3 / 4)))
 	{
-		label->SetTextColor(0xFF, 0xFF, 0xFF);
+		label->SetColor(0xFF, 0xFF, 0xFF);
 	}
 
 	void Draw() const override
@@ -283,17 +284,16 @@ public:
 	void Update() override
 	{
 		if (activated) {
-			label->SetTextColor(255, 255, 255);
-			label->SetAlpha(255);
+			label->SetColor(0xFF, 0xFF, 0xFF, 0xFF);
 		} else {
-			//label->SetTextColor(127, 127, 127);
-			label->SetAlpha(127);
+			label->SetColor(0xFF, 0xFF, 0xFF, 0x7F);
 		}
 		text.str("");
 		text << std::setw(ItemWidth) << std::left << caption;
 		text << std::setw(ItemWidth) << std::left << Input::Create().GetCurrentKeyNameFor(Command);
 		text << std::setw(ItemWidth) << std::left << Input::Create().GetCurrentButtonNameFor(Command);
-		label->Text = text.str();
+		label->SetText(text.str());
+		label->MakeTexture();
 	}
 
 	void OnKeyPressed() override
@@ -326,7 +326,8 @@ public:
 		text << std::setw(ItemWidth) << std::left << caption;
 		if (!manager.expired())
 			text << std::setw(ItemWidth) << std::left << manager.lock()->GetPlayer().lock()->GetLife();
-		label->Text = text.str();
+		label->SetText(text.str());
+		label->MakeTexture();
 	}
 
 	virtual void Register(const std::weak_ptr<ObjectManager> manager)

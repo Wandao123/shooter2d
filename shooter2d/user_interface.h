@@ -17,12 +17,12 @@ namespace Shooter {
 		virtual void OnKeyPressed(Input::Commands) {}  // commandボタンが押された時のイベントハンドラ。
 		virtual void OnKeyPressed() {}                 // 何れかのキー・ボタンが押された時のイベントハンドラ。
 
-		void SetCaption(std::string caption)
+		void SetCaption(const std::string caption)
 		{
 			this->caption = caption;
 		}
 
-		void SetActive(bool activated)
+		void SetActive(const bool activated)
 		{
 			this->activated = activated;
 		}

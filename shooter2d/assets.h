@@ -76,31 +76,38 @@ namespace Shooter {
 	};
 
 	/// <summary>テキスト表示を担うクラス。SDLのラッパーとして機能する。</summary>
-	/// <remarks>現在の設計では描画する度にテクスチャを生成する。</remarks>
+	/// <remarks>MakeTextureメンバ関数を実行して初めて描画されることに注意。</remarks>
 	class Label
 	{
 	public:
-		std::string Text;
 		Label(const std::weak_ptr<TTF_Font> font);
 		void Write(const Vector2<double>& position) const;
-		//void SetText(const std::string text);
-
-		// TODO: SetTextColorとSetAlphaとを統合。
-		void SetTextColor(const unsigned char red, const unsigned char green, const unsigned char blue)
+		void MakeTexture();
+		
+		void SetText(const std::string text)
 		{
-			textColor = { red, green, blue, 0xFF };
+			if (!text.empty())
+				this->text = text;
+			else
+				this->text = " ";
 		}
 
-		void SetAlpha(const unsigned char alpha)
+		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha = 0xFF)
 		{
-			this->alpha = alpha;
+			this->color = { red, green, blue, alpha };
 		}
 	private:
+		/*struct sdl_deleter {
+			void operator()(SDL_Window* p) const { SDL_DestroyWindow(p); }
+			void operator()(SDL_Renderer* p) const { SDL_DestroyRenderer(p); }
+			void operator()(SDL_Texture* p) const { SDL_DestroyTexture(p); }
+		};*/
 		std::weak_ptr<TTF_Font> font;
-		//std::string text;
-		//std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture;
-		Uint8 alpha = 0xFF;
-		SDL_Color textColor = { 0xFF, 0xFF, 0xFF, 0xFF };
+		std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture;
+		std::string text;  // 描画するテキスト。
+		SDL_Color color;   // テキストの色。
+		int width;
+		int height;
 	};
 
 	/// <summary>効果音 (SE) を扱うクラス。SDLのラッパーとして機能する。</summary>

@@ -46,9 +46,12 @@ void Sprite::Draw(const Vector2<double>& position, const double angle, const dou
 /******************************** Label *********************************/
 
 Label::Label(const std::weak_ptr<TTF_Font> font)
-	: Text(" ")  // Textが空のままだと、いきなりWriteが呼ばれてエラー。
-	, font(font)
-	//, texture(nullptr, nullptr)
+	: font(font)
+	, texture(nullptr, nullptr)
+	, text(" ")  // textが空のままいきなりMakeTextureを呼ぶとエラー。
+	, color({ 0xFF, 0xFF, 0xFF, 0xFF })
+	, width(0)
+	, height(0)
 {}
 
 /// <summary>Textに入っている文字列を描画する。</summary>
@@ -57,46 +60,56 @@ Label::Label(const std::weak_ptr<TTF_Font> font)
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。</remarks>
 void Label::Write(const Vector2<double>& position) const
 {
-	SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font.lock().get(), Text.c_str(), textColor);
-	if (textSurface == nullptr) {
-		std::cerr << TTF_GetError() << std::endl;
-		return;
+	if (texture) {
+		SDL_Rect renderText = {
+			static_cast<int>(position.x - width * 0.5),
+			static_cast<int>(position.y - height * 0.5),
+			width,
+			height
+		};
+		SDL_RenderCopy(Media::Create().Renderer, texture.get(), nullptr, &renderText);
 	}
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(Media::Create().Renderer, textSurface);
-	if (texture == nullptr) {
-		std::cerr << SDL_GetError() << std::endl;
-		return;
-	}
-	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureAlphaMod(texture, alpha);
-	SDL_Rect renderText = {
-		static_cast<int>(position.x - textSurface->w * 0.5),
-		static_cast<int>(position.y - textSurface->h * 0.5),
-		textSurface->w,
-		textSurface->h
-	};
-	SDL_RenderCopy(Media::Create().Renderer, texture, nullptr, &renderText);
-	SDL_DestroyTexture(texture);
-	SDL_FreeSurface(textSurface);
+
+	/*//auto mTexture = SDL_CreateTexture( Media::Create().Renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, Media::Create().GetWidth(), Media::Create().GetHeight() );
+	//auto mTexture = SDL_CreateTexture( Media::Create().Renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, renderText.w, renderText.h );
+	//SDL_SetRenderTarget( Media::Create().Renderer, mTexture );
+	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_BLEND);
+	boxRGBA(Media::Create().Renderer, renderText.x, renderText.y, renderText.x + renderText.w, renderText.x + renderText.h, 0x00, 0xFF, 0x00, 0x7F);
+	//SDL_SetRenderDrawColor(Media::Create().Renderer, 0xFF, 0xFF, 0xFF, 0x00);
+	//SDL_RenderClear(Media::Create().Renderer);
+	//SDL_SetRenderDrawColor(Media::Create().Renderer, 0x00, 0xFF, 0x00, 0x7F);
+	//SDL_RenderFillRect(Media::Create().Renderer, nullptr);
+	//SDL_RenderFillRect(Media::Create().Renderer, &renderText);
+	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
+	//SDL_SetRenderTarget( Media::Create().Renderer, nullptr );
+	//SDL_SetTextureBlendMode(mTexture, SDL_BLENDMODE_BLEND);
+	//SDL_SetTextureAlphaMod(mTexture, 0x7F);
+	//SDL_SetTextureColorMod(mTexture, 0xFF, 0x00, 0x00);
+	//SDL_RenderCopy(Media::Create().Renderer, mTexture, nullptr, &renderText);
+	//SDL_Rect temp = { 0, 0, Media::Create().GetWidth(), Media::Create().GetHeight() };
+	//SDL_RenderCopy(Media::Create().Renderer, mTexture, nullptr, &temp);
+	//SDL_DestroyTexture(mTexture);*/
 }
 
-/* 色を変える場合も同じような処理を書かなければならないため、結局無駄？
-void Label::SetText(const std::string text)
+/// <summary>設定されたtextとcolorとからtextureを生成する。</summary>
+void Label::MakeTexture()
 {
-	this->text = text;
-
-	SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font.lock().get(), text.c_str(), textColor);
+	SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font.lock().get(), text.c_str(), color);
 	if (textSurface == nullptr) {
 		std::cerr << TTF_GetError() << std::endl;
 		return;
 	}
-	SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Renderer, textSurface);
+	SDL_SetColorKey(textSurface, SDL_TRUE, SDL_MapRGB(textSurface->format, 0x00, 0x00, 0x00));  // 必要か否かよく判らない。
+	SDL_Texture* rawTexture = SDL_CreateTextureFromSurface(Media::Create().Renderer, textSurface);
 	if (rawTexture == nullptr) {
 		std::cerr << SDL_GetError() << std::endl;
 	}
 	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
 	this->texture = std::move(texture);
-}*/
+	width = textSurface->w;
+	height = textSurface->h;
+	SDL_FreeSurface(textSurface);
+}
 
 /******************************** Sound *********************************/
 
