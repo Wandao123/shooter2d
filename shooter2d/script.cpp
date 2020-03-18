@@ -121,7 +121,9 @@ Script::Script(EffectManager& effectManager, EnemyManager& enemyManager, BulletM
 		"None", EffectManager::EffectID::None,
 		"DefetedPlayer", EffectManager::EffectID::DefetedPlayer,
 		"RedCircle", EffectManager::EffectID::RedCircle,
-		"BlueCircle", EffectManager::EffectID::BlueCircle
+		"BlueCircle", EffectManager::EffectID::BlueCircle,
+		"EnemyShotSound", EffectManager::EffectID::EnemyShotSound,
+		"PlayerShotSound", EffectManager::EffectID::PlayerShotSound
 	);
 	lua.new_enum(
 		"EnemyID",

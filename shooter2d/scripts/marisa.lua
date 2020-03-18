@@ -59,6 +59,7 @@ local function Shoot()
 		if GetKey(CommandID.Shot) then
 			GeneratePlayerBullet(parameters.NormalShot, player.PosX - 12, player.PosY, parameters.BulletSpeed, -math.pi / 2)
 			GeneratePlayerBullet(parameters.NormalShot, player.PosX + 12, player.PosY, parameters.BulletSpeed, -math.pi / 2)
+			GenerateEffect(EffectID.PlayerShotSound)
 			for i = 1, parameters.ShotDelayFrames do
 				coroutine.yield()
 			end

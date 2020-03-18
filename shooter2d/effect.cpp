@@ -9,7 +9,7 @@ class NoneEffect : public Effect
 {
 public:
 	NoneEffect(const Vector2<double>& position)
-		: Effect(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/effect_circle.png")), std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/enemy_vanish_effect-A.wav")))
+		: Effect(position, nullptr, nullptr)
 	{}
 
 	void Played() override {}
@@ -87,6 +87,42 @@ public:
 	}
 };
 
+// HACK: clipなどは使わないので、視覚エフェクトとクラスを分けるべき？
+class SoundEffect : public Effect
+{
+public:
+	SoundEffect(const Vector2<double>& position, std::unique_ptr<Sound>&& sound)
+		: Effect(position, nullptr, std::move(sound))
+	{}
+
+	void Update() override {}
+
+	void Played() override
+	{
+		sound->Played();
+	}
+};
+
+class EnemyShotSoundEffect : public SoundEffect
+{
+public:
+	EnemyShotSoundEffect(const Vector2<double>& position)
+		: SoundEffect(position, std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/shot1.wav")))
+	{
+		sound->SetVolume(Sound::MaxVolume / 2);
+	}
+};
+
+class PlayerShotSoundEffect : public SoundEffect
+{
+public:
+	PlayerShotSoundEffect(const Vector2<double>& position)
+		: SoundEffect(position, std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/sha04.wav")))
+	{
+		sound->SetVolume(Sound::MaxVolume / 32);
+	}
+};
+
 /******************************** Effect *********************************/
 
 Effect::Effect(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Sound>&& sound)
@@ -140,6 +176,12 @@ std::weak_ptr<Effect> EffectManager::GenerateObject(const EffectID id, const Vec
 		break;
 	case EffectID::BlueCircle:
 		newObject = assignObject<BlueCircleEffect>(position);
+		break;
+	case EffectID::EnemyShotSound:
+		newObject = assignObject<EnemyShotSoundEffect>(position);
+		break;
+	case EffectID::PlayerShotSound:
+		newObject = assignObject<PlayerShotSoundEffect>(position);
 		break;
 	}
 	return newObject;

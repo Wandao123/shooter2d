@@ -13,18 +13,7 @@ class EnemyBullet : public Bullet
 public:
 	EnemyBullet(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
 		: Bullet(position, std::move(sprite), std::move(collider), EffectManager::EffectID::None, 1)
-		, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/shot1.wav")))
-	{
-		sound->SetVolume(Sound::MaxVolume / 8);
-	}
-
-	void Shot(const double speed, const double angle) override
-	{
-		Bullet::Shot(speed, angle);
-		sound->Played();
-	}
-private:
-	std::unique_ptr<Sound> sound;
+	{}
 };
 
 class LargeRedBullet : public EnemyBullet
@@ -154,18 +143,7 @@ class PlayerBullet : public Bullet
 public:
 	PlayerBullet(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
 		: Bullet(position, std::move(sprite), std::move(collider), EffectManager::EffectID::None, 4)
-		, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/sha04.wav")))
-	{
-		sound->SetVolume(Sound::MaxVolume / 32);
-	}
-
-	void Shot(const double speed, const double angle) override
-	{
-		Bullet::Shot(speed, angle);
-		sound->Played();
-	}
-private:
-	std::unique_ptr<Sound> sound;
+	{}
 };
 
 class ReimuNormalBullet : public PlayerBullet

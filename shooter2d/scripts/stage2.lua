@@ -24,6 +24,7 @@ local function Fission(enemyColor, initPosX)
 			GenerateBullet(bulletColor, bullet.PosX, bullet.PosY, 6, angle + math.pi / 6)
 			GenerateBullet(bulletColor, bullet.PosX, bullet.PosY, 6, angle)
 			GenerateBullet(bulletColor, bullet.PosX, bullet.PosY, 6, angle - math.pi / 6)
+			GenerateEffect(EffectID.EnemyShotSound)
 		end
 		Wait(15)
 	end
@@ -54,6 +55,7 @@ local function Revenge(enemyColor, initPosY, speed)
 	local max = math.random(10)
 	for n = 1, max do
 		GenerateBullet(bulletColor, enemy.PosX, enemy.PosY, 4, math.pi * math.random())
+		GenerateEffect(EffectID.EnemyShotSound)
 	end
 end
 

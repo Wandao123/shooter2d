@@ -16,7 +16,7 @@ namespace Shooter {
 		virtual void Update() override;
 	protected:
 		const unsigned int AnimationFrames = 15;
-		std::array<Rect<int>, 3> clips;  // 具体的な値は継承先で設定せよ。:
+		std::array<Rect<int>, 3> clips;  // 具体的な値は継承先で設定せよ。
 		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Sound> sound;
 		unsigned int counter = 0;  // エフェクトのアニメーションが起きているフレーム数。アニメーションが進むと減少する。
@@ -32,7 +32,9 @@ namespace Shooter {
 			None,
 			DefetedPlayer,
 			RedCircle,
-			BlueCircle
+			BlueCircle,
+			EnemyShotSound,
+			PlayerShotSound
 		};
 
 		std::weak_ptr<Effect> GenerateObject(const EffectID id, const Vector2<double>& position);

@@ -11,12 +11,15 @@ end
 -- フレーム数frames毎にenemyオブジェクトから自機狙い弾を生成する。
 local function ShootPer(id, frames, enemy)
 	local MaxFrames = 120
-	for i = 0, MaxFrames do
+	local i = 0
+	while i <= MaxFrames and enemy:IsEnabled() do
 		if i % frames == 0 then
 			GenerateBullet(id, enemy, 4,
 				math.pi / 2 - math.atan(GetPlayer().PosX - enemy.PosX, GetPlayer().PosY - enemy.PosY))
+			--GenerateEffect(EffectID.EnemyShotSound)
 		end
 		coroutine.yield()
+		i = i + 1
 	end
 end
 
@@ -61,8 +64,11 @@ local function AllDirection(initPosX, ways)
 		-- 自機の方向
 		startingAngle = math.pi / 2 - math.atan(GetPlayer().PosX - enemy.PosX, GetPlayer().PosY - enemy.PosY)
 	end
-	for i = 0, ways - 1 do
-		GenerateBullet(bulletColor, enemy, 1, startingAngle + i * diffAngle)
+	if enemy:IsEnabled() then
+		for i = 0, ways - 1 do
+			GenerateBullet(bulletColor, enemy, 1, startingAngle + i * diffAngle)
+		end
+		GenerateEffect(EffectID.EnemyShotSound)
 	end
 	Wait(15)
 	local dir = (initPosX < ScreenWidth / 2) and 1 or -1  -- 初期位置が左寄りなら右向きに、右寄りなら左向きに進む。

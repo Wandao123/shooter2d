@@ -77,6 +77,8 @@
 - DefetedPlayer
 - RedCircle
 - BlueCircle
+- EnemyShotSound
+- PlayerShotSound
 
 #### 敵 (EnemyID)
 
