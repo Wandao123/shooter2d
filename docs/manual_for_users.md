@@ -183,10 +183,10 @@
     <dt>double <i>Object</i>.Speed property</dt>
     <dd>オブジェクトの速さを表します。単位は1ドット毎フレームです。自機オブジェクトでは読み込み専用です。</dd>
     <!-- -->
-    <dt>bool <i>Object</i>.IsEnabled(void)</dt>
+    <dt>bool <i>Object</i>:IsEnabled(void)</dt>
     <dd>オブジェクトが有効ならばtrue、無効ならばfalseを返します。</dd>
     <!-- -->
-    <dt>void <i>Object</i>.TurnInvincible(unsigned int frames)</dt>
+    <dt>void <i>Object</i>:TurnInvincible(unsigned int frames)</dt>
     <dd>指定したフレーム数だけ無敵状態になります。</dd>
     <dd>
         <ol>
@@ -202,13 +202,13 @@
     <dd>オブジェクトを消去（無効に）します。このとき、消滅エフェクトは実行されません。</dd>
 </dl>
 
-### 自機ブジェクトの関数
+### 自機オブジェクトの関数
 
 <dl>
     <dt>int <i>Object</i>.Life property</dt>
     <dd>自機の残機を表します。</dd>
     <!-- -->
-    <dt>void SetVelocity(double dirX, double, dirY, bool slowMode)</dt>
+    <dt>void <i>Object</i>:SetVelocity(double dirX, double, dirY, bool slowMode)</dt>
     <dd>自機の速度を設定します。方向は指定されたもの、速さはあらかじめ自機オブジェクトが持っているものが使われます。</dd>
     <dd>
         <ol>
@@ -218,7 +218,7 @@
         </ol>
     </dd>
     <!-- -->
-    <dt>void Spawned(void)</dt>
+    <dt>void <i>Object</i>:Spawned(void)</dt>
     <dd>オブジェクトが無効の場合、現在の設定された位置でオブジェクトを有効化します。このとき、<i>Object</i>.Lifeが1減少します。</dd>
 </dl>
 
