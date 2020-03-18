@@ -278,7 +278,7 @@ GameScene::GameScene(IChangingSceneListener& listener, Parameters& parameters)
 	, playerBulletManager(std::make_shared<BulletManager>())
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, collisionDetector(std::make_unique<CollisionDetector>(*effectManager, *enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
-	, script(std::make_unique<Script>(*enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
+	, script(std::make_unique<Script>(*effectManager, *enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
 {
 	// UIの初期化。
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2<double>(Media::Create().GetWidth() - 56, Media::Create().GetHeight() - 7));

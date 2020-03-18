@@ -24,7 +24,7 @@ namespace Shooter {
 		};
 
 		// スマート・ポインタではなくとも参照で十分なときには参照をつかう。
-		Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, PlayerManager& playerManager, BulletManager& playerBulletManager);
+		Script(EffectManager& effectManager, EnemyManager& enemyManager, BulletManager& enemyBulletManager, PlayerManager& playerManager, BulletManager& playerBulletManager);
 		Status Run();
 		void LoadFile(const std::string filename);
 		void RegisterFunction(const std::string name);  // TODO: 引数を伴う関数にも対応。
@@ -35,6 +35,7 @@ namespace Shooter {
 			AllClear
 		};
 
+		EffectManager& effectManager;
 		EnemyManager& enemyManager;
 		BulletManager& enemyBulletManager;
 		PlayerManager& playerManager;
@@ -44,6 +45,18 @@ namespace Shooter {
 		// HACK: solのコルーチンの呼び出し方のために、組で保持する必要がある。Lua側でcoroutine.createをすれば、スレッドだけでもよい？
 		using Task = std::pair<sol::thread, sol::coroutine>;
 		std::list<Task> tasksList;  // 毎フレーム実行するコルーチンのリスト。
+
+		/// <summary>エフェクトオブジェクトを生成する。</summary>
+		/// <param name="id">生成するエフェクトのID</param>
+		/// <param name="posX">生成位置のx座標</param>
+		/// <param name="posY">生成位置のy座標</param>
+		/// <returns>生成されたエフェクトオブジェクトへのポインタ</returns>
+		std::function<std::shared_ptr<Effect>(const EffectManager::EffectID, const double, const double)> generateEffect =
+		[this](const EffectManager::EffectID id, const double posX, const double posY) -> std::shared_ptr<Effect> {
+			auto newObject = effectManager.GenerateObject(id, Vector2<double>{ posX, posY }).lock();
+			newObject->Played();
+			return std::move(newObject);
+		};
 
 		/// <summary>敵を生成する。</summary>
 		/// <param name="id">生成する敵のID</param>
@@ -88,6 +101,18 @@ namespace Shooter {
 				return nullptr;
 		};
 
+		/// <summary>自機を生成する。</summary>
+		/// <param name="id">生成する自機のID</param>
+		/// <param name="posX">初期位置のx座標</param>
+		/// <param name="posY">初期位置のy座標</param>
+		/// <returns>生成された自機へのポインタ</returns>
+		std::function<std::shared_ptr<Player>(const PlayerManager::PlayerID, const double, const double)> generatePlayer =
+			[this](const PlayerManager::PlayerID id, const double posX, const double posY) -> std::shared_ptr<Player> {
+			auto newObject = playerManager.GenerateObject(id, Vector2<double>{ posX, posY }).lock();
+			newObject->Spawned();
+			return std::move(newObject);
+		};
+
 		/// <summary>指定された位置に自弾を生成する。生成元の存在は問わない。</summary>
 		/// <param name="id">生成する自弾のID</param>
 		/// <param name="posX">初期位置のx座標</param>
@@ -100,18 +125,6 @@ namespace Shooter {
 		[this](const BulletManager::BulletID id, const double posX, const double posY, const double speed, const double angle) -> std::shared_ptr<Bullet> {
 			auto newObject = playerBulletManager.GenerateObject(id, Vector2<double>{ posX, posY }).lock();
 			newObject->Shot(speed, angle);
-			return std::move(newObject);
-		};
-
-		/// <summary>自機を生成する。</summary>
-		/// <param name="id">生成する自機のID</param>
-		/// <param name="posX">初期位置のx座標</param>
-		/// <param name="posY">初期位置のy座標</param>
-		/// <returns>生成された自機へのポインタ</returns>
-		std::function<std::shared_ptr<Player>(const PlayerManager::PlayerID, const double, const double)> generatePlayer =
-		[this](const PlayerManager::PlayerID id, const double posX, const double posY) -> std::shared_ptr<Player> {
-			auto newObject = playerManager.GenerateObject(id, Vector2<double>{ posX, posY }).lock();
-			newObject->Spawned();
 			return std::move(newObject);
 		};
 

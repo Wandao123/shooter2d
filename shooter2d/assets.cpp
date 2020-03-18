@@ -69,26 +69,6 @@ void Label::Write(const Vector2<double>& position) const
 		};
 		SDL_RenderCopy(Media::Create().Renderer, texture.get(), nullptr, &renderText);
 	}
-
-	/*//auto mTexture = SDL_CreateTexture( Media::Create().Renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, Media::Create().GetWidth(), Media::Create().GetHeight() );
-	//auto mTexture = SDL_CreateTexture( Media::Create().Renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, renderText.w, renderText.h );
-	//SDL_SetRenderTarget( Media::Create().Renderer, mTexture );
-	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_BLEND);
-	boxRGBA(Media::Create().Renderer, renderText.x, renderText.y, renderText.x + renderText.w, renderText.x + renderText.h, 0x00, 0xFF, 0x00, 0x7F);
-	//SDL_SetRenderDrawColor(Media::Create().Renderer, 0xFF, 0xFF, 0xFF, 0x00);
-	//SDL_RenderClear(Media::Create().Renderer);
-	//SDL_SetRenderDrawColor(Media::Create().Renderer, 0x00, 0xFF, 0x00, 0x7F);
-	//SDL_RenderFillRect(Media::Create().Renderer, nullptr);
-	//SDL_RenderFillRect(Media::Create().Renderer, &renderText);
-	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
-	//SDL_SetRenderTarget( Media::Create().Renderer, nullptr );
-	//SDL_SetTextureBlendMode(mTexture, SDL_BLENDMODE_BLEND);
-	//SDL_SetTextureAlphaMod(mTexture, 0x7F);
-	//SDL_SetTextureColorMod(mTexture, 0xFF, 0x00, 0x00);
-	//SDL_RenderCopy(Media::Create().Renderer, mTexture, nullptr, &renderText);
-	//SDL_Rect temp = { 0, 0, Media::Create().GetWidth(), Media::Create().GetHeight() };
-	//SDL_RenderCopy(Media::Create().Renderer, mTexture, nullptr, &temp);
-	//SDL_DestroyTexture(mTexture);*/
 }
 
 /// <summary>設定されたtextとcolorとからtextureを生成する。</summary>

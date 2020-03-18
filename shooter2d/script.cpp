@@ -8,8 +8,9 @@ using namespace Shooter;
 /// <param name="enemyBulletManager">GameSceneクラスのenemyBulletManagerメンバ変数</param>
 /// <param name="playerManager">GameSceneクラスのplayerManagerメンバ変数</param>
 /// <param name="playerBulletManager">GameSceneクラスのplayerBulletManagerメンバ変数</param>
-Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, PlayerManager& playerManager, BulletManager& playerBulletManager)
-	: enemyManager(enemyManager)
+Script::Script(EffectManager& effectManager, EnemyManager& enemyManager, BulletManager& enemyBulletManager, PlayerManager& playerManager, BulletManager& playerBulletManager)
+	: effectManager(effectManager)
+	, enemyManager(enemyManager)
 	, enemyBulletManager(enemyBulletManager)
 	, playerManager(playerManager)
 	, playerBulletManager(playerBulletManager)
@@ -21,8 +22,10 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 	// 各種クラスの定義
 	lua.new_usertype<Bullet>(
 		"Bullet",
-		// Lua側で生成するならば、コンストラクタを定義して ``Enemy.new(...)'' とする。
+		// Lua側で生成するならば、コンストラクタを定義して ``Bullet.new(...)'' とする。
 		"Angle", sol::property(&Bullet::GetAngle, &Bullet::SetAngle),
+		"Erase", &Bullet::Erase,
+		"IsEnabled", &Bullet::IsEnabled,
 		"PosX", sol::property(
 			[](Bullet& bullet) -> double { return bullet.GetPosition().x; },
 			[](Bullet& bullet, const double posX) { bullet.SetPosition({ posX, bullet.GetPosition().y }); }),
@@ -30,14 +33,25 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 			[](Bullet& bullet) -> double { return bullet.GetPosition().y; },
 			[](Bullet& bullet, const double posY) { bullet.SetPosition({ bullet.GetPosition().x, posY }); }),
 		"Speed", sol::property(&Bullet::GetSpeed, &Bullet::SetSpeed),
-		"Erase", &Bullet::Erase,
-		"IsEnabled", &Bullet::IsEnabled,
 		"TurnInvincible", &Bullet::TurnInvincible
+	);
+	lua.new_usertype<Effect>(
+		"Effect",
+		"Erase", &Effect::Erase,
+		"IsEnabled", &Effect::IsEnabled,
+		"PosX", sol::property(
+			[](Effect& effect) -> double { return effect.GetPosition().x; },
+			[](Effect& effect, const double posX) { effect.SetPosition({ posX, effect.GetPosition().y }); }),
+		"PosY", sol::property(
+			[](Effect& effect) -> double { return effect.GetPosition().y; },
+			[](Effect& effect, const double posY) { effect.SetPosition({ effect.GetPosition().x, posY }); })
 	);
 	lua.new_usertype<Enemy>(
 		"Enemy",
 		"Angle", sol::property(&Enemy::GetAngle, &Enemy::SetAngle),
+		"Erase", &Enemy::Erase,
 		"HitPoint", sol::property([](Enemy& enemy) -> int { return enemy.GetHitPoint(); }),
+		"IsEnabled", &Enemy::IsEnabled,
 		"PosX", sol::property(
 			[](Enemy& enemy) -> double { return enemy.GetPosition().x; },
 			[](Enemy& enemy, const double posX) { enemy.SetPosition({ posX, enemy.GetPosition().y }); }),
@@ -45,13 +59,12 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 			[](Enemy& enemy) -> double { return enemy.GetPosition().y; },
 			[](Enemy& enemy, const double posY) { enemy.SetPosition({ enemy.GetPosition().x, posY }); }),
 		"Speed", sol::property(&Enemy::GetSpeed, &Enemy::SetSpeed),
-		"Erase", &Enemy::Erase,
-		"IsEnabled", &Enemy::IsEnabled,
 		"TurnInvincible", &Enemy::TurnInvincible
 	);
 	lua.new_usertype<Player>(
 		"Player",
 		"Angle", sol::property(&Player::GetAngle),
+		"IsEnabled", &Player::IsEnabled,
 		"Life", sol::property([](Player& player) -> int { return player.GetLife(); }),
 		"PosX", sol::property(
 			[](Player& player) -> double { return player.GetPosition().x; },
@@ -59,10 +72,9 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"PosY", sol::property(
 			[](Player& player) -> double { return player.GetPosition().y; },
 			[](Player& player, const double posY) { player.SetPosition({ player.GetPosition().x, posY }); }),
-		"Speed", sol::property(&Player::GetSpeed),
-		"IsEnabled", &Player::IsEnabled,
 		"SetVelocity", [](Player& player, const double dirX, const double dirY, const bool slowMode) { player.SetVelocity({ dirX, dirY }, slowMode); },
 		"Spawned", &Player::Spawned,
+		"Speed", sol::property(&Player::GetSpeed),
 		"TurnInvincible", &Player::TurnInvincible
 	);
 
@@ -72,11 +84,6 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 	int width = Player::Width, height = Player::Height;  // 直に代入するとgccでコンパイルできない。
 	lua["PlayerWidth"] = width;
 	lua["PlayerHeight"] = height;
-	lua.new_enum(
-		"EnemyID",
-		"SmallRed", EnemyManager::EnemyID::SmallRed,
-		"SmallBlue", EnemyManager::EnemyID::SmallBlue
-	);
 	lua.new_enum(
 		"BulletID",
 		// 敵弾。
@@ -98,18 +105,6 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"SanaeNormal", BulletManager::BulletID::SanaeNormal
 	);
 	lua.new_enum(
-		"PlayerID",
-		"Reimu", PlayerManager::PlayerID::Reimu,
-		"Marisa", PlayerManager::PlayerID::Marisa,
-		"Sanae", PlayerManager::PlayerID::Sanae
-	);
-	lua.new_enum(
-		"SceneID",
-		"Title", SceneID::Title,
-		"StageClear", SceneID::StageClear,
-		"AllClear", SceneID::AllClear
-	);
-	lua.new_enum(
 		"CommandID",
 		"Shot", Input::Commands::Shot,
 		"Bomb", Input::Commands::Bomb,
@@ -121,11 +116,40 @@ Script::Script(EnemyManager& enemyManager, BulletManager& enemyBulletManager, Pl
 		"Backward", Input::Commands::Backward,
 		"Pause", Input::Commands::Pause
 	);
+	lua.new_enum(
+		"EffectID",
+		"None", EffectManager::EffectID::None,
+		"DefetedPlayer", EffectManager::EffectID::DefetedPlayer,
+		"RedCircle", EffectManager::EffectID::RedCircle,
+		"BlueCircle", EffectManager::EffectID::BlueCircle
+	);
+	lua.new_enum(
+		"EnemyID",
+		"SmallRed", EnemyManager::EnemyID::SmallRed,
+		"SmallBlue", EnemyManager::EnemyID::SmallBlue
+	);
+	lua.new_enum(
+		"PlayerID",
+		"Reimu", PlayerManager::PlayerID::Reimu,
+		"Marisa", PlayerManager::PlayerID::Marisa,
+		"Sanae", PlayerManager::PlayerID::Sanae
+	);
+	lua.new_enum(
+		"SceneID",
+		"Title", SceneID::Title,
+		"StageClear", SceneID::StageClear,
+		"AllClear", SceneID::AllClear
+	);
 
 	// 関数群の登録。
 	lua["GenerateBullet"] = sol::overload(
 		generateEnemyBullet,
 		generateBulletFromEnemy
+	);
+	lua["GenerateEffect"] = sol::overload(
+		generateEffect,
+		// 非視覚エフェクト用に位置は省略可とする。solではデフォルト引数を指定できないので、ラムダ式とオーバーロードを用いる。
+		[this](const EffectManager::EffectID id) -> std::shared_ptr<Effect> { return generateEffect(id, 0.e0, 0.e0); }
 	);
 	lua["GenerateEnemy"] = generateEnemy;
 	lua["GeneratePlayer"] = generatePlayer;

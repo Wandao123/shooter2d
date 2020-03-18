@@ -19,10 +19,13 @@
 <dl>
     <dt>int ScreenHeight</dt>
     <dd>画面の縦幅を表します。</dd>
+ 
     <dt>int ScreenWidth</dt>
     <dd>画面の横幅を表します。</dd>
+
     <dt>int PlayerHeight</dt>
     <dd>自機のスプライトの縦幅を表します。</dd>
+
     <dt>int PlayerWidth</dt>
     <dd>自機のスプライトの横幅を表します。</dd>
 </dl>
@@ -68,6 +71,13 @@
 - Backward
 - Pause
 
+#### エフェクト (EffectID)
+
+- None
+- DefetedPlayer
+- RedCircle
+- BlueCircle
+
 #### 敵 (EnemyID)
 
 - SmallRed
@@ -100,6 +110,7 @@
             <li><b>angle: </b>初期速度の角度（向き）</li>
         </ol>
     </dd>
+ 
     <dt>Bullet GenerateBullet(BulletID id, Enemy enemy, double speed, double angle) [overloaded]</dt>
     <dd>渡された敵オブジェクトの位置に、敵弾オブジェクトを初期状態に従って生成します。敵オブジェクトが有効でない場合はnilを返します。</dd>
     <dd>
@@ -111,6 +122,18 @@
             <li><b>angle: </b>初期速度の角度（向き）</li>
         </ol>
     </dd>
+
+    <dt>Enemy GenerateEffect(EnemyID id, double posX = 0.e0, double posY = 0.e0)</dt>
+    <dd>エフェクトオブジェクトを指定の位置に生成します。</dd>
+    <dd>
+        <ol>
+            <li><b>返り値: </b>生成されたオブジェクト</li>
+            <li><b>id: </b>生成するエフェクトのID</li>
+            <li><b>posX: </b>生成位置のx座標（省略可）</li>
+            <li><b>posY: </b>生成位置のy座標（省略可）</li>
+        </ol>
+    </dd>
+ 
     <dt>Enemy GenerateEnemy(EnemyID id, double posX, double posY, double speed, double angle, int hitPoint)</dt>
     <dd>敵オブジェクトを初期状態に従って生成します。</dd>
     <dd>
@@ -124,6 +147,7 @@
             <li><b>hitPoint: </b>敵の体力</li>
         </ol>
     </dd>
+
     <dt>Player GeneratePlayer(PlayerID id, double posX, double posY)</dt>
     <dd>自機オブジェクトを初期状態に従って生成します。</dd>
     <dd>
@@ -134,6 +158,7 @@
             <li><b>posY: </b>初期位置のy座標</li>
         </ol>
     </dd>
+
     <dt>Bullet GeneratePlayerBullet(BulletID id, double posX, double posY, double speed, double angle)</dt>
     <dd>自弾オブジェクトを初期状態に従って生成します。</dd>
     <dd>
@@ -153,14 +178,19 @@
 <dl>
     <dt>double <i>Object</i>.Angle property</dt>
     <dd>オブジェクトのx軸に対する回転角を表します。自機オブジェクトでは読み込み専用です。</dd>
+
     <dt>double <i>Object</i>.PosX property</dt>
     <dd>オブジェクトの位置のx座標を取得します。</dd>
+
     <dt>double <i>Object</i>.PosY property</dt>
     <dd>オブジェクトの位置のy座標を取得します。</dd>
+
     <dt>double <i>Object</i>.Speed property</dt>
     <dd>オブジェクトの速さを表します。単位は1ドット毎フレームです。自機オブジェクトでは読み込み専用です。</dd>
+
     <dt>bool <i>Object</i>.IsEnabled(void)</dt>
     <dd>オブジェクトが有効ならばtrue、無効ならばfalseを返します。</dd>
+
     <dt>void <i>Object</i>.TurnInvincible(unsigned int frames)</dt>
     <dd>指定したフレーム数だけ無敵状態になります。</dd>
     <dd>
@@ -182,6 +212,7 @@
 <dl>
     <dt>int <i>Object</i>.Life property</dt>
     <dd>自機の残機を表します。</dd>
+ 
     <dt>void SetVelocity(double dirX, double, dirY, bool slowMode)</dt>
     <dd>自機の速度を設定します。方向は指定されたもの、速さはあらかじめ自機オブジェクトが持っているものが使われます。</dd>
     <dd>
@@ -191,6 +222,7 @@
             <li><b>slowMode: </b>低速移動モードにするか否か（falseのとき高速、trueのとき低速に速さを設定する）</li>
         </ol>
     </dd>
+
     <dt>void Spawned(void)</dt>
     <dd>オブジェクトが無効の場合、現在の設定された位置でオブジェクトを有効化します。このとき、<i>Object</i>.Lifeが1減少します。</dd>
 </dl>
@@ -212,6 +244,7 @@
             <li><b>id: </b>遷移先の画面のID</li>
         </ol>
     </dd>
+
     <dt>bool GetKey(CommandID command)</dt>
     <dd>コマンド入力を検知します。commandに対応するキー/ボタンが押し続けられている間、trueを返します。</dd>
     <dd>
@@ -220,6 +253,7 @@
             <li><b>command: </b>検知するコマンド</li>
         </ol>
     </dd>
+ 
     <dt>bool GetKeyDown(CommandID command)</dt>
     <dd>コマンド入力を検知します。commandに対応するキー/ボタンが押された瞬間、trueを返します。</dd>
     <dd>
@@ -228,6 +262,7 @@
             <li><b>command: </b>検知するコマンド</li>
         </ol>
     </dd>
+
     <dt>bool GetKeyUp(CommandID command)</dt>
     <dd>コマンド入力を検知します。commandに対応するキー/ボタンが離された瞬間、trueを返します。</dd>
     <dd>
@@ -236,6 +271,7 @@
             <li><b>command: </b>検知するコマンド</li>
         </ol>
     </dd>
+ 
     <dt>Player GetPlayer(void)</dt>
     <dd>自機オブジェクトを取得します。</dd>
     <dd>
@@ -243,6 +279,7 @@
             <li><b>返り値: </b>自機オブジェクト</li>
         </ol>
     </dd>
+
     <dt>list::iterator StartCoroutine(func) [overloaded]</dt>
     <dd>毎フレーム実行するコルーチンfuncを登録します。Luaのresume関数と異なり、1フレーム毎に自動的に実行されます。この関数を呼び出した時点でfuncは1回実行されます。funcには引数を渡しません。</dd>
     <dd>
@@ -251,6 +288,7 @@
             <li><b>func: </b>Luaの関数</li>
         </ol>
     </dd>
+
     <dt>list::iterator StartCoroutine(func, arg1, arg2, ...) [overloaded]</dt>
     <dd>毎フレーム実行するコルーチンfuncを登録します。Luaのresume関数と異なり、1フレーム毎に自動的に実行されます。この関数を呼び出した時点でfuncは1回実行されます。funcには arg1, arg2, ... の形式で引数を渡します。</dd>
     <dd>
@@ -260,6 +298,7 @@
             <li><b>(arg1, arg2, ...): </b>引数リスト</li>
         </ol>
     </dd>
+
     <dt>void StopCoroutine(task)</dt>
     <dd>指定したコルーチンを停止します。</dd>
     <dd>
