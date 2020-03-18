@@ -8,7 +8,7 @@ class SmallRedEnemy : public Enemy
 {
 public:
 	SmallRedEnemy(const Vector2<double>& position)
-		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Enemy::Width * 0.5), EffectManager::EffectID::RedCircle)
+		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Enemy::Width * 0.5))
 	{
 		for (int j = 0; j < static_cast<int>(clips[0].size()); j++) {
 			clips[0][j] = { j * Width, Height, Width, Height };            // 停止時
@@ -22,7 +22,7 @@ class SmallBlueEnemy : public Enemy
 {
 public:
 	SmallBlueEnemy(const Vector2<double>& position)
-		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Enemy::Width * 0.5), EffectManager::EffectID::BlueCircle)
+		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Enemy::Width * 0.5))
 	{
 		for (int j = 0; j < static_cast<int>(clips[0].size()); j++) {
 			clips[0][j] = { j * Width, 0, Width, Height };                 // 停止時
@@ -37,9 +37,8 @@ public:
 /// <param name="position">初期位置</param>
 /// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
 /// <param name="collider">当たり判定クラスへのポインタ</param>
-/// <param name="effectID">消滅エフェクトのID</param>
-Enemy::Enemy(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
-	: Mover(position, 0.0, M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
+Enemy::Enemy(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
+	: Mover(position, 0.0, M_PI_2, std::move(sprite), std::move(collider), 1, 0)
 	, sound(std::make_unique<Sound>(AssetLoader::Create().GetChunk("se/enemy_damage.wav")))
 {
 	this->sound->SetVolume(Sound::MaxVolume / 4);

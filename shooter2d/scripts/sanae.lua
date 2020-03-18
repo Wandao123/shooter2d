@@ -1,3 +1,5 @@
+local stg = require('scripts.stg')
+
 local parameters = {
 	InvincibleFrames = 360,
 	InputDelayFrames = 90,
@@ -60,11 +62,19 @@ local function Shoot()
 			GeneratePlayerBullet(parameters.NormalShot, player.PosX - 12, player.PosY, parameters.BulletSpeed, -math.pi / 2)
 			GeneratePlayerBullet(parameters.NormalShot, player.PosX + 12, player.PosY, parameters.BulletSpeed, -math.pi / 2)
 			GenerateEffect(EffectID.PlayerShotSound)
-			for i = 1, parameters.ShotDelayFrames do
-				coroutine.yield()
-			end
-		else	
-			coroutine.yield()
+			stg:Wait(parameters.ShotDelayFrames)
+		end
+		coroutine.yield()
+	end
+end
+
+-- 自機の被弾処理。
+local function Down()
+	local life = player.Life
+	return function()
+		if player.Life < life then
+			GenerateEffect(EffectID.DefetedPlayer, player.PosX, player.PosY)
+			life = player.Life
 		end
 	end
 end
@@ -72,11 +82,13 @@ end
 function PlayerScript()
 	Initialize()
 	local co = { coroutine.create(Shoot), coroutine.create(Move) }
+	local detectDown = Down()
 	repeat
 		Rebirth()
 		for i = 1, #co do
 			coroutine.resume(co[i])
 		end
 		coroutine.yield()
+		detectDown()  -- 被弾した直後に実行したい。
 	until false
 end

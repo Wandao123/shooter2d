@@ -10,7 +10,7 @@ class Reimu : public Player
 {
 public:
 	Reimu(const Vector2<double>& position)
-		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(1.0), EffectManager::EffectID::DefetedPlayer)
+		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(1.0))
 	{}
 };
 
@@ -18,7 +18,7 @@ class Marisa : public Player
 {
 public:
 	Marisa(const Vector2<double>& position)
-		: Player(position, 5.0, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(1.3), EffectManager::EffectID::DefetedPlayer)
+		: Player(position, 5.0, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(1.3))
 	{}
 };
 
@@ -26,7 +26,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2<double>& position)
-		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(1.3), EffectManager::EffectID::DefetedPlayer)
+		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(1.3))
 	{}
 };
 
@@ -37,9 +37,8 @@ public:
 /// <param name="lowSpeed">低速移動時の速さ（単位：ドット毎フレーム）</param>
 /// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
 /// <param name="collider">当たり判定クラスへのポインタ</param>
-/// <param name="effectID">消滅エフェクトのID</param>
-Player::Player(const Vector2<double>& position, const double highSpeed, const double lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID)
-	: Mover(position, 0.0, -M_PI_2, std::move(sprite), std::move(collider), effectID, 1, 0)
+Player::Player(const Vector2<double>& position, const double highSpeed, const double lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
+	: Mover(position, 0.0, -M_PI_2, std::move(sprite), std::move(collider), 1, 0)
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {

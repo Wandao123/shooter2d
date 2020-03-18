@@ -1,4 +1,5 @@
-#include "game.h"
+#include "game.h"  // ここで scene.h は読み込み済み。
+#include "effect.h"
 #include "media.h"
 
 using namespace Shooter;
@@ -277,7 +278,7 @@ GameScene::GameScene(IChangingSceneListener& listener, Parameters& parameters)
 	, playerManager(std::make_shared<PlayerManager>())
 	, playerBulletManager(std::make_shared<BulletManager>())
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
-	, collisionDetector(std::make_unique<CollisionDetector>(*effectManager, *enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
+	, collisionDetector(std::make_unique<CollisionDetector>(*enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
 	, script(std::make_unique<Script>(*effectManager, *enemyManager, *enemyBulletManager, *playerManager, *playerBulletManager))
 {
 	// UIの初期化。

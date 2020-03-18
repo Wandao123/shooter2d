@@ -1,6 +1,7 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
+#include <array>
 #include "mover.h"
 
 namespace Shooter {
@@ -9,7 +10,7 @@ namespace Shooter {
 	public:
 		static const int Height = 32;
 		static const int Width = 32;
-		Enemy(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
+		Enemy(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
 		~Enemy() = default;
 		void Update() override;
 		void OnCollide(Mover& mover) override;

@@ -3,6 +3,7 @@
 
 #include <list>
 #include <functional>
+#include "effect.h"
 #include "mover.h"
 
 #ifdef _WIN64

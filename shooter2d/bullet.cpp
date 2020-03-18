@@ -12,7 +12,7 @@ class EnemyBullet : public Bullet
 {
 public:
 	EnemyBullet(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
-		: Bullet(position, std::move(sprite), std::move(collider), EffectManager::EffectID::None, 1)
+		: Bullet(position, std::move(sprite), std::move(collider), 1)
 	{}
 };
 
@@ -142,7 +142,7 @@ class PlayerBullet : public Bullet
 {
 public:
 	PlayerBullet(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
-		: Bullet(position, std::move(sprite), std::move(collider), EffectManager::EffectID::None, 4)
+		: Bullet(position, std::move(sprite), std::move(collider), 4)
 	{}
 };
 
@@ -181,10 +181,9 @@ public:
 /// <param name="position">初期位置</param>
 /// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
 /// <param name="collider">当たり判定クラスへのポインタ</param>
-/// <param name="effectID">消滅エフェクトのID</param>
 /// <param name="damage">衝突時に相手に与えるダメージ</param>
-Bullet::Bullet(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, unsigned int damage)
-	: Mover(position, 0.0, M_PI_2, std::move(sprite), std::move(collider), effectID, damage, 0)
+Bullet::Bullet(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, unsigned int damage)
+	: Mover(position, 0.0, M_PI_2, std::move(sprite), std::move(collider), damage, 0)
 {}
 
 void Bullet::Draw() const

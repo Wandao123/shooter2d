@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <array>
 #include "mover.h"
 
 namespace Shooter {
@@ -10,7 +11,7 @@ namespace Shooter {
 	public:
 		static const int Height = 48;
 		static const int Width = 32;
-		Player(const Vector2<double>& position, const double highSpeed, const double lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID);
+		Player(const Vector2<double>& position, const double highSpeed, const double lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
 		~Player() = default;
 		void Update() override;
 		void OnCollide(Mover& mover) override;

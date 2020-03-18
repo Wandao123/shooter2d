@@ -1,8 +1,9 @@
 #ifndef MOVER_H
 #define MOVER_H
 
+#include "assets.h"
 #include "collider.h"
-#include "effect.h"
+#include "game_object.h"
 
 namespace Shooter {
 	/// <summary>衝突判定の対象となるオブジェクト。自機と敵と弾の親クラス。</summary>
@@ -17,10 +18,9 @@ namespace Shooter {
 		/// <param name="angle">初期速度の方向</param>
 		/// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
 		/// <param name="collider">当たり判定クラスへのポインタ</param>
-		/// <param name="effectID">消滅エフェクトのID</param>
 		/// <param name="damage">衝突時に相手に与えるダメージ</param>
 		/// <param name="hitPoint">体力</param>
-		Mover(const Vector2<double>& position, const double speed, const double angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, EffectManager::EffectID effectID, const unsigned int damage, const int hitPoint)
+		Mover(const Vector2<double>& position, const double speed, const double angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, const unsigned int damage, const int hitPoint)
 			: GameObject(false, position)
 			, speed(speed)
 			, angle(angle)
@@ -28,7 +28,6 @@ namespace Shooter {
 			, hitPoint(hitPoint)
 			, sprite(std::move(sprite))
 			, collider(std::move(collider))
-			, effectID(effectID)
 			, invincibleCounter(0)
 		{}
 		virtual ~Mover() {}
@@ -63,11 +62,6 @@ namespace Shooter {
 			return *collider;
 		}
 
-		EffectManager::EffectID GetEffectID() const
-		{
-			return effectID;
-		}
-
 		unsigned int GetDamage() const
 		{
 			return damage;
@@ -94,7 +88,6 @@ namespace Shooter {
 		int hitPoint;  // 体力。「消滅」と「撃破」とを区別するために弾でも設定が必須。外部からこれを参照する以外に、OnCollideに返り値を持たせる実装もできるかもしれない。
 		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Collider> collider;
-		EffectManager::EffectID effectID;  // 消滅エフェクトのID。
 		unsigned int invincibleCounter;  // 無敵状態になっている残りのフレーム数。
 		bool isInside();
 		virtual void spawned();
