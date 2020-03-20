@@ -17,7 +17,7 @@ namespace Shooter {
 		virtual void Draw() const = 0;
 		virtual void Update() = 0;
 
-		const Vector2<double>& GetPosition() const
+		const Vector2<double>& GetPosition() const&
 		{
 			return position;
 		}

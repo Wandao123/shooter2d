@@ -21,9 +21,10 @@ void CollisionDetector::CheckBetween(Mover& mover1, Mover& mover2)
 {
 	if (!mover1.IsEnabled() || !mover2.IsEnabled())
 		return;
-	Vector2<double> relativeVector = mover2.GetPosition() - mover1.GetPosition();
-	// TODO: すり抜け防止。
-	if (mover2.GetCollider().DoesCollideWith(relativeVector, mover1.GetCollider())) {
+	auto relativePosition = mover2.GetPosition() - mover1.GetPosition();
+	auto relativeVelocity = MathUtils::PolarCoordinateToVector<double>(mover2.GetSpeed(), mover2.GetAngle())
+			- MathUtils::PolarCoordinateToVector<double>(mover1.GetSpeed(), mover1.GetAngle());
+	if (mover2.GetCollider().DoesCollideWith(relativePosition, mover1.GetCollider())) {
 		mover1.OnCollide(mover2);
 		mover2.OnCollide(mover1);
 	}

@@ -1,6 +1,7 @@
 #ifndef VECTOR2_H
 #define VECTOR2_H
 
+// HACK: C++20からはstd::numbers::piが使える。
 #define _USE_MATH_DEFINES
 #include <cmath>
 
@@ -27,6 +28,7 @@ namespace Shooter {
 			return { this->x - vector.x, this->y - vector.y };
 		}
 
+		// TODO: 順序不問にする。
 		Vector2 operator*(const Type& scalar) const
 		{
 			return { this->x * scalar, this->y * scalar };
@@ -117,6 +119,13 @@ namespace Shooter {
 		inline double Modulo(const double Dividend, const double Divisor)
 		{
 			return (Dividend - Divisor * std::floor(Dividend / Divisor));
+		}
+
+		/// <summary>極座標から（Cartesian座標の）ベクトルを生成する。</summary>
+		template<typename Type>
+		inline Vector2<Type> PolarCoordinateToVector(const Type radius, const Type angle)
+		{
+			return Vector2<Type>{ std::cos(angle), std::sin(angle) } * radius;
 		}
 	}
 }
