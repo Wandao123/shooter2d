@@ -19,6 +19,7 @@ namespace Shooter {
 
 		void CheckAll();
 		void CheckBetween(Mover& mover1, Mover& mover2);
+		void Draw() const;
 	private:
 		EnemyManager& enemyManager;
 		BulletManager& enemyBulletManager;

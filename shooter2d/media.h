@@ -19,7 +19,9 @@ namespace Shooter {
 		friend void Label::MakeTexture();
 		friend std::weak_ptr<SDL_Texture> AssetLoader::TakeScreenshot();
 		friend class Shape;
+		friend void CircleShape::Draw(const Vector2<int>&) const;
 		friend void RectangleShape::Draw(const Vector2<int>&) const;
+		friend void BoxShape::Draw(const Vector2<int>&) const;
 
 		int GetWidth() const
 		{

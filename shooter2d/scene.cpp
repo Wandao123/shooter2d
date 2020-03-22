@@ -65,7 +65,7 @@ public:
 private:
 	static const int MaxItems = 10;
 	const int ItemHeight = UserInterfaceManager::FontSize * 5 / 4;
-	RectangleShape rectangle;
+	BoxShape box;
 	std::unique_ptr<UserInterfaceManager> userInterfaceManager;
 	int currentIndex;
 	std::array<std::weak_ptr<UserInterface>, MaxItems> menu;
@@ -283,9 +283,14 @@ GameScene::GameScene(IChangingSceneListener& listener, Parameters& parameters)
 {
 	// UIの初期化。
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::FrameRate, Vector2<double>(Media::Create().GetWidth() - 56, Media::Create().GetHeight() - 7));
-	auto objectMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::PlayersMonitor, Vector2<double>{ UserInterfaceManager::FontSize * 4, UserInterfaceManager::FontSize * 3 / 4 / 2 });
-	objectMonitor.lock()->SetCaption(u8"Player");
-	objectMonitor.lock()->Register(playerManager);
+	auto playerMonitor = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::PlayersMonitor, Vector2<double>{ UserInterfaceManager::FontSize * 4, UserInterfaceManager::FontSize * 3 / 4 / 2 });
+	playerMonitor.lock()->SetCaption(u8"Player");
+	playerMonitor.lock()->Register(playerManager);
+
+	// テスト用。
+	auto bulletsCounter = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::ObjectCounter, Vector2<double>{ Media::Create().GetWidth() * 3.e0 / 4, UserInterfaceManager::FontSize });
+	bulletsCounter.lock()->SetCaption(u8"# of Bullets");
+	bulletsCounter.lock()->Register(enemyBulletManager);
 
 	// スクリプトの初期化。
 	script->LoadFile("scripts/main.lua");
@@ -345,18 +350,19 @@ void GameScene::Draw() const
 	playerManager->Draw();
 	enemyBulletManager->Draw();
 	playerBulletManager->Draw();
+	collisionDetector->Draw();  // テスト用。
 }
 
 /******************************** KeyConfigScene *********************************/
 
 KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener, Parameters& parameters)
 	: Scene(listener, parameters)
-	, rectangle(Vector2<int>((UserInterfaceManager::FontSize * 3 / 4) * 9 * 3, ItemHeight))  // 1文字の幅 x 文字数 x 項目数
+	, box(Vector2<int>((UserInterfaceManager::FontSize * 3 / 4) * 9 * 3, ItemHeight))  // 1文字の幅 x 文字数 x 項目数
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
-	rectangle.SetBlendMode(Shape::BlendMode::Blend);
-	rectangle.SetColor(0xFF, 0xFF, 0x00, 0x3F);
+	box.SetBlendMode(Shape::BlendMode::Blend);
+	box.SetColor(0xFF, 0xFF, 0x00, 0x3F);
 
 	userInterfaceManager->GenerateObject(UserInterfaceManager::UserInterfaceID::Title, Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 1.0 / 10.0 }).lock()->SetCaption(u8"Key config");
 	auto makePos = [this](unsigned int index) -> Vector2<double> { return { Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 2.0 / 10.0 + ItemHeight * index }; };
@@ -386,9 +392,8 @@ KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener, Parameters& par
 void KeyConfigScene::Draw() const
 {
 	userInterfaceManager->Draw();
-	int posX = static_cast<int>(Media::Create().GetWidth() * 0.5);
-	int posY = static_cast<int>(Media::Create().GetHeight() * 2.0 / 10.0 + ItemHeight * currentIndex);
-	rectangle.Draw({ posX - rectangle.GetSize().x / 2, posY - rectangle.GetSize().y / 2 });
+	auto center = Vector2<int>{ Media::Create().GetWidth() / 2, static_cast<int>(Media::Create().GetHeight() * 2.0 / 10.0 + ItemHeight * currentIndex) };
+	box.Draw(center - box.GetSize() / 2);
 }
 
 void KeyConfigScene::Update()

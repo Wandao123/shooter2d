@@ -34,6 +34,11 @@ namespace Shooter {
 			return { this->x * scalar, this->y * scalar };
 		}
 
+		Vector2 operator/(const Type& scalar) const
+		{
+			return { this->x / scalar, this->y / scalar };
+		}
+
 		Vector2 operator-() const
 		{
 			return { -this->x, -this->y };
@@ -126,6 +131,24 @@ namespace Shooter {
 		inline Vector2<Type> PolarCoordinateToVector(const Type radius, const Type angle)
 		{
 			return Vector2<Type>{ std::cos(angle), std::sin(angle) } * radius;
+		}
+
+		/// <summary>Vector2<double>からVector2<int>を生成する。Ceil関数で丸める。</summary>
+		inline Vector2<int> CeilToInt(const Vector2<double>& vector)
+		{
+			return { static_cast<int>(std::ceil(vector.x)), static_cast<int>(std::ceil(vector.y)) };
+		}
+
+		/// <summary>Vector2<double>からVector2<int>を生成する。Floor関数で丸める。</summary>
+		inline Vector2<int> FloorToInt(const Vector2<double>& vector)
+		{
+			return { static_cast<int>(std::floor(vector.x)), static_cast<int>(std::floor(vector.y)) };
+		}
+
+		/// <summary>Vector2<double>からVector2<int>を生成する。Round関数で丸める。</summary>
+		inline Vector2<int> RoundToInt(const Vector2<double>& vector)
+		{
+			return { static_cast<int>(std::round(vector.x)), static_cast<int>(std::round(vector.y)) };
 		}
 	}
 }

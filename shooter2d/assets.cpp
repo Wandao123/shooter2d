@@ -312,18 +312,49 @@ void Shape::SetBlendMode(const BlendMode blendMode)
 	this->blendMode = blendMode;
 }
 
+/******************************** CircleShape *********************************/
+
+CircleShape::CircleShape(const int radius)
+	: radius(radius)
+{}
+
+void CircleShape::Draw(const Vector2<int>& position) const
+{
+	Shape::Draw(position);
+	circleRGBA(Media::Create().Renderer, position.x, position.y, radius, color.r, color.g, color.b, color.a);
+	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
+}
+
 /******************************** RectangleShape *********************************/
 
 RectangleShape::RectangleShape(const Vector2<int>& size)
 	: size(size)
 {}
 
+/// <summary>矩形を描画する。</summary>
+/// <param name="position">矩形の左上の頂点の座標</param>
+/// <remarks>内部は塗り潰す。</remarks>
 void RectangleShape::Draw(const Vector2<int>& position) const
 {
 	Shape::Draw(position);
 	//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
 	//SDL_Rect rect = { position.x, position.y, size.x, size.y };
+	//SDL_RenderRect(Media::Create().Renderer, &rect);
+	rectangleRGBA(Media::Create().Renderer, position.x + size.x, position.y, position.x, position.y + size.y, color.r, color.g, color.b, color.a);
+	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
+}
+
+/******************************** BoxShape *********************************/
+
+/// <summary>矩形を描画する。</summary>
+/// <param name="position">矩形の左上の頂点の座標</param>
+/// <remarks>内部は塗り潰さない。</remarks>
+void BoxShape::Draw(const Vector2<int>& position) const
+{
+	Shape::Draw(position);
+	//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
+	//SDL_Rect rect = { position.x, position.y, size.x, size.y };
 	//SDL_RenderFillRect(Media::Create().Renderer, &rect);
-	boxRGBA(Media::Create().Renderer, position.x + size.x, position.y, position.x, position.y + size.y, color.r, color.g, color.b, color.a);
+	boxRGBA(Media::Create().Renderer, position.x + GetSize().x, position.y, position.x, position.y + GetSize().y, color.r, color.g, color.b, color.a);
 	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
 }

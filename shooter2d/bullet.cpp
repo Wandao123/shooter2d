@@ -170,7 +170,7 @@ class SanaeNormalBullet : public PlayerBullet
 {
 public:
 	SanaeNormalBullet(const Vector2<double>& position)
-		: PlayerBullet(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot3.png")), std::make_unique<CircleCollider>(Vector2<double>{ 0.0, -23.0 }, 6.5))
+		: PlayerBullet(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Shot3.png")), std::make_unique<CircleCollider>(Vector2<double>{ 0.0, 0.0 }, 6.5))
 	{
 		clip = { 0, 0, 16, 16 };
 	}

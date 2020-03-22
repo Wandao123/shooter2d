@@ -194,6 +194,7 @@ namespace Shooter {
 	};
 
 	/// <summary>図形の描画を担うクラス。SDLのラッパーとして機能する。</summary>
+	/// <remarks>画面への描画のため、メンバ変数は基本的にintで定義する。</remarks>
 	class Shape
 	{
 	public:
@@ -214,11 +215,30 @@ namespace Shooter {
 		SDL_Color color = { 0xFF, 0xFF, 0xFF, 0xFF };
 	};
 
+	class CircleShape : public Shape
+	{
+	public:
+		CircleShape(const int radius = 0);
+		void Draw(const Vector2<int>& position) const override;
+
+		const int GetRadius() const
+		{
+			return radius;
+		}
+
+		void SetRadius(const int radius)
+		{
+			this->radius = radius;
+		}
+	private:
+		int radius;
+	};
+
 	class RectangleShape : public Shape
 	{
 	public:
 		RectangleShape(const Vector2<int>& size = Vector2<int>(0, 0));
-		void Draw(const Vector2<int>& position) const override;
+		virtual void Draw(const Vector2<int>& position) const override;
 
 		const Vector2<int>& GetSize() const
 		{
@@ -231,6 +251,13 @@ namespace Shooter {
 		}
 	private:
 		Vector2<int> size;
+	};
+
+	class BoxShape : public RectangleShape
+	{
+	public:
+		BoxShape(const Vector2<int>& size = Vector2<int>(0, 0)) : RectangleShape(size) {}
+		void Draw(const Vector2<int>& position) const override;
 	};
 }
 
