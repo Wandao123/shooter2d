@@ -205,26 +205,20 @@ namespace Shooter {
 			Mod
 		};
 
-		Shape(const Vector2<int>& size);
+		Shape() = default;
 		virtual ~Shape() = default;
-		virtual void Draw(const Vector2<int>& position) const = 0;
+		virtual void Draw(const Vector2<int>&) const;
 		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha);
 		void SetBlendMode(const BlendMode blendMode);
-		const Vector2<int>& GetSize() const&;
-		void SetSize(const Vector2<int>& size);
 	protected:
 		BlendMode blendMode = BlendMode::None;
 		SDL_Color color = { 0xFF, 0xFF, 0xFF, 0xFF };
-		Vector2<int> size;
-		std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> targetTexture;
-		void predraw() const;  // 描画の事前処理。
-		void postdraw(const Vector2<int>& position, const double angle) const;  // 描画の事後処理。
 	};
 
 	class CircleShape : public Shape
 	{
 	public:
-		CircleShape(const int radius = 0) : Shape({ 2 * radius, 2 * radius }), radius(radius) {}
+		CircleShape(const int radius = 0);
 		void Draw(const Vector2<int>& position) const override;
 
 		const int GetRadius() const
@@ -243,14 +237,26 @@ namespace Shooter {
 	class RectangleShape : public Shape
 	{
 	public:
-		RectangleShape(const Vector2<int>& size = Vector2<int>(0, 0)) : Shape(size) {}
+		RectangleShape(const Vector2<int>& size = Vector2<int>(0, 0));
 		virtual void Draw(const Vector2<int>& position) const override;
+
+		const Vector2<int>& GetSize() const
+		{
+			return size;
+		}
+
+		void SetSize(const Vector2<int>& size)
+		{
+			this->size = size;
+		}
+	private:
+		Vector2<int> size;
 	};
 
-	class BoxShape : public Shape
+	class BoxShape : public RectangleShape
 	{
 	public:
-		BoxShape(const Vector2<int>& size = Vector2<int>(0, 0)) : Shape(size) {}
+		BoxShape(const Vector2<int>& size = Vector2<int>(0, 0)) : RectangleShape(size) {}
 		void Draw(const Vector2<int>& position) const override;
 	};
 }

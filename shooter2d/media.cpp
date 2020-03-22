@@ -24,15 +24,10 @@ Media::Media()
 		std::cerr << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	/*TargetTexture = SDL_CreateTexture(Renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
-	if (TargetTexture == nullptr) {
-		std::cerr << "Failed to create target texture! SDL Error: " << SDL_GetError() << std::endl;
-	}*/
 }
 
 Media::~Media()
 {
-	//SDL_DestroyTexture(TargetTexture);
 	SDL_DestroyRenderer(Renderer);
 	SDL_DestroyWindow(Window);
 	SDL_Quit();

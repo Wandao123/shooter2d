@@ -282,44 +282,8 @@ std::weak_ptr<SDL_Texture> AssetLoader::TakeScreenshot()
 }
 
 /******************************** Shape *********************************/
-
-Shape::Shape(const Vector2<int>& size)
-	: size(size)
-	, targetTexture(nullptr, nullptr)
+void Shape::Draw(const Vector2<int>&) const
 {
-	auto rawTexture = SDL_CreateTexture(Media::Create().Renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, Media::Create().width, Media::Create().height);
-	if (rawTexture == nullptr) {
-		std::cerr << "Failed to create target texture! SDL Error: " << SDL_GetError() << std::endl;
-	}
-	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
-	targetTexture = std::move(texture);
-}
-
-void Shape::SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha)
-{
-	color = { red, green, blue, alpha };
-	SDL_SetTextureAlphaMod(targetTexture.get(), alpha);
-}
-
-void Shape::SetBlendMode(const BlendMode blendMode)
-{
-	this->blendMode = blendMode;
-}
-
-const Vector2<int>& Shape::GetSize() const&
-{
-	return size;
-}
-
-void Shape::SetSize(const Vector2<int>& size)
-{
-	this->size = size;
-}
-
-void Shape::predraw() const
-{
-	SDL_SetRenderTarget(Media::Create().Renderer, targetTexture.get());
-	// SDL_Textureを介して描画する場合はRendererにブレンドモードを指定しても透明にならない。
 	switch (blendMode){
 	case BlendMode::None:
 		SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
@@ -334,53 +298,50 @@ void Shape::predraw() const
 		SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_MOD);
 		break;
 	}
-	switch (blendMode) {
-	case BlendMode::None:
-		SDL_SetTextureBlendMode(targetTexture.get(), SDL_BLENDMODE_NONE);
-		break;
-	case BlendMode::Blend:
-		SDL_SetTextureBlendMode(targetTexture.get(), SDL_BLENDMODE_BLEND);
-		break;
-	case BlendMode::Add:
-		SDL_SetTextureBlendMode(targetTexture.get(), SDL_BLENDMODE_ADD);
-		break;
-	case BlendMode::Mod:
-		SDL_SetTextureBlendMode(targetTexture.get(), SDL_BLENDMODE_MOD);
-		break;
-	}
 }
 
-void Shape::postdraw(const Vector2<int>& position, const double angle) const
+void Shape::SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha)
 {
-	//SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
-	SDL_SetRenderTarget(Media::Create().Renderer, nullptr);
-	SDL_Rect clip = { position.x, position.y, size.x, size.y };
-	SDL_RenderCopyEx(Media::Create().Renderer, targetTexture.get(), &clip, &clip, angle, nullptr, SDL_FLIP_NONE);
-	SDL_SetTextureBlendMode(targetTexture.get(), SDL_BLENDMODE_NONE);
+	color = { red, green, blue, alpha };
+	if (color.a < 0xFF)
+		blendMode = BlendMode::Blend;
+}
+
+void Shape::SetBlendMode(const BlendMode blendMode)
+{
+	this->blendMode = blendMode;
 }
 
 /******************************** CircleShape *********************************/
 
+CircleShape::CircleShape(const int radius)
+	: radius(radius)
+{}
+
 void CircleShape::Draw(const Vector2<int>& position) const
 {
-	predraw();
+	Shape::Draw(position);
 	circleRGBA(Media::Create().Renderer, position.x, position.y, radius, color.r, color.g, color.b, color.a);
-	postdraw(position - Vector2<int>{ radius, radius }, 0.e0);
+	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
 }
 
 /******************************** RectangleShape *********************************/
+
+RectangleShape::RectangleShape(const Vector2<int>& size)
+	: size(size)
+{}
 
 /// <summary>矩形を描画する。</summary>
 /// <param name="position">矩形の左上の頂点の座標</param>
 /// <remarks>内部は塗り潰す。</remarks>
 void RectangleShape::Draw(const Vector2<int>& position) const
 {
-	predraw();
+	Shape::Draw(position);
 	//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
 	//SDL_Rect rect = { position.x, position.y, size.x, size.y };
 	//SDL_RenderRect(Media::Create().Renderer, &rect);
 	rectangleRGBA(Media::Create().Renderer, position.x + size.x, position.y, position.x, position.y + size.y, color.r, color.g, color.b, color.a);
-	postdraw(position, 0.e0);
+	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
 }
 
 /******************************** BoxShape *********************************/
@@ -390,10 +351,10 @@ void RectangleShape::Draw(const Vector2<int>& position) const
 /// <remarks>内部は塗り潰さない。</remarks>
 void BoxShape::Draw(const Vector2<int>& position) const
 {
-	predraw();
+	Shape::Draw(position);
 	//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
-	//SDL_Rect rect = { position.x, position.y, GetSize().x, GetSize().y };
+	//SDL_Rect rect = { position.x, position.y, size.x, size.y };
 	//SDL_RenderFillRect(Media::Create().Renderer, &rect);
 	boxRGBA(Media::Create().Renderer, position.x + GetSize().x, position.y, position.x, position.y + GetSize().y, color.r, color.g, color.b, color.a);
-	postdraw(position, 0.e0);
+	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
 }

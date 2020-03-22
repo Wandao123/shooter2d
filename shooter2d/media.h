@@ -39,12 +39,10 @@ namespace Shooter {
 		bool IsFullScreen() const;
 		void Present() const;
 	private:
-		// 破棄の順番を明示したいため、スマートポインタを使わない。
 		SDL_Window *Window;
 		SDL_Renderer *Renderer;
 		int width = 640;
 		int height = 480;
-		//SDL_Texture *TargetTexture;  // 図形描画の対象。
 	};
 }
 
