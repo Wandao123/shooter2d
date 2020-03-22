@@ -8,7 +8,8 @@ class SmallRedEnemy : public Enemy
 {
 public:
 	SmallRedEnemy(const Vector2<double>& position)
-		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<CircleCollider>(Enemy::Width * 0.5))
+		: Enemy(position, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Enemy.png")), std::make_unique<RectangleCollider>(Vector2<double>(), M_PI_4, Vector2<double>{ Enemy::Width, Enemy::Height }))
+		//std::make_unique<CircleCollider>(Enemy::Width * 0.5)
 	{
 		for (int j = 0; j < static_cast<int>(clips[0].size()); j++) {
 			clips[0][j] = { j * Width, Height, Width, Height };            // 停止時
