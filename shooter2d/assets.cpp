@@ -1,3 +1,4 @@
+#include <array>
 #include <iostream>
 #include "media.h"  // assets.hは読み込み済み。
 
@@ -85,6 +86,7 @@ void Label::MakeTexture()
 		std::cerr << SDL_GetError() << std::endl;
 	}
 	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
+	SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
 	this->texture = std::move(texture);
 	width = textSurface->w;
 	height = textSurface->h;
@@ -282,7 +284,8 @@ std::weak_ptr<SDL_Texture> AssetLoader::TakeScreenshot()
 }
 
 /******************************** Shape *********************************/
-void Shape::Draw(const Vector2<int>&) const
+
+void Shape::predraw() const
 {
 	switch (blendMode){
 	case BlendMode::None:
@@ -300,16 +303,9 @@ void Shape::Draw(const Vector2<int>&) const
 	}
 }
 
-void Shape::SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha)
+void Shape::postdraw() const
 {
-	color = { red, green, blue, alpha };
-	if (color.a < 0xFF)
-		blendMode = BlendMode::Blend;
-}
-
-void Shape::SetBlendMode(const BlendMode blendMode)
-{
-	this->blendMode = blendMode;
+	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
 }
 
 /******************************** CircleShape *********************************/
@@ -318,43 +314,111 @@ CircleShape::CircleShape(const int radius)
 	: radius(radius)
 {}
 
-void CircleShape::Draw(const Vector2<int>& position) const
+void CircleShape::Draw(const Vector2<double>& position) const
 {
-	Shape::Draw(position);
-	circleRGBA(Media::Create().Renderer, position.x, position.y, radius, color.r, color.g, color.b, color.a);
-	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
+	predraw();
+	circleRGBA(Media::Create().Renderer,
+		static_cast<Sint16>(position.x),
+		static_cast<Sint16>(position.y),
+		static_cast<Sint16>(radius),
+		color.r, color.g, color.b, color.a);
+	postdraw();
 }
 
 /******************************** RectangleShape *********************************/
 
-RectangleShape::RectangleShape(const Vector2<int>& size)
+RectangleShape::RectangleShape(const Vector2<double>& size)
 	: size(size)
 {}
 
 /// <summary>矩形を描画する。</summary>
-/// <param name="position">矩形の左上の頂点の座標</param>
+/// <param name="position">矩形の中心の座標</param>
 /// <remarks>内部は塗り潰す。</remarks>
-void RectangleShape::Draw(const Vector2<int>& position) const
+void RectangleShape::Draw(const Vector2<double>& position) const
 {
-	Shape::Draw(position);
-	//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
-	//SDL_Rect rect = { position.x, position.y, size.x, size.y };
-	//SDL_RenderRect(Media::Create().Renderer, &rect);
-	rectangleRGBA(Media::Create().Renderer, position.x + size.x, position.y, position.x, position.y + size.y, color.r, color.g, color.b, color.a);
-	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
+	predraw();
+	if (angle == 0.e0 || angle == M_PI) {
+		//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
+		//SDL_Rect rect = { position.x - size.x / 2, position.y - size.y / 2, size.x, size.y };
+		//SDL_RenderRect(Media::Create().Renderer, &rect);
+		rectangleRGBA(Media::Create().Renderer,
+			static_cast<Sint16>(position.x + size.x / 2),
+			static_cast<Sint16>(position.y - size.y / 2),
+			static_cast<Sint16>(position.x - size.x / 2),
+			static_cast<Sint16>(position.y + size.y / 2),
+			color.r, color.g, color.b, color.a);
+	} else {
+		/*std::array<Vector2<int>, 4> vertices = {
+			((-size) / 2).Rotate(angle),
+			(Vector2<int>{ -size.x, size.y } / 2).Rotate(angle),
+			(size / 2).Rotate(angle),
+			(Vector2<int>{ size.x, -size.y } / 2).Rotate(angle)
+		};
+		lineRGBA(Media::Create().Renderer, vertices[0].x, vertices[0].y, vertices[1].x, vertices[1].y, color.r, color.g, color.b, color.a);
+		lineRGBA(Media::Create().Renderer, vertices[1].x, vertices[1].y, vertices[2].x, vertices[2].y, color.r, color.g, color.b, color.a);
+		lineRGBA(Media::Create().Renderer, vertices[2].x, vertices[2].y, vertices[3].x, vertices[3].y, color.r, color.g, color.b, color.a);
+		lineRGBA(Media::Create().Renderer, vertices[3].x, vertices[3].y, vertices[0].x, vertices[0].y, color.r, color.g, color.b, color.a);*/
+		std::array<Vector2<double>, 4> vertices = {
+			position + (-size / 2).Rotate(angle),
+			position + (Vector2<double>{ -size.x, size.y } / 2).Rotate(angle),
+			position + (size / 2).Rotate(angle),
+			position + (Vector2<double>{ size.x, -size.y } / 2).Rotate(angle)
+		};
+		std::array<Sint16, 4> vx = {
+			static_cast<Sint16>(vertices[0].x),
+			static_cast<Sint16>(vertices[1].x),
+			static_cast<Sint16>(vertices[2].x),
+			static_cast<Sint16>(vertices[3].x)
+		};
+		std::array<Sint16, 4> vy = {
+			static_cast<Sint16>(vertices[0].y),
+			static_cast<Sint16>(vertices[1].y),
+			static_cast<Sint16>(vertices[2].y),
+			static_cast<Sint16>(vertices[3].y)
+		};
+		polygonRGBA(Media::Create().Renderer, vx.data(), vy.data(), 4, color.r, color.g, color.b, color.a);
+	}
+	postdraw();
 }
 
 /******************************** BoxShape *********************************/
 
 /// <summary>矩形を描画する。</summary>
-/// <param name="position">矩形の左上の頂点の座標</param>
+/// <param name="position">矩形の中心の座標</param>
 /// <remarks>内部は塗り潰さない。</remarks>
-void BoxShape::Draw(const Vector2<int>& position) const
+void BoxShape::Draw(const Vector2<double>& position) const
 {
-	Shape::Draw(position);
-	//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
-	//SDL_Rect rect = { position.x, position.y, size.x, size.y };
-	//SDL_RenderFillRect(Media::Create().Renderer, &rect);
-	boxRGBA(Media::Create().Renderer, position.x + GetSize().x, position.y, position.x, position.y + GetSize().y, color.r, color.g, color.b, color.a);
-	SDL_SetRenderDrawBlendMode(Media::Create().Renderer, SDL_BLENDMODE_NONE);
+	predraw();
+	if (angle == 0.e0 || angle == M_PI) {
+		//SDL_SetRenderDrawColor(Media::Create().Renderer, color.r, color.g, color.b, color.a);
+		//SDL_Rect rect = { position.x - GetSize().x / 2, position.y - GetSize().y / 2, GetSize().x, GetSize().y };
+		//SDL_RenderFillRect(Media::Create().Renderer, &rect);
+		boxRGBA(Media::Create().Renderer,
+			static_cast<Sint16>(position.x + GetSize().x / 2),
+			static_cast<Sint16>(position.y - GetSize().y / 2),
+			static_cast<Sint16>(position.x - GetSize().x / 2),
+			static_cast<Sint16>(position.y + GetSize().y / 2),
+			color.r, color.g, color.b, color.a);
+	} else {
+		std::array<Vector2<double>, 4> vertices = {
+			position + (-GetSize() / 2).Rotate(angle),
+			position + (Vector2<double>{ -GetSize().x, GetSize().y } / 2).Rotate(angle),
+			position + (GetSize() / 2).Rotate(angle),
+			position + (Vector2<double>{ GetSize().x, -GetSize().y } / 2).Rotate(angle)
+		};
+		std::array<Sint16, 4> vx = {
+			static_cast<Sint16>(vertices[0].x),
+			static_cast<Sint16>(vertices[1].x),
+			static_cast<Sint16>(vertices[2].x),
+			static_cast<Sint16>(vertices[3].x)
+		};
+		std::array<Sint16, 4> vy = {
+			static_cast<Sint16>(vertices[0].y),
+			static_cast<Sint16>(vertices[1].y),
+			static_cast<Sint16>(vertices[2].y),
+			static_cast<Sint16>(vertices[3].y)
+		};
+		filledPolygonRGBA(Media::Create().Renderer, vx.data(), vy.data(), 4, color.r, color.g, color.b, color.a);
+	}
+	postdraw();
 }

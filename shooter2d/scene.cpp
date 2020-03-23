@@ -357,7 +357,7 @@ void GameScene::Draw() const
 
 KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener, Parameters& parameters)
 	: Scene(listener, parameters)
-	, box(Vector2<int>((UserInterfaceManager::FontSize * 3 / 4) * 9 * 3, ItemHeight))  // 1文字の幅 x 文字数 x 項目数
+	, box(Vector2<double>((UserInterfaceManager::FontSize * 3 / 4) * 9 * 3, ItemHeight))  // 1文字の幅 x 文字数 x 項目数
 	, userInterfaceManager(std::make_unique<UserInterfaceManager>())
 	, currentIndex(0)
 {
@@ -392,8 +392,8 @@ KeyConfigScene::KeyConfigScene(IChangingSceneListener& listener, Parameters& par
 void KeyConfigScene::Draw() const
 {
 	userInterfaceManager->Draw();
-	auto center = Vector2<int>{ Media::Create().GetWidth() / 2, static_cast<int>(Media::Create().GetHeight() * 2.0 / 10.0 + ItemHeight * currentIndex) };
-	box.Draw(center - box.GetSize() / 2);
+	auto center = Vector2<double>{ Media::Create().GetWidth() * 0.5, Media::Create().GetHeight() * 2.0 / 10.0 + ItemHeight * currentIndex };
+	box.Draw(center);
 }
 
 void KeyConfigScene::Update()

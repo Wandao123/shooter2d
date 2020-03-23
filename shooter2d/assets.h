@@ -207,57 +207,74 @@ namespace Shooter {
 
 		Shape() = default;
 		virtual ~Shape() = default;
-		virtual void Draw(const Vector2<int>&) const;
-		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha);
-		void SetBlendMode(const BlendMode blendMode);
+		virtual void Draw(const Vector2<double>& position) const = 0;
+
+		void SetAngle(const double angle)
+		{
+			this->angle = angle;
+		}
+
+		void SetColor(const unsigned char red, const unsigned char green, const unsigned char blue, const unsigned char alpha)
+		{
+			color = { red, green, blue, alpha };
+		}
+
+		void SetBlendMode(const BlendMode blendMode)
+		{
+			this->blendMode = blendMode;
+		}
 	protected:
-		BlendMode blendMode = BlendMode::None;
+		double angle = 0.e0;
 		SDL_Color color = { 0xFF, 0xFF, 0xFF, 0xFF };
+		void predraw() const;   // 描画の事前処理。
+		void postdraw() const;  // 描画の事後処理。
+	private:
+		BlendMode blendMode = BlendMode::None;
 	};
 
 	class CircleShape : public Shape
 	{
 	public:
 		CircleShape(const int radius = 0);
-		void Draw(const Vector2<int>& position) const override;
+		void Draw(const Vector2<double>& position) const override;
 
-		const int GetRadius() const
+		const double GetRadius() const
 		{
 			return radius;
 		}
 
-		void SetRadius(const int radius)
+		void SetRadius(const double radius)
 		{
 			this->radius = radius;
 		}
 	private:
-		int radius;
+		double radius;
 	};
 
 	class RectangleShape : public Shape
 	{
 	public:
-		RectangleShape(const Vector2<int>& size = Vector2<int>(0, 0));
-		virtual void Draw(const Vector2<int>& position) const override;
+		RectangleShape(const Vector2<double>& size = Vector2<double>(0.e0, 0.e0));
+		virtual void Draw(const Vector2<double>& position) const override;
 
-		const Vector2<int>& GetSize() const
+		const Vector2<double>& GetSize() const
 		{
 			return size;
 		}
 
-		void SetSize(const Vector2<int>& size)
+		void SetSize(const Vector2<double>& size)
 		{
 			this->size = size;
 		}
 	private:
-		Vector2<int> size;
+		Vector2<double> size;
 	};
 
 	class BoxShape : public RectangleShape
 	{
 	public:
-		BoxShape(const Vector2<int>& size = Vector2<int>(0, 0)) : RectangleShape(size) {}
-		void Draw(const Vector2<int>& position) const override;
+		BoxShape(const Vector2<double>& size = Vector2<double>(0.e0, 0.e0)) : RectangleShape(size) {}
+		void Draw(const Vector2<double>& position) const override;
 	};
 }
 

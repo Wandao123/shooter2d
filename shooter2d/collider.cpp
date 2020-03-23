@@ -189,16 +189,10 @@ bool RectangleCollider::CheckFor(const Vector2<double>& relativePosition, const 
 	else if (circPos.x > -size.x * 0.5 - circle.GetRadius() && circPos.x < size.x * 0.5 + circle.GetRadius()
 			&& circPos.y > -size.y * 0.5 && circPos.y < size.y * 0.5)
 		return true;
-	else if (vertices[0].SquaredMagnitude() < std::pow(circle.GetRadius(), 2.0))
-		return true;
-	else if (vertices[1].SquaredMagnitude() < std::pow(circle.GetRadius(), 2.0))
-		return true;
-	else if (vertices[2].SquaredMagnitude() < std::pow(circle.GetRadius(), 2.0))
-		return true;
-	else if (vertices[3].SquaredMagnitude() < std::pow(circle.GetRadius(), 2.0))
-		return true;
-	else
-		return false;
+	for (auto&& vertex : vertices)
+		if (vertex.SquaredMagnitude() < std::pow(circle.GetRadius(), 2.e0))
+			return true;
+	return false;
 }
 
 // HACK: 何れの矩形の内部にも相手の頂点が含まれない場合は判定できているのか？

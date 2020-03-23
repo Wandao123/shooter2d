@@ -136,8 +136,8 @@ namespace Shooter {
 			, vertices({
 				((-size) * 0.5e0).Rotate(angle),
 				(Vector2<double>{ -size.x, size.y } * 0.5e0).Rotate(angle),
-				(Vector2<double>{ size.x, -size.y } * 0.5e0).Rotate(angle),
 				(size * 0.5e0).Rotate(angle),
+				(Vector2<double>{ size.x, -size.y } * 0.5e0).Rotate(angle),
 				((-size) * 0.5e0).Rotate(angle)
 			})
 		{}
@@ -164,7 +164,7 @@ namespace Shooter {
 			Collider::SetAngle(angle);
 		}
 	private:
-		std::array<Vector2<double>, 5> vertices;  // 四頂点の座標。左下、左上、右上、右下の順。隣同士の差を取ると四辺のベクトルになるようにするため、1成分多い。
+		std::array<Vector2<double>, 5> vertices;  // 四頂点の座標。左上、左下、右下、右上の順。隣同士の差を取ると四辺のベクトルになるようにするため、1成分多い。
 	};
 }
 

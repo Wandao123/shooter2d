@@ -84,6 +84,9 @@ namespace Shooter {
 			return this->x * vector.y - this->y * vector.x;
 		}
 
+		/// <summary>ベクトルを回転させる。</summary>
+		/// <param name="angle">x軸からy軸に向かう方向を正とする角度</angle>
+		/// <remarks>実数型でないと縮小変換。</remarks>
 		Vector2 Rotate(const Type angle) const
 		{
 			return { std::cos(angle) * x - std::sin(angle) * y, std::sin(angle) * x + std::cos(angle) * y };

@@ -39,11 +39,12 @@ void CollisionDetector::Draw() const
 		if (typeid(mover.GetCollider()) == typeid(CircleCollider)) {
 			circle.SetRadius(static_cast<int>(dynamic_cast<CircleCollider&>(mover.GetCollider()).GetRadius() * 2.0e0) / 2);
 			circle.SetColor(0x00, 0xFF, 0x00, 0xFF);
-			circle.Draw(MathUtils::RoundToInt(mover.GetPosition() + mover.GetCollider().GetOffset()));
+			circle.Draw(mover.GetPosition() + mover.GetCollider().GetOffset());
 		} else if (typeid(mover.GetCollider()) == typeid(RectangleCollider)) {
-			rectangle.SetSize(MathUtils::RoundToInt(dynamic_cast<RectangleCollider&>(mover.GetCollider()).GetSize()));
+			rectangle.SetSize(dynamic_cast<RectangleCollider&>(mover.GetCollider()).GetSize());
+			rectangle.SetAngle(dynamic_cast<RectangleCollider&>(mover.GetCollider()).GetAngle());
 			rectangle.SetColor(0x00, 0xFF, 0x00, 0xFF);
-			rectangle.Draw(MathUtils::RoundToInt(mover.GetPosition() + mover.GetCollider().GetOffset()) - rectangle.GetSize() / 2);
+			rectangle.Draw(mover.GetPosition() + mover.GetCollider().GetOffset());
 		}
 	};
 	for (auto&& enemy : enemyManager.GetEnemies())
