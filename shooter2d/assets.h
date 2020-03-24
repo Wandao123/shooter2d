@@ -238,7 +238,7 @@ namespace Shooter {
 		CircleShape(const int radius = 0);
 		void Draw(const Vector2<double>& position) const override;
 
-		const double GetRadius() const
+		double GetRadius() const
 		{
 			return radius;
 		}

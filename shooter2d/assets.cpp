@@ -87,6 +87,7 @@ void Label::MakeTexture()
 	}
 	std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture(rawTexture, SDL_DestroyTexture);
 	SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
+	SDL_SetTextureAlphaMod(texture.get(), color.a);
 	this->texture = std::move(texture);
 	width = textSurface->w;
 	height = textSurface->h;

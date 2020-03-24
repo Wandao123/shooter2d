@@ -350,6 +350,7 @@ void GameScene::Draw() const
 	playerManager->Draw();
 	enemyBulletManager->Draw();
 	playerBulletManager->Draw();
+	// TODO: コマンドライン引数で実行するか否か分ける。
 	collisionDetector->Draw();  // テスト用。
 }
 
