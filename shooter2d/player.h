@@ -51,17 +51,36 @@ namespace Shooter {
 		Vector2<double> velocity = { 0.0, 0.0 };
 	};
 
-	// このクラスではプレイヤーオブジェクトとプレイヤーの弾オブジェクトの両方を管理する。プレイヤーオブジェクトからの指示に従って弾を生成したいため。
-	class PlayerManager : public ObjectManager, public std::enable_shared_from_this<PlayerManager>
+	/// <summary>自機オプションクラス。</summary>
+	/// <remarks>現在の実装では当たり判定は無い。</remarks>
+	class PlayerOption : public Mover
+	{
+	public:
+		PlayerOption(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite);
+		void OnCollide(Mover&) override {}
+		void Spawned();  // 実体化関数
+	protected:
+		Rect<int>& clipFromImage(unsigned int countedFrames) override;
+	private:
+		Rect<int> clip;
+	};
+
+	class PlayerManager : public ObjectManager//, public std::enable_shared_from_this<PlayerManager>
 	{
 	public:
 		enum class PlayerID
 		{
+			// 自機。
 			Reimu,
 			Marisa,
-			Sanae
+			Sanae,
+			// オプション。PlayerOptionクラスをPlayerクラス自体が持つようにすれば不要かもしれない。
+			//ReimuOption,
+			//MarisaOption,
+			//SanaeOption
 		};
 
+		PlayerManager();
 		std::weak_ptr<Player> GenerateObject(const PlayerID id, const Vector2<double>& position);
 		std::weak_ptr<Player> GetPlayer() const;  // TODO: objectsListに複数のアイテムが入っている場合を考慮。
 	};

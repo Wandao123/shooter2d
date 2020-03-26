@@ -50,8 +50,8 @@ namespace Shooter {
 	class ObjectManager
 	{
 	public:
-		ObjectManager() {}
-		virtual ~ObjectManager() {}
+		ObjectManager() = default;
+		virtual ~ObjectManager() = default;
 		virtual void Draw() const;
 		virtual void Update();
 		std::list<std::weak_ptr<GameObject>> GetObjects() const { return getList<GameObject>(); }

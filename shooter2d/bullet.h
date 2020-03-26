@@ -9,6 +9,7 @@ namespace Shooter {
 	public:
 		Bullet(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, unsigned int damage);
 		void Draw() const override;
+		void Update() override;
 		void OnCollide(Mover& mover) override;
 		virtual void Shot(const double speed, const double angle);  // 実体化関数
 	protected:

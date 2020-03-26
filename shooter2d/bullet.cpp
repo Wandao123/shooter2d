@@ -188,7 +188,13 @@ Bullet::Bullet(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite
 
 void Bullet::Draw() const
 {
-	sprite->Draw(position, angle + M_PI_2, 1.0);  // 元の画像は -PI/2 の向きが正位置。よって、画像の回転角は +PI/2 される。
+	sprite->Draw(position, angle + M_PI_2, 1.0);  // 進行方向に対して、元の画像は -PI/2 の向きが正位置。よって、画像の回転角は +PI/2 される。
+}
+
+void Bullet::Update()
+{
+	Mover::Update();
+	collider->SetAngle(angle);
 }
 
 void Bullet::OnCollide(Mover&)

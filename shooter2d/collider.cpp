@@ -201,7 +201,7 @@ bool RectangleCollider::CheckFor(const Vector2<double>& relativePosition, const 
 	for (std::size_t i = 0; i < rectangle.vertices.size() - 1; i++) {
 		auto result = true;
 		for (std::size_t j = 1; j < this->vertices.size(); j++)
-			result = result && ((this->vertices[j] - this->vertices[j - 1]).Cross(rectangle.vertices[i] - this->vertices[j - 1]) <= 0.e0);
+			result = result && ((this->vertices[j] - this->vertices[j - 1]).Cross(relativePosition + rectangle.vertices[i] - this->vertices[j - 1]) <= 0.e0);
 		if (result)
 			return true;
 	}

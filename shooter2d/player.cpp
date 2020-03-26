@@ -4,21 +4,68 @@
 
 using namespace Shooter;
 
+// 共有テクスチャ。PlayerManagerで初期化する。
+static std::weak_ptr<SDL_Texture> ReimuImage;
+static std::weak_ptr<SDL_Texture> MarisaImage;
+static std::weak_ptr<SDL_Texture> SanaeImage;
+
 /******************************** 個別設定用クラス *********************************/
+
+class ReimuOption : public PlayerOption
+{
+public:
+	ReimuOption(const Vector2<double>& position)
+		: PlayerOption(position, std::make_unique<Sprite>(ReimuImage))
+	{}
+
+	void Update() override
+	{
+		rotationAngle += M_PI / 60;
+	}
+
+	void Draw() const override
+	{
+		sprite->Draw(position, rotationAngle, 1.0);
+	}
+private:
+	double rotationAngle = 0.e0;
+};
 
 class Reimu : public Player
 {
 public:
 	Reimu(const Vector2<double>& position)
-		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Reimudot.png")), std::make_unique<CircleCollider>(1.0))
-	{}
+		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(ReimuImage), std::make_unique<CircleCollider>(1.0))
+	{
+		for (auto&& option : options)
+			option = std::make_unique<ReimuOption>(position + Vector2<double>{ 0.0, Height * 3.0 / 4 });
+	}
+
+	void Update() override
+	{
+		Player::Update();
+		for (auto&& option : options) {
+			option->SetPosition(position + Vector2<double>{ 0.0, Height * 3.0 / 4 });
+			option->Update();
+		}
+	}
+
+
+	void Draw() const override
+	{
+		Player::Draw();
+		for (auto&& option : options)
+			option->Draw();
+	}
+private:
+	std::array<std::unique_ptr<PlayerOption>, 4> options;
 };
 
 class Marisa : public Player
 {
 public:
 	Marisa(const Vector2<double>& position)
-		: Player(position, 5.0, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Marisadot.png")), std::make_unique<CircleCollider>(1.3))
+		: Player(position, 5.0, 2.0, std::make_unique<Sprite>(MarisaImage), std::make_unique<CircleCollider>(1.3))
 	{}
 };
 
@@ -26,7 +73,7 @@ class Sanae : public Player
 {
 public:
 	Sanae(const Vector2<double>& position)
-		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(AssetLoader::Create().GetTexture("images/Sanaedot.png")), std::make_unique<CircleCollider>(1.3))
+		: Player(position, 4.5, 2.0, std::make_unique<Sprite>(SanaeImage), std::make_unique<CircleCollider>(1.3))
 	{}
 };
 
@@ -38,7 +85,7 @@ public:
 /// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
 /// <param name="collider">当たり判定クラスへのポインタ</param>
 Player::Player(const Vector2<double>& position, const double highSpeed, const double lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
-	: Mover(position, 0.0, -M_PI_2, std::move(sprite), std::move(collider), 1, 0)
+	: Mover(position, 0.0, -M_PI_2, std::move(sprite), std::move(collider), 1, 1, false)
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {
@@ -68,13 +115,13 @@ void Player::Update()
 		position.y = Media::Create().GetHeight() - Height * 0.5;*/
 
 	// 描画の前処理。
-	if (sprite->GetAlpha() < 255) {
+	if (sprite->GetAlpha() < 0xFF) {
 		if (invincibleCounter == 0)
-			sprite->SetAlpha(255);
+			sprite->SetAlpha(0xFF);
 		else if (invincibleCounter / 3 % 2 == 0)  // 3フレーム毎に点滅する。
 			sprite->SetAlpha(0);
 		else
-			sprite->SetAlpha(191);
+			sprite->SetAlpha(0xBF);  // 0xFF * 3 / 4
 	}
 }
 
@@ -95,7 +142,7 @@ void Player::Spawned()
 	SetSpeed(0.0);
 	SetAngle(-M_PI_2);
 	velocity = { 0.0, 0.0 };
-	sprite->SetAlpha(191);
+	sprite->SetAlpha(0xBF);
 }
 
 Rect<int>& Player::clipFromImage(unsigned int countedFrames)
@@ -123,12 +170,41 @@ Rect<int>& Player::clipFromImage(unsigned int countedFrames)
 		return clips[2][level / DelayFrames];
 }
 
+/******************************** PlayerOption *********************************/
+
+/// <param name="position">初期位置</param>
+/// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
+PlayerOption::PlayerOption(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite)
+	: Mover(position, 0.0, -M_PI_2, std::move(sprite), nullptr, 0, 1, false)
+	, clip({ 0, 144, 16, 16 })
+{
+	this->sprite->SetClip(clip);  // 最初のフレームだけ画像全体が表示されてしまうため、ここで明示的に代入。
+}
+
+void PlayerOption::Spawned()
+{
+	Mover::spawned();
+}
+
+Rect<int>& PlayerOption::clipFromImage(unsigned int)
+{
+	return clip;
+}
+
 /******************************** PlayerManager *********************************/
+
+PlayerManager::PlayerManager()
+{
+	ReimuImage = AssetLoader::Create().GetTexture("images/Reimudot.png");
+	MarisaImage = AssetLoader::Create().GetTexture("images/Marisadot.png");
+	SanaeImage = AssetLoader::Create().GetTexture("images/Sanaedot.png");
+}
 
 std::weak_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vector2<double>& position)
 {
 	std::weak_ptr<Player> newObject;
 	switch (id) {
+	// 自機。
 	case PlayerID::Reimu:
 		newObject = assignObject<Reimu>(position);
 		break;
@@ -138,6 +214,16 @@ std::weak_ptr<Player> PlayerManager::GenerateObject(const PlayerID id, const Vec
 	case PlayerID::Sanae:
 		newObject = assignObject<Sanae>(position);
 		break;
+	// オプション。
+	/*case PlayerID::ReimuOption:
+		newObject = assignObject<ReimuOption>(position);
+		break;
+	case PlayerID::MarisaOption:
+		newObject = assignObject<MarisaOption>(position);
+		break;
+	case PlayerID::SanaeOption:
+		newObject = assignObject<SanaeOption>(position);
+		break;*/
 	}
 	return newObject;
 }

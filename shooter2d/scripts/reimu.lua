@@ -4,16 +4,19 @@ local parameters = {
 	InvincibleFrames = 360,
 	InputDelayFrames = 90,
 	ID = PlayerID.Reimu,
+	--OptionID = PlayerID.ReimuOption,
 	NormalShot = BulletID.ReimuNormal,
 	ShotDelayFrames = 6,
 	BulletSpeed = 30.0
 }
 
 local player = nil
+--local options = {}
 
 -- 初期化。
 local function Initialize()
 	player = GeneratePlayer(parameters.ID, ScreenWidth * 0.5, ScreenHeight + PlayerHeight - parameters.InputDelayFrames)
+	--options[1] = GeneratePlayer(parameters.OptionID, player.PosX, playerPosY + PlayerHeight / 3)
 	player:TurnInvincible(parameters.InvincibleFrames / 2)
 	coroutine.yield()
 end
@@ -51,6 +54,8 @@ local function Move()
 			dirY = 1
 		end
 		player:SetVelocity(dirX, dirY, GetKey(CommandID.Slow))
+		--options[1].PosX = player.PosX
+		--options[1].PosY = playerPosY + PlayerHeight / 3
 		coroutine.yield()
 	end
 end

@@ -77,6 +77,19 @@ Script::Script(EffectManager& effectManager, EnemyManager& enemyManager, BulletM
 		"Speed", sol::property(&Player::GetSpeed),
 		"TurnInvincible", &Player::TurnInvincible
 	);
+	lua.new_usertype<PlayerOption>(
+		"PlayerOption",
+		"Angle", sol::property(&PlayerOption::GetAngle),
+		"IsEnabled", &PlayerOption::IsEnabled,
+		"PosX", sol::property(
+			[](PlayerOption& option) -> double { return option.GetPosition().x; },
+			[](PlayerOption& option, const double posX) { option.SetPosition({ posX, option.GetPosition().y }); }),
+		"PosY", sol::property(
+			[](PlayerOption& option) -> double { return option.GetPosition().y; },
+			[](PlayerOption& option, const double posY) { option.SetPosition({ option.GetPosition().x, posY }); }),
+		"Spawned", &PlayerOption::Spawned,
+		"Speed", sol::property(&PlayerOption::GetSpeed)
+	);
 
 	// 定数の登録。
 	lua["ScreenWidth"] = Media::Create().GetWidth();
@@ -134,7 +147,10 @@ Script::Script(EffectManager& effectManager, EnemyManager& enemyManager, BulletM
 		"PlayerID",
 		"Reimu", PlayerManager::PlayerID::Reimu,
 		"Marisa", PlayerManager::PlayerID::Marisa,
-		"Sanae", PlayerManager::PlayerID::Sanae
+		"Sanae", PlayerManager::PlayerID::Sanae/*,
+		"ReimuOption", PlayerManager::PlayerID::ReimuOption,
+		"MarisaOption", PlayerManager::PlayerID::MarisaOption,
+		"SanaeOption", PlayerManager::PlayerID::SanaeOption*/
 	);
 	lua.new_enum(
 		"SceneID",

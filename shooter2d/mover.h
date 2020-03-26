@@ -4,6 +4,7 @@
 #include "assets.h"
 #include "collider.h"
 #include "game_object.h"
+#include <functional>
 
 namespace Shooter {
 	/// <summary>衝突判定の対象となるオブジェクト。自機と敵と弾の親クラス。</summary>
@@ -13,23 +14,7 @@ namespace Shooter {
 	class Mover : public GameObject
 	{
 	public:
-		/// <param name="position">初期位置</param>
-		/// <param name="speed">初期速度の速さ</param>
-		/// <param name="angle">初期速度の方向</param>
-		/// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
-		/// <param name="collider">当たり判定クラスへのポインタ</param>
-		/// <param name="damage">衝突時に相手に与えるダメージ</param>
-		/// <param name="hitPoint">体力</param>
-		Mover(const Vector2<double>& position, const double speed, const double angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, const unsigned int damage, const int hitPoint)
-			: GameObject(false, position)
-			, speed(speed)
-			, angle(angle)
-			, damage(damage)
-			, hitPoint(hitPoint)
-			, sprite(std::move(sprite))
-			, collider(std::move(collider))
-			, invincibleCounter(0)
-		{}
+		Mover(const Vector2<double>& position, const double speed, const double angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, const unsigned int damage, const int hitPoint, bool autoDisabling = true);
 		virtual ~Mover() {}
 		virtual void Draw() const override;
 		virtual void Update() override;
@@ -57,7 +42,7 @@ namespace Shooter {
 				this->angle = MathUtils::Modulo(angle, 2 * M_PI);  // 負の値が渡されても、0 <= angle < 2 pi になるように変換する。
 		}
 
-		Collider& GetCollider() const
+		Collider& GetCollider() const&
 		{
 			return *collider;
 		}
@@ -85,11 +70,10 @@ namespace Shooter {
 		double speed;  // 単位：ドット毎フレーム
 		double angle;  // x軸を基準とした角度。時計回りの方向を正とする。
 		unsigned int damage;  // 衝突時に相手に与えるダメージ。
-		int hitPoint;  // 体力。「消滅」と「撃破」とを区別するために弾でも設定が必須。外部からこれを参照する以外に、OnCollideに返り値を持たせる実装もできるかもしれない。
+		int hitPoint;  // 体力。「消滅」と「撃破」とを区別するために弾でも設定が必須。外部からこれを参照する以外に、OnCollideに返り値を持たせる実装でも良いかもしれない。
 		std::unique_ptr<Sprite> sprite;
 		std::unique_ptr<Collider> collider;
 		unsigned int invincibleCounter;  // 無敵状態になっている残りのフレーム数。
-		bool isInside();
 		virtual void spawned();
 
 		/// <summary>現在のフレームにおける画像の切り取り位置を返す。</summary>
@@ -97,7 +81,9 @@ namespace Shooter {
 		/// <returns>切り取る矩形</returns>
 		virtual Rect<int>& clipFromImage(unsigned int countedFrames) = 0;
 	private:
-		unsigned int counter = 0;  // enabledがtrueになってからのフレーム数。
+		unsigned int existingCounter;  // enabledがtrueになってからのフレーム数。
+		std::function<void(void)> disableIfOutside;
+		bool isInside();
 	};
 }
 

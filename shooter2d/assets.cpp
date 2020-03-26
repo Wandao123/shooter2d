@@ -34,7 +34,7 @@ void Sprite::Draw(const Vector2<double>& position) const
 /// <param name="x">描画する位置のx座標</param>
 /// <param name="y">描画する位置のy座標</param>
 /// <param name="angle">回転角（弧度法）</param>
-/// <param name="scale">拡大・縮小率 (0.0 .. 1.0)</param>
+/// <param name="scale">拡大・縮小率（1.0で等倍）</param>
 /// <remarks>ここでいうpositionとは描画するテキストの中心位置。回転の中心は (clip->w / 2, clip->h / 2)。</remarks>
 void Sprite::Draw(const Vector2<double>& position, const double angle, const double scale) const
 {
