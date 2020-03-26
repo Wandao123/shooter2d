@@ -334,7 +334,7 @@ RectangleShape::RectangleShape(const Vector2<double>& size)
 
 /// <summary>矩形を描画する。</summary>
 /// <param name="position">矩形の中心の座標</param>
-/// <remarks>内部は塗り潰す。</remarks>
+/// <remarks>内部は塗り潰さない。</remarks>
 void RectangleShape::Draw(const Vector2<double>& position) const
 {
 	predraw();
@@ -349,16 +349,6 @@ void RectangleShape::Draw(const Vector2<double>& position) const
 			static_cast<Sint16>(position.y + size.y / 2),
 			color.r, color.g, color.b, color.a);
 	} else {
-		/*std::array<Vector2<int>, 4> vertices = {
-			((-size) / 2).Rotate(angle),
-			(Vector2<int>{ -size.x, size.y } / 2).Rotate(angle),
-			(size / 2).Rotate(angle),
-			(Vector2<int>{ size.x, -size.y } / 2).Rotate(angle)
-		};
-		lineRGBA(Media::Create().Renderer, vertices[0].x, vertices[0].y, vertices[1].x, vertices[1].y, color.r, color.g, color.b, color.a);
-		lineRGBA(Media::Create().Renderer, vertices[1].x, vertices[1].y, vertices[2].x, vertices[2].y, color.r, color.g, color.b, color.a);
-		lineRGBA(Media::Create().Renderer, vertices[2].x, vertices[2].y, vertices[3].x, vertices[3].y, color.r, color.g, color.b, color.a);
-		lineRGBA(Media::Create().Renderer, vertices[3].x, vertices[3].y, vertices[0].x, vertices[0].y, color.r, color.g, color.b, color.a);*/
 		std::array<Vector2<double>, 4> vertices = {
 			position + (-size / 2).Rotate(angle),
 			position + (Vector2<double>{ -size.x, size.y } / 2).Rotate(angle),
@@ -386,7 +376,7 @@ void RectangleShape::Draw(const Vector2<double>& position) const
 
 /// <summary>矩形を描画する。</summary>
 /// <param name="position">矩形の中心の座標</param>
-/// <remarks>内部は塗り潰さない。</remarks>
+/// <remarks>内部は塗り潰す。</remarks>
 void BoxShape::Draw(const Vector2<double>& position) const
 {
 	predraw();
