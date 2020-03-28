@@ -208,6 +208,7 @@ void Bullet::Shot(const double speed, const double angle)
 	Mover::spawned();
 	SetSpeed(speed);
 	SetAngle(angle);
+	hitPoint = 1;
 }
 
 Rect<int>& Bullet::clipFromImage(unsigned int)

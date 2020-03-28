@@ -325,7 +325,7 @@ public:
 		text.str("");
 		text << std::setw(ItemWidth) << std::left << caption;
 		if (!manager.expired())
-			text << std::setw(ItemWidth) << std::left << manager.lock()->GetPlayer().lock()->GetLife();
+			text << std::setw(ItemWidth) << std::left << manager.lock()->GetPlayer().lock()->GetHitPoint();
 		label->SetText(text.str());
 		label->MakeTexture();
 	}

@@ -15,7 +15,6 @@ namespace Shooter {
 	{
 	public:
 		Mover(const Vector2<double>& position, const double speed, const double angle, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider, const unsigned int damage, const int hitPoint, bool autoDisabling = true);
-		virtual ~Mover() {}
 		virtual void Draw() const override;
 		virtual void Update() override;
 		virtual void OnCollide(Mover& mover) = 0;

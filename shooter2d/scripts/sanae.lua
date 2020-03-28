@@ -20,7 +20,7 @@ end
 
 -- 自機の復帰処理。
 local function Rebirth()
-	if (not player:IsEnabled()) and (player.Life > 0) then
+	if (not player:IsEnabled()) and (player.HitPoint > 0) then
 		player.PosX = ScreenWidth * 0.5
 		player.PosY = ScreenHeight + PlayerHeight
 		player:Spawned()
@@ -70,11 +70,11 @@ end
 
 -- 自機の被弾処理。
 local function Down()
-	local life = player.Life
+	local life = player.HitPoint
 	return function()
-		if player.Life < life then
+		if player.HitPoint < life then
 			GenerateEffect(EffectID.DefetedPlayer, player.PosX, player.PosY)
-			life = player.Life
+			life = player.HitPoint
 		end
 	end
 end

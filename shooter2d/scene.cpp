@@ -323,7 +323,7 @@ void GameScene::Update()
 
 	if (Input::Create().GetKeyDown(Input::Commands::Pause))
 		listener.PushScene(std::make_unique<PauseScene>(listener, parameters));
-	else if (player->GetLife() <= 0)
+	else if (player->GetHitPoint() <= 0)
 		waitAndDo(30, [this]() { listener.PushScene(std::make_unique<GameOverScene>(listener, parameters)); });
 	else
 		switch (status) {

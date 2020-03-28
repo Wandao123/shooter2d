@@ -75,6 +75,5 @@ bool Mover::isInside()
 void Mover::spawned()
 {
 	enabled = true;
-	hitPoint = 1;
 	existingCounter = 0;
 }

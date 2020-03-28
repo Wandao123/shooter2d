@@ -205,7 +205,7 @@
 ### 自機オブジェクトの関数
 
 <dl>
-    <dt>int <i>Object</i>.Life property</dt>
+    <dt>int <i>Object</i>.HitPoint property (read only)</dt>
     <dd>自機の残機を表します。</dd>
     <!-- -->
     <dt>void <i>Object</i>:SetVelocity(double dirX, double, dirY, bool slowMode)</dt>

@@ -85,7 +85,7 @@ public:
 /// <param name="sprite">Spriteクラスへのポインタ（画像はAssetLoaderから指定）</param>
 /// <param name="collider">当たり判定クラスへのポインタ</param>
 Player::Player(const Vector2<double>& position, const double highSpeed, const double lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider)
-	: Mover(position, 0.0, -M_PI_2, std::move(sprite), std::move(collider), 1, 1, false)
+	: Mover(position, 0.0, -M_PI_2, std::move(sprite), std::move(collider), 1, 3, false)
 	, highSpeed(highSpeed)
 	, lowSpeed(lowSpeed)
 {
@@ -130,13 +130,12 @@ void Player::OnCollide(Mover&)
 	if (invincibleCounter > 0)
 		return;
 	enabled = false;
-	hitPoint = 0;
-	--life;
+	--hitPoint;
 }
 
 void Player::Spawned()
 {
-	if (life <= 0)
+	if (hitPoint <= 0)
 		return;
 	Mover::spawned();
 	SetSpeed(0.0);

@@ -64,8 +64,8 @@ Script::Script(EffectManager& effectManager, EnemyManager& enemyManager, BulletM
 	lua.new_usertype<Player>(
 		"Player",
 		"Angle", sol::property(&Player::GetAngle),
+		"HitPoint", sol::property([](Player& player) -> int { return player.GetHitPoint(); }),
 		"IsEnabled", &Player::IsEnabled,
-		"Life", sol::property([](Player& player) -> int { return player.GetLife(); }),
 		"PosX", sol::property(
 			[](Player& player) -> double { return player.GetPosition().x; },
 			[](Player& player, const double posX) { player.SetPosition({ posX, player.GetPosition().y }); }),

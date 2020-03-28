@@ -12,22 +12,9 @@ namespace Shooter {
 		static const int Height = 48;
 		static const int Width = 32;
 		Player(const Vector2<double>& position, const double highSpeed, const double lowSpeed, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
-		~Player() = default;
 		void Update() override;
 		void OnCollide(Mover& mover) override;
 		void Spawned();  // 実体化関数
-
-		int GetLife() const
-		{
-			return life;
-		}
-
-		/// <param name="life">ゲームオーバーまでの被弾回数</param>
-		void SetLife(const int life)
-		{
-			if (life > 0)
-				this->life = life;
-		}
 
 		/// <summary>速度の方向を設定する。入力との関係上、speedとangle（極座標系）ではなくxy座標系で指定する。</summary>
 		/// <param name="direction">xy座標系での移動方向</param>
@@ -47,7 +34,6 @@ namespace Shooter {
 		std::array<std::array<Rect<int>, 5>, 3> clips;  // 3成分はそれぞれ停止時、左移動、右移動を表す。5成分は変化の差分を表す。
 		const double highSpeed;
 		const double lowSpeed;
-		int life = 3;  // 1まではプレイ可能で、0になったらゲームオーバー。life - 1 = 残機。hitPointは撃破の判定に用いるのに対し、これは被弾回数を表す。
 		Vector2<double> velocity = { 0.0, 0.0 };
 	};
 

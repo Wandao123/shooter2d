@@ -11,7 +11,6 @@ namespace Shooter {
 		static const int Height = 32;
 		static const int Width = 32;
 		Enemy(const Vector2<double>& position, std::unique_ptr<Sprite>&& sprite, std::unique_ptr<Collider>&& collider);
-		~Enemy() = default;
 		void Update() override;
 		void OnCollide(Mover& mover) override;
 		void Spawned(const double speed, const double angle, const int hitPoint);  // 実体化関数
