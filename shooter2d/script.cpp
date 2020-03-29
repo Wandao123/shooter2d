@@ -72,31 +72,18 @@ Script::Script(EffectManager& effectManager, EnemyManager& enemyManager, BulletM
 		"PosY", sol::property(
 			[](Player& player) -> double { return player.GetPosition().y; },
 			[](Player& player, const double posY) { player.SetPosition({ player.GetPosition().x, posY }); }),
-		"SetVelocity", [](Player& player, const double dirX, const double dirY, const bool slowMode) { player.SetVelocity({ dirX, dirY }, slowMode); },
+		"SetVelocity", [](Player& player, const double dirX, const double dirY) { player.SetVelocity({ dirX, dirY }); },
+		"SlowMode", &Player::SlowMode,
 		"Spawned", &Player::Spawned,
 		"Speed", sol::property(&Player::GetSpeed),
 		"TurnInvincible", &Player::TurnInvincible
-	);
-	lua.new_usertype<PlayerOption>(
-		"PlayerOption",
-		"Angle", sol::property(&PlayerOption::GetAngle),
-		"IsEnabled", &PlayerOption::IsEnabled,
-		"PosX", sol::property(
-			[](PlayerOption& option) -> double { return option.GetPosition().x; },
-			[](PlayerOption& option, const double posX) { option.SetPosition({ posX, option.GetPosition().y }); }),
-		"PosY", sol::property(
-			[](PlayerOption& option) -> double { return option.GetPosition().y; },
-			[](PlayerOption& option, const double posY) { option.SetPosition({ option.GetPosition().x, posY }); }),
-		"Spawned", &PlayerOption::Spawned,
-		"Speed", sol::property(&PlayerOption::GetSpeed)
 	);
 
 	// 定数の登録。
 	lua["ScreenWidth"] = Media::Create().GetWidth();
 	lua["ScreenHeight"] = Media::Create().GetHeight();
-	int width = Player::Width, height = Player::Height;  // 直に代入するとgccでコンパイルできない。
-	lua["PlayerWidth"] = width;
-	lua["PlayerHeight"] = height;
+	lua["PlayerWidth"] = playerManager.CharacterSize.x;
+	lua["PlayerHeight"] = playerManager.CharacterSize.y;
 	lua.new_enum(
 		"BulletID",
 		// 敵弾。
@@ -147,10 +134,10 @@ Script::Script(EffectManager& effectManager, EnemyManager& enemyManager, BulletM
 		"PlayerID",
 		"Reimu", PlayerManager::PlayerID::Reimu,
 		"Marisa", PlayerManager::PlayerID::Marisa,
-		"Sanae", PlayerManager::PlayerID::Sanae/*,
+		"Sanae", PlayerManager::PlayerID::Sanae,
 		"ReimuOption", PlayerManager::PlayerID::ReimuOption,
 		"MarisaOption", PlayerManager::PlayerID::MarisaOption,
-		"SanaeOption", PlayerManager::PlayerID::SanaeOption*/
+		"SanaeOption", PlayerManager::PlayerID::SanaeOption
 	);
 	lua.new_enum(
 		"SceneID",

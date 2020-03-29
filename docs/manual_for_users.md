@@ -83,6 +83,9 @@
 - Reimu
 - Marisa
 - Sanae
+- ReimuOption
+- MarisaOption
+- SanaeOption
 
 #### 画面 (SceneID)
 

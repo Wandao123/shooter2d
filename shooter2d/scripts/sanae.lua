@@ -50,7 +50,8 @@ local function Move()
 		if GetKey(CommandID.Backward) then
 			dirY = 1
 		end
-		player:SetVelocity(dirX, dirY, GetKey(CommandID.Slow))
+		player.SlowMode = GetKey(CommandID.Slow)
+		player:SetVelocity(dirX, dirY)
 		coroutine.yield()
 	end
 end

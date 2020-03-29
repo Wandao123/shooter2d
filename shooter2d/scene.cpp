@@ -289,7 +289,7 @@ GameScene::GameScene(IChangingSceneListener& listener, Parameters& parameters)
 
 	// テスト用。
 	auto bulletsCounter = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::ObjectCounter, Vector2<double>{ Media::Create().GetWidth() * 3.e0 / 4, UserInterfaceManager::FontSize });
-	bulletsCounter.lock()->SetCaption(u8"# of Bullets");
+	bulletsCounter.lock()->SetCaption(u8"# of Bullets ");
 	bulletsCounter.lock()->Register(enemyBulletManager);
 
 	// スクリプトの初期化。

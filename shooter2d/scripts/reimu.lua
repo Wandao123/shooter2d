@@ -4,19 +4,27 @@ local parameters = {
 	InvincibleFrames = 360,
 	InputDelayFrames = 90,
 	ID = PlayerID.Reimu,
-	--OptionID = PlayerID.ReimuOption,
+	Option = PlayerID.ReimuOption,
 	NormalShot = BulletID.ReimuNormal,
 	ShotDelayFrames = 6,
-	BulletSpeed = 30.0
+	BulletSpeed = 30.0,
+	OptionAlignment = {
+		{ PlayerWidth, PlayerHeight / 8 },
+		{ PlayerWidth / 2, PlayerHeight * 5 / 8 },
+		{ -PlayerWidth / 2, PlayerHeight * 5 / 8 },
+		{ -PlayerWidth, PlayerHeight / 8 }
+	}
 }
 
 local player = nil
---local options = {}
+local options = {}
 
 -- 初期化。
 local function Initialize()
 	player = GeneratePlayer(parameters.ID, ScreenWidth * 0.5, ScreenHeight + PlayerHeight - parameters.InputDelayFrames)
-	--options[1] = GeneratePlayer(parameters.OptionID, player.PosX, playerPosY + PlayerHeight / 3)
+	for i = 1, 4 do
+		options[i] = GeneratePlayer(parameters.Option, player.PosX + parameters.OptionAlignment[i][1], player.PosY + parameters.OptionAlignment[i][2])
+	end
 	player:TurnInvincible(parameters.InvincibleFrames / 2)
 	coroutine.yield()
 end
@@ -53,9 +61,12 @@ local function Move()
 		if GetKey(CommandID.Backward) then
 			dirY = 1
 		end
-		player:SetVelocity(dirX, dirY, GetKey(CommandID.Slow))
-		--options[1].PosX = player.PosX
-		--options[1].PosY = playerPosY + PlayerHeight / 3
+		player.SlowMode = GetKey(CommandID.Slow)
+		player:SetVelocity(dirX, dirY)
+		for i = 1, #options do
+			options[i].PosX = player.PosX + parameters.OptionAlignment[i][1]
+			options[i].PosY = player.PosY + parameters.OptionAlignment[i][2]
+		end
 		coroutine.yield()
 	end
 end
