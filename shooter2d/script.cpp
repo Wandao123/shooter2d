@@ -190,8 +190,13 @@ Script::Status Script::Run()
 			return false;
 		}
 	});
-	for (auto&& task : tasksList)
-		task.second();
+	for (auto&& task : tasksList) {
+		auto result = task.second();
+		if (!result.valid()) {
+			sol::error err = result;
+			std::cerr << err.what() << std::endl;
+		}
+	}
 	return status;
 
 	// Luaを使わない場合は、以下のように記述する。
@@ -218,6 +223,10 @@ void Script::RegisterFunction(const std::string name)
 {
 	sol::thread th = sol::thread::create(lua.lua_state());
 	sol::coroutine co = th.state()[name];
-	co();
+	auto result = co();
+	if (!result.valid()) {
+		sol::error err = result;
+		std::cerr << err.what() << std::endl;
+	}
 	tasksList.push_back(std::make_pair(th, co));
 }

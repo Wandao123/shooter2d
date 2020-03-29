@@ -1,11 +1,13 @@
 #ifndef SCRIPT_H
 #define SCRIPT_H
 
+#include <iostream>
 #include <list>
 #include <functional>
 #include "effect.h"
 #include "mover.h"
 
+#define SOL_ALL_SAFETIES_ON
 #ifdef _WIN64
 #include <sol/sol.hpp>
 #elif __linux__
@@ -155,11 +157,15 @@ namespace Shooter {
 		/// <summary>コルーチンを登録する。登録されたコルーチンは毎フレーム実行される。</summary>
 		/// <param name="func">登録するコルーチン</param>
 		/// <returns>登録したタスク（スレッドとコルーチンの組）へのイテレータ。</returns>
-		std::function<std::list<Task>::iterator(const sol::function)> startCoroutine =
-		[this](const sol::function func) -> std::list<Task>::iterator {
+		std::function<std::list<Task>::iterator(const sol::protected_function)> startCoroutine =
+		[this](const sol::protected_function func) -> std::list<Task>::iterator {
 			sol::thread th = sol::thread::create(lua.lua_state());
 			sol::coroutine co(th.state(), func);
-			co();
+			auto result = co();
+			if (!result.valid()) {
+				sol::error err = result;
+				std::cerr << err.what() << std::endl;
+			}
 			tasksList.push_back(std::make_pair(th, co));
 			return --tasksList.end();
 		};
@@ -168,11 +174,15 @@ namespace Shooter {
 		/// <param name="func">登録するコルーチン</param>
 		/// <param name="va">コルーチンの引数リスト</param>
 		/// <returns>登録したタスク（スレッドとコルーチンの組）へのイテレータ。</returns>
-		std::function<std::list<Task>::iterator(const sol::function, sol::variadic_args)> startCoroutineWithArgs =
-		[this](const sol::function func, sol::variadic_args va) -> std::list<Task>::iterator {
+		std::function<std::list<Task>::iterator(const sol::protected_function, sol::variadic_args)> startCoroutineWithArgs =
+		[this](const sol::protected_function func, sol::variadic_args va) -> std::list<Task>::iterator {
 			sol::thread th = sol::thread::create(lua.lua_state());
 			sol::coroutine co(th.state(), func);
-			co(sol::as_args(std::vector<sol::object>(va.begin(), va.end())));
+			auto result = co(sol::as_args(std::vector<sol::object>(va.begin(), va.end())));
+			if (!result.valid()) {
+				sol::error err = result;
+				std::cerr << err.what() << std::endl;
+			}
 			tasksList.push_back(std::make_pair(th, co));
 			return --tasksList.end();
 		};

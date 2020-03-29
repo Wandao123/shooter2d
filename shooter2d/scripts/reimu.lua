@@ -87,6 +87,7 @@ end
 -- 自機の被弾処理。
 local function Down()
 	local life = player.HitPoint
+	-- TODO: 被弾するとオプションが暫く残るので、即座に消す方法？
 	return function()
 		if player.HitPoint < life then
 			GenerateEffect(EffectID.DefetedPlayer, player.PosX, player.PosY)
@@ -100,11 +101,20 @@ function PlayerScript()
 	local co = { coroutine.create(Shoot), coroutine.create(Move) }
 	local detectDown = Down()
 	repeat
-		Rebirth()
+		local status, values = pcall(Rebirth)
+		if not status then
+			io.stderr:write('Error: ' + values + '\n')
+		end
 		for i = 1, #co do
-			coroutine.resume(co[i])
+			status, values = coroutine.resume(co[i])
+			if not status then
+				io.stderr:write('Error: ' + values + '\n')
+			end
 		end
 		coroutine.yield()
-		detectDown()  -- 被弾した直後に実行したい。
+		status, values = pcall(detectDown)  -- 被弾した直後に実行したい。
+		if not status then
+			io.stderr:write('Error: ' + values + '\n')
+		end
 	until false
 end
