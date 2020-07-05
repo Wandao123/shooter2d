@@ -7,7 +7,7 @@
 #include "effect.h"
 #include "mover.h"
 
-#define SOL_ALL_SAFETIES_ON
+//#define SOL_ALL_SAFETIES_ON
 #ifdef _WIN64
 #include <sol/sol.hpp>
 #elif __linux__
