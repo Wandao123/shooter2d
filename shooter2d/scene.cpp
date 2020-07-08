@@ -288,9 +288,11 @@ GameScene::GameScene(IChangingSceneListener& listener, Parameters& parameters)
 	playerMonitor.lock()->Register(playerManager);
 
 	// テスト用。
+#ifdef _DEBUG
 	auto bulletsCounter = userInterfaceManager->GenerateObject(UserInterfaceManager::StatusMonitorID::ObjectCounter, Vector2<double>{ Media::Create().GetWidth() * 3.e0 / 4, UserInterfaceManager::FontSize });
 	bulletsCounter.lock()->SetCaption(u8"# of Bullets ");
 	bulletsCounter.lock()->Register(enemyBulletManager);
+#endif // _DEBUG
 
 	// スクリプトの初期化。
 	script->LoadFile("scripts/main.lua");
@@ -350,8 +352,9 @@ void GameScene::Draw() const
 	playerManager->Draw();
 	enemyBulletManager->Draw();
 	playerBulletManager->Draw();
-	// TODO: コマンドライン引数で実行するか否か分ける。
-	collisionDetector->Draw();  // テスト用。
+#ifdef _DEBUG
+	collisionDetector->Draw();
+#endif // _DEBUG
 }
 
 /******************************** KeyConfigScene *********************************/

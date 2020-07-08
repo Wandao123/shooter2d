@@ -10,4 +10,8 @@ SDL2_gfx_dep = dependency('SDL2_gfx', fallback: ['SDL2_gfx', 'SDL2_gfx_dep'])
 #sol_inc = include_directories('packages/sol')
 sol_dep = dependency('sol', fallback: ['sol2', 'sol2_dep'])
 
+if get_option('buildtype').startswith('debug')
+    add_project_arguments('-D_DEBUG', language: 'cpp')
+endif
+
 subdir('shooter2d')
